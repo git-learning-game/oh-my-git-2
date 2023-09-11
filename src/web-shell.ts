@@ -1,5 +1,5 @@
-import { Mutex } from "./mutex.js"
-import V86Starter from "./external/v86/build/libv86.js"
+import V86Starter from "../external/v86/build/libv86.js"
+import {Mutex} from "async-mutex"
 const mutex = new Mutex()
 
 var emulator
@@ -9,35 +9,31 @@ let restoreState = true
 
 // Run a command via the serial port (/dev/ttyS0) and return the output.
 export function run(cmd: string) {
-    return new Promise((resolve, _) => {
-        mutex.lock().then(() => {
-            emulator.serial0_send(cmd + "\n")
+    return new Promise(async (resolve, _) => {
+        await mutex.acquire()
+        emulator.serial0_send(cmd + "\n")
 
-            var output = ""
-            var listener = (char: string) => {
-                if (char !== "\r") {
-                    output += char
-                }
-
-                if (output.endsWith("# ")) {
-                    emulator.remove_listener("serial0-output-char", listener)
-                    let outputWithoutPrompt = output.slice(0, -3)
-                    let outputWithoutFirstLine = outputWithoutPrompt.slice(
-                        outputWithoutPrompt.indexOf("\n") + 1
-                    )
-                    if (outputWithoutFirstLine.endsWith("\n")) {
-                        outputWithoutFirstLine = outputWithoutFirstLine.slice(
-                            0,
-                            -1
-                        )
-                    }
-                    emulator.remove_listener("serial0-output-char", listener)
-                    mutex.unlock()
-                    resolve(outputWithoutFirstLine)
-                }
+        var output = ""
+        var listener = (char: string) => {
+            if (char !== "\r") {
+                output += char
             }
-            emulator.add_listener("serial0-output-char", listener)
-        })
+
+            if (output.endsWith("# ")) {
+                emulator.remove_listener("serial0-output-char", listener)
+                let outputWithoutPrompt = output.slice(0, -3)
+                let outputWithoutFirstLine = outputWithoutPrompt.slice(
+                    outputWithoutPrompt.indexOf("\n") + 1
+                )
+                if (outputWithoutFirstLine.endsWith("\n")) {
+                    outputWithoutFirstLine = outputWithoutFirstLine.slice(0, -1)
+                }
+                emulator.remove_listener("serial0-output-char", listener)
+                mutex.release()
+                resolve(outputWithoutFirstLine)
+            }
+        }
+        emulator.add_listener("serial0-output-char", listener)
     })
 }
 
@@ -53,13 +49,13 @@ async function test(condition) {
 
 // Set emulator config.
 let config = {
-    wasm_path: "./lib/v86.wasm?3",
+    wasm_path: "../external/v86/build/v86.wasm",
     memory_size: 64 * 1024 * 1024,
     vga_memory_size: 2 * 1024 * 1024,
     screen_container: document.getElementById("screen_container"),
-    bios: { url: "./images/seabios.bin" },
-    vga_bios: { url: "./images/vgabios.bin" },
-    cdrom: { url: "./images/image.iso.zst" },
+    bios: {url: "./images/seabios.bin"},
+    vga_bios: {url: "./images/vgabios.bin"},
+    cdrom: {url: "./images/image.iso.zst"},
     disable_mouse: true,
     autostart: true,
 }

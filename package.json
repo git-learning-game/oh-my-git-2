@@ -2,12 +2,13 @@
     "name": "",
     "version": "0.1.0",
     "dependencies": {
+        "async-mutex": "^0.4.0",
         "v86": "^0.4.0"
     },
     "devDependencies": {
+        "@rollup/plugin-legacy": "^3.0.1",
         "typescript": "^5.2.2",
         "vite": "^4.4.9",
-        "vite-plugin-checker": "^0.6.2",
-        "@rollup/plugin-legacy": "^3.0.1"
+        "vite-plugin-checker": "^0.6.2"
     }
 }
