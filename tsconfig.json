@@ -10,4 +10,7 @@
             "dom"
         ]
     },
+    "types": [
+        "typings/testy.d.ts"
+    ]
 }
