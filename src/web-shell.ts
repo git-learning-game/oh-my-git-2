@@ -9,7 +9,7 @@ var emulator
 let restoreState = true
 
 // Run a command via the serial port (/dev/ttyS0) and return the output.
-export function run(cmd: string) {
+export function run(cmd: string): Promise<string> {
     return new Promise(async (resolve, _) => {
         await mutex.acquire()
         emulator.serial0_send(cmd + "\n")
@@ -66,7 +66,7 @@ if (restoreState) {
     }
 }
 
-export function boot() {
+export function boot(): Promise<void> {
     return new Promise((resolve, _) => {
         // Start the emulator!
         emulator = new V86Starter(config)
@@ -77,7 +77,7 @@ export function boot() {
                 await run("PS1='#  '")
                 await run("stty -echo")
                 clearInterval(interval)
-                resolve(true)
+                resolve()
             }
         }, 100)
     })
