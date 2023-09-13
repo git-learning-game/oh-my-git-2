@@ -1,6 +1,6 @@
 import WebShell from "./web-shell.ts"
 
-let shell = new WebShell()
+let shell = new WebShell(document.getElementById("terminal") as HTMLDivElement)
 
 window["run"] = shell.run.bind(shell)
 

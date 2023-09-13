@@ -5,22 +5,45 @@ const PROMPT = "WEB_SHELL_PROMPT> "
 class WebShell {
     private mutex: Mutex
     private emulator: any
+
     // Whether or not to restore the VM state from a file. Set to false to perform a regular boot.
     private restoreState = true
     private config = {
         wasm_path: "../external/v86/build/v86.wasm",
         memory_size: 64 * 1024 * 1024,
         vga_memory_size: 2 * 1024 * 1024,
-        screen_container: document.getElementById("screen_container"),
         bios: {url: "./images/seabios.bin"},
         vga_bios: {url: "./images/vgabios.bin"},
         cdrom: {url: "./images/image.iso.zst"},
         disable_mouse: true,
         autostart: true,
     }
+    private serialDiv: HTMLDivElement
 
-    constructor() {
+    constructor(div?: HTMLDivElement) {
         this.mutex = new Mutex()
+
+        if (typeof div !== "undefined") {
+            let screenDiv = document.createElement("div")
+            screenDiv.style.whiteSpace = "pre"
+            screenDiv.style.fontFamily = "monospace"
+            screenDiv.style.fontSize = "14px"
+            screenDiv.style.lineHeight = "14px"
+
+            let innerDiv = document.createElement("div")
+            let canvas = document.createElement("canvas")
+            canvas.style.display = "none"
+
+            screenDiv.appendChild(innerDiv)
+            screenDiv.appendChild(canvas)
+
+            this.serialDiv = document.createElement("div")
+            this.serialDiv.classList.add("serial")
+            div.appendChild(screenDiv)
+            div.appendChild(this.serialDiv)
+
+            this.config["screen_container"] = screenDiv
+        }
 
         if (this.restoreState) {
             this.config["initial_state"] = {
@@ -52,7 +75,7 @@ class WebShell {
             var listener = (char: string) => {
                 if (char !== "\r") {
                     output += char
-                    document.getElementById("output").innerText += char
+                    this.serialDiv.innerText += char
                 }
 
                 if (output.endsWith(PROMPT)) {
