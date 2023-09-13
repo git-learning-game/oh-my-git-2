@@ -1,9 +1,11 @@
-import {boot, run} from "./web-shell.ts"
+import WebShell from "./web-shell.ts"
 
-window["run"] = run
+let shell = new WebShell()
 
-boot().then(async () => {
+window["run"] = shell.run
+
+shell.boot().then(async () => {
     console.log("Booted!")
-    let output = await run("whoami")
+    let output = await shell.run("whoami")
     console.log(output)
 })

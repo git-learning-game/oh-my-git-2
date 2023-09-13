@@ -1,8 +1,9 @@
 import {expect, test} from "vitest"
-import {boot, run} from "./web-shell.ts"
+import WebShell from "./web-shell.ts"
+let shell = new WebShell()
 
 test("run a simple command", async () => {
-    await boot()
-    const result = await run("echo hello")
+    await shell.boot()
+    const result = await shell.run("echo hello")
     expect(result).toBe("hello")
 })
