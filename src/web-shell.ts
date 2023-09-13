@@ -3,13 +3,20 @@ import V86Starter from "../external/v86/build/libv86.js"
 import {Mutex} from "async-mutex"
 const mutex = new Mutex()
 
-var emulator
+const PROMPT = "WEB_SHELL_PROMPT> "
+
+var emulator: any
 
 // Whether or not to restore the VM state from a file. Set to false to perform a regular boot.
 let restoreState = true
 
 // Run a command via the serial port (/dev/ttyS0) and return the output.
-export function run(cmd: string): Promise<string> {
+export function run(
+    cmd: string,
+    skip_one_prompt = false,
+    remove_command_echo = true
+): Promise<string> {
+    console.log("Called run " + cmd)
     return new Promise(async (resolve, _) => {
         await mutex.acquire()
         emulator.serial0_send(cmd + "\n")
@@ -18,22 +25,35 @@ export function run(cmd: string): Promise<string> {
         var listener = (char: string) => {
             if (char !== "\r") {
                 output += char
+                document.getElementById("output").innerText += char
             }
 
-            if (output.endsWith("# ")) {
-                emulator.remove_listener("serial0-output-char", listener)
-                let outputWithoutPrompt = output.slice(0, -3)
-                let outputWithoutFirstLine = outputWithoutPrompt.slice(
-                    outputWithoutPrompt.indexOf("\n") + 1
-                )
-                if (outputWithoutFirstLine.endsWith("\n")) {
-                    outputWithoutFirstLine = outputWithoutFirstLine.slice(0, -1)
+            if (output.endsWith(PROMPT)) {
+                if (skip_one_prompt) {
+                    skip_one_prompt = false
+                    return
                 }
                 emulator.remove_listener("serial0-output-char", listener)
+
+                // Remove prompt.
+                output = output.slice(0, -PROMPT.length)
+                console.log(output)
+
+                if (remove_command_echo) {
+                    output = output.slice(output.indexOf("\n") + 1)
+                }
+
+                if (output.endsWith("\n")) {
+                    output = output.slice(0, -1)
+                }
+
+                emulator.remove_listener("serial0-output-char", listener)
+                console.log(`Resolving for command ${cmd} as '${output}'`)
+                resolve(output)
                 mutex.release()
-                resolve(outputWithoutFirstLine)
             }
         }
+        console.log("Registering listener for command: " + cmd)
         emulator.add_listener("serial0-output-char", listener)
     })
 }
@@ -67,6 +87,7 @@ if (restoreState) {
 }
 
 export function boot(): Promise<void> {
+    console.log("Called boot")
     return new Promise((resolve, _) => {
         // Start the emulator!
         emulator = new V86Starter(config)
@@ -74,9 +95,12 @@ export function boot(): Promise<void> {
         // Wait for the emulator to start, then resolve the promise.
         var interval = setInterval(async () => {
             if (emulator.is_running()) {
-                await run("PS1='#  '")
-                await run("stty -echo")
                 clearInterval(interval)
+
+                await run(`export PS1='${PROMPT}'`, true, true)
+                //await run("stty -echo", false, true)
+                //await run("whoami")
+
                 resolve()
             }
         }, 100)
