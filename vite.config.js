@@ -1,4 +1,4 @@
-import { defineConfig } from "vite"
+import {defineConfig} from "vite"
 import legacy from "@rollup/plugin-legacy"
 import checker from "vite-plugin-checker"
 
@@ -8,6 +8,6 @@ export default defineConfig({
             "./external/v86/build/libv86.js": "V86Starter",
             //"./src/testy.js": "testy",
         }),
-        checker({ typescript: true }),
+        checker({typescript: true}),
     ],
 })
