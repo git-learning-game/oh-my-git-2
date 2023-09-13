@@ -1,8 +1,7 @@
 import V86Starter from "../external/v86/build/libv86.js"
 
-import { Mutex } from "async-mutex"
+import {Mutex} from "async-mutex"
 const mutex = new Mutex()
-import testy from "./testy.js"
 
 var emulator
 
@@ -55,9 +54,9 @@ let config = {
     memory_size: 64 * 1024 * 1024,
     vga_memory_size: 2 * 1024 * 1024,
     screen_container: document.getElementById("screen_container"),
-    bios: { url: "./images/seabios.bin" },
-    vga_bios: { url: "./images/vgabios.bin" },
-    cdrom: { url: "./images/image.iso.zst" },
+    bios: {url: "./images/seabios.bin"},
+    vga_bios: {url: "./images/vgabios.bin"},
+    cdrom: {url: "./images/image.iso.zst"},
     disable_mouse: true,
     autostart: true,
 }
@@ -68,8 +67,6 @@ if (restoreState) {
 }
 
 export function boot() {
-    let t = testy()
-
     return new Promise((resolve, _) => {
         // Start the emulator!
         emulator = new V86Starter(config)

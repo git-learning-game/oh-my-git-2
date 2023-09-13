@@ -1,14 +1,23 @@
 {
-    "name": "",
+    "name": "web-shell",
     "version": "0.1.0",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "serve": "vite preview",
+        "test": "vitest --browser='chrome'"
+    },
     "dependencies": {
         "async-mutex": "^0.4.0",
         "v86": "^0.4.0"
     },
     "devDependencies": {
         "@rollup/plugin-legacy": "^3.0.1",
+        "@vitest/browser": "^0.34.4",
         "typescript": "^5.2.2",
         "vite": "^4.4.9",
-        "vite-plugin-checker": "^0.6.2"
+        "vite-plugin-checker": "^0.6.2",
+        "vitest": "^0.34.4",
+        "webdriverio": "^8.16.6"
     }
 }
