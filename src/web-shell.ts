@@ -47,7 +47,6 @@ export function run(
                     output = output.slice(0, -1)
                 }
 
-                emulator.remove_listener("serial0-output-char", listener)
                 console.log(`Resolving for command ${cmd} as '${output}'`)
                 resolve(output)
                 mutex.release()
