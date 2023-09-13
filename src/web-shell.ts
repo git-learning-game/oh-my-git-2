@@ -52,6 +52,14 @@ class WebShell {
         }
     }
 
+    git(command: string): Promise<string> {
+        return this.run(`git ${command}`)
+    }
+
+    async cd(path: string): Promise<void> {
+        this.run(`cd ${path}`)
+    }
+
     async run(cmd: string): Promise<string> {
         let output = await this.run_unsafe(cmd)
         let exit_code = await this.run_unsafe("echo $?")
@@ -118,7 +126,7 @@ class WebShell {
                     clearInterval(interval)
 
                     await this.run_unsafe(`export PS1='${PROMPT}'`, true, true)
-                    //await run("stty -echo", false, true)
+                    //await this.run_unsafe("stty -echo", false, true)
                     //await run("whoami")
 
                     resolve()
