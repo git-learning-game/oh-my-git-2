@@ -1,6 +1,5 @@
 import V86Starter from "../external/v86/build/libv86.js"
 import {Mutex} from "async-mutex"
-const PROMPT = "WEB_SHELL_PROMPT> "
 
 class WebShell {
     private mutex: Mutex
@@ -19,6 +18,8 @@ class WebShell {
         autostart: true,
     }
     private serialDiv: HTMLDivElement
+
+    private prompt = "/ # "
 
     constructor(div?: HTMLDivElement) {
         this.mutex = new Mutex()
@@ -52,32 +53,60 @@ class WebShell {
         }
     }
 
+    async send(chars: string): Promise<void> {
+        this.emulator.serial0_send(chars)
+        this.serialDiv.innerText += chars
+    }
+
+    wait_for(chars: string): Promise<void> {
+        return new Promise((resolve, _) => {
+            let output = ""
+            let listener = (char: string) => {
+                if (char !== "\r") {
+                    output += char
+                    this.serialDiv.innerText += char
+                }
+                if (output.endsWith(chars)) {
+                    this.emulator.remove_listener(
+                        "serial0-output-char",
+                        listener,
+                    )
+                    resolve()
+                }
+            }
+            this.emulator.add_listener("serial0-output-char", listener)
+        })
+    }
+
     git(command: string): Promise<string> {
         return this.run(`git ${command}`)
     }
 
     async cd(path: string): Promise<void> {
-        this.run(`cd ${path}`)
+        await this.run(`cd ${path}`)
     }
 
     async run(cmd: string): Promise<string> {
         let output = await this.run_unsafe(cmd)
         let exit_code = await this.run_unsafe("echo $?")
         if (exit_code != "0") {
-            throw new Error(`Command '${cmd}' exited with code ${exit_code}`)
+            throw new Error(`Command '${cmd}' exited with code '${exit_code}'`)
         }
         return output
     }
 
     // Run a command via the serial port (/dev/ttyS0) and return the output.
-    private run_unsafe(
+    run_unsafe(
         cmd: string,
         skip_one_prompt = false,
-        remove_command_echo = true,
+        echo_on = true,
     ): Promise<string> {
         return new Promise(async (resolve, _) => {
             await this.mutex.acquire()
             this.emulator.serial0_send(cmd + "\n")
+            if (!echo_on) {
+                this.serialDiv.innerText += cmd + "\n"
+            }
 
             var output = ""
             var listener = (char: string) => {
@@ -86,7 +115,7 @@ class WebShell {
                     this.serialDiv.innerText += char
                 }
 
-                if (output.endsWith(PROMPT)) {
+                if (output.endsWith(this.prompt)) {
                     if (skip_one_prompt) {
                         skip_one_prompt = false
                         return
@@ -97,10 +126,11 @@ class WebShell {
                     )
 
                     // Remove prompt.
-                    output = output.slice(0, -PROMPT.length)
+                    output = output.slice(0, -this.prompt.length)
 
-                    if (remove_command_echo) {
-                        output = output.slice(output.indexOf("\n") + 1)
+                    if (echo_on) {
+                        // Remove entered command.
+                        output = output.slice(cmd.length + 1)
                     }
 
                     if (output.endsWith("\n")) {
@@ -125,9 +155,15 @@ class WebShell {
                 if (this.emulator.is_running()) {
                     clearInterval(interval)
 
-                    await this.run_unsafe(`export PS1='${PROMPT}'`, true, true)
-                    //await this.run_unsafe("stty -echo", false, true)
-                    //await run("whoami")
+                    this.prompt = "WEB_SHELL_PROMPT> "
+                    await this.run_unsafe(
+                        `export PS1='${this.prompt}'`,
+                        true,
+                        true,
+                    )
+
+                    // Set terminal width so that input lines don't wrap.
+                    await this.run_unsafe("stty cols 1000", false, true)
 
                     resolve()
                 }

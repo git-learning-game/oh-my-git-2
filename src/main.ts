@@ -5,13 +5,22 @@ let shell = new WebShell(document.getElementById("terminal") as HTMLDivElement)
 let repo = new Repository("/root", shell)
 
 window["run"] = shell.run.bind(shell)
+window["shell"] = shell
+
+window.addEventListener("keydown", (e) => {
+    console.log(e)
+})
 
 shell.boot().then(async () => {
     console.log("Booted!")
-    let output = await shell.run("whoami")
-    console.log(output)
-
     await shell.cd("/root")
     await shell.run("git init; touch test.txt; git add .;")
-    console.log(await repo.getGitObjects())
+    setInterval(async () => {
+        let objects = await repo.getGitObjects()
+        document.getElementById("objects").innerText = JSON.stringify(
+            objects,
+            null,
+            2,
+        )
+    }, 1000)
 })
