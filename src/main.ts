@@ -14,13 +14,16 @@ window.addEventListener("keydown", (e) => {
 shell.boot().then(async () => {
     console.log("Booted!")
     await shell.cd("/root")
-    await shell.run("git init; touch test.txt; git add .;")
-    setInterval(async () => {
-        let objects = await repo.getGitObjects()
-        document.getElementById("objects").innerText = JSON.stringify(
-            objects,
-            null,
-            2,
-        )
-    }, 1000)
+    await shell.run("git config --global user.name 'You';")
+    await shell.run("git config --global user.email 'mail@example.com'")
+    await shell.run(
+        "git init; touch test.txt; git add .; git commit -'m' 'Initial commit'",
+    )
+
+    let objects = await repo.getGitObjects()
+    document.getElementById("objects").innerText = JSON.stringify(
+        objects,
+        null,
+        2,
+    )
 })
