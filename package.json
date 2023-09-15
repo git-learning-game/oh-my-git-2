@@ -9,10 +9,12 @@
     },
     "dependencies": {
         "async-mutex": "^0.4.0",
+        "d3": "^7.8.5",
         "v86": "^0.4.0"
     },
     "devDependencies": {
         "@rollup/plugin-legacy": "^3.0.1",
+        "@types/d3": "^7.4.0",
         "@vitest/browser": "^0.34.4",
         "prettier": "^3.0.3",
         "typescript": "^5.2.2",

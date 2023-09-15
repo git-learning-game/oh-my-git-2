@@ -22,6 +22,8 @@ shell.boot().then(async () => {
     await shell.run("echo hi >> test.txt; git commit -am 'Second commit'")
 
     await repo.updateGitObjects()
+    repo.initGraph(document.getElementById("graph") as HTMLDivElement)
+
     let objects = repo.objects
     document.getElementById("objects").innerText = JSON.stringify(
         objects,
