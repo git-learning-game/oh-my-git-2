@@ -13,6 +13,8 @@ enum GitObjectType {
 class GitObject {
     oid: ObjectID
     type: GitObjectType
+    x?: number
+    y?: number
 }
 
 class GitBlob extends GitObject {
@@ -37,7 +39,7 @@ type GitTreeEntry = {
     name: string
 }
 
-export default class Repository {
+export class Repository {
     path: string //absolute path
     shell: WebShell
     objects: {[key: string]: GitObject} = {}
@@ -66,15 +68,17 @@ export default class Repository {
                     let content = await this.getGitObjectContent(oid)
                     if (type == GitObjectType.Tree) {
                         let entries: GitTreeEntry[] = []
-                        for (let entry of content.split("\n")) {
-                            let [mode, type, oid, name] = entry.split(" ")
+                        for (let line of content.split("\n")) {
+                            // line is 'mode type oid\tname'. So split by space and tab!
+                            let [mode, type, oid, name] = line.split(/[\s\t]/)
                             entries.push({
-                                mode,
+                                mode: mode,
                                 type: type as GitObjectType,
-                                oid,
-                                name,
+                                oid: oid,
+                                name: name,
                             })
                         }
+
                         let tree = new GitTree()
                         tree.oid = oid
                         tree.type = GitObjectType.Tree
@@ -117,26 +121,59 @@ export default class Repository {
         }
     }
 
-    initGraph(div: HTMLDivElement): void {
+    async getGitObjectContent(oid: string): Promise<string> {
+        let output = await this.shell.git(`cat-file -p ${oid}`)
+        return output
+    }
+}
+
+export class Graph {
+    repo: Repository
+    div: HTMLDivElement
+
+    nodes: GitObject[] = []
+    links: {source: GitObject; target: GitObject}[] = []
+
+    constructor(repo: Repository, div: HTMLDivElement) {
+        this.repo = repo
+        this.div = div
+        this.updateNodesAndLinks()
+        this.initGraph()
+    }
+
+    updateNodesAndLinks(): void {
+        this.nodes = Object.values(this.repo.objects)
+
+        for (let node of this.nodes) {
+            if (node.type == GitObjectType.Commit) {
+                for (let parent of (node as GitCommit).parents) {
+                    this.links.push({
+                        source: this.repo.objects[node.oid],
+                        target: this.repo.objects[parent],
+                    })
+                }
+                this.links.push({
+                    source: this.repo.objects[node.oid],
+                    target: this.repo.objects[(node as GitCommit).tree],
+                })
+            } else if (node.type == GitObjectType.Tree) {
+                for (let entry of (node as GitTree).entries) {
+                    this.links.push({
+                        source: this.repo.objects[node.oid],
+                        target: this.repo.objects[entry.oid],
+                    })
+                }
+            }
+        }
+    }
+
+    initGraph(): void {
         // Specify the dimensions of the chart.
         const width = 928
         const height = 600
 
         // Specify the color scale.
         //const color = d3.scaleOrdinal(d3.schemeCategory10)
-
-        const nodeDict: {[key: string]: d3.SimulationNodeDatum} = {
-            abc: {},
-            def: {},
-            ghi: {},
-        }
-
-        const nodes = [nodeDict["abc"], nodeDict["def"], nodeDict["ghi"]]
-
-        const links = [
-            {source: nodeDict["abc"], target: nodeDict["def"]},
-            {source: nodeDict["abc"], target: nodeDict["ghi"]},
-        ]
 
         // The force simulation mutates links and nodes, so create a copy
         // so that re-evaluating this cell produces the same result.
@@ -145,10 +182,10 @@ export default class Repository {
 
         // Create a simulation with several forces.
         const simulation = d3
-            .forceSimulation(nodes as d3.SimulationNodeDatum[])
+            .forceSimulation(this.nodes as d3.SimulationNodeDatum[])
             .force(
                 "link",
-                d3.forceLink(links), //.id((d) => d.id),
+                d3.forceLink(this.links), //.id((d) => d.id),
             )
             .force("charge", d3.forceManyBody())
             .force("center", d3.forceCenter(width / 2, height / 2))
@@ -168,7 +205,7 @@ export default class Repository {
             .attr("stroke", "#999")
             .attr("stroke-opacity", 0.6)
             .selectAll()
-            .data(links)
+            .data(this.links)
             .join("line")
         //.attr("stroke-width", (d) => Math.sqrt(d.value))
 
@@ -177,7 +214,7 @@ export default class Repository {
             .attr("stroke", "#fff")
             .attr("stroke-width", 1.5)
             .selectAll()
-            .data(nodes)
+            .data(this.nodes)
             .join("circle")
             .attr("r", 5)
         //.attr("fill", (d) => color(d.group))
@@ -229,11 +266,6 @@ export default class Repository {
         // stop naturally, but it’s a good practice.)
         //invalidation.then(() => simulation.stop())
 
-        div.appendChild(svg.node())
-    }
-
-    async getGitObjectContent(oid: string): Promise<string> {
-        let output = await this.shell.git(`cat-file -p ${oid}`)
-        return output
+        this.div.appendChild(svg.node())
     }
 }

@@ -1,5 +1,5 @@
 import WebShell from "./web-shell.ts"
-import Repository from "./repository.ts"
+import {Repository, Graph} from "./repository.ts"
 
 let shell = new WebShell(document.getElementById("terminal") as HTMLDivElement)
 let repo = new Repository("/root", shell)
@@ -21,13 +21,16 @@ shell.boot().then(async () => {
     )
     await shell.run("echo hi >> test.txt; git commit -am 'Second commit'")
 
-    await repo.updateGitObjects()
-    repo.initGraph(document.getElementById("graph") as HTMLDivElement)
-
     let objects = repo.objects
     document.getElementById("objects").innerText = JSON.stringify(
         objects,
         null,
         2,
+    )
+
+    await repo.updateGitObjects()
+    let graph = new Graph(
+        repo,
+        document.getElementById("graph") as HTMLDivElement,
     )
 })
