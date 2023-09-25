@@ -2,6 +2,12 @@ import WebShell from "./web-shell.ts"
 import {Repository} from "./repository.ts"
 import {Graph} from "./graph.ts"
 
+// Show a warning when the user tries to leave the page (for example, by pressing Ctrl-W...)
+window.onbeforeunload = function (e) {
+    e.preventDefault()
+    e.returnValue = ""
+}
+
 let shell = new WebShell(
     document.getElementById("screen") as HTMLDivElement,
     document.getElementById("serial") as HTMLDivElement,
