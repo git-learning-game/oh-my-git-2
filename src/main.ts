@@ -59,7 +59,7 @@ async function updateACoupleOfTimes() {
     //setTimeout(update, 1000)
 }
 
-let input = document.getElementById("screen-input") as HTMLInputElement
+/*let input = document.getElementById("screen-input") as HTMLInputElement
 input.addEventListener("keydown", async (e) => {
     if (e.key == "Enter") {
         //disable
@@ -69,4 +69,4 @@ input.addEventListener("keydown", async (e) => {
         input.value = ""
         input.setAttribute("contenteditable", "true")
     }
-})
+})*/

@@ -147,7 +147,27 @@ export class Graph {
             .forceSimulation()
             .force("link", d3.forceLink().distance(50))
             .force("charge", d3.forceManyBody().strength(-100))
-            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("center", d3.forceCenter(width / 2, height * 0.6))
+            /*.force(
+                "commit-y",
+                d3.forceY(height / 2).strength((d) => {
+                    if (d instanceof GitCommit) {
+                        return 1
+                    } else {
+                        return 0
+                    }
+                }),
+            )
+            .force(
+                "ref-y",
+                d3.forceY(height / 4).strength((d) => {
+                    if (d instanceof GitRef) {
+                        return 1
+                    } else {
+                        return 0
+                    }
+                }),
+            )*/
             .on("tick", ticked)
 
         const svg = d3
