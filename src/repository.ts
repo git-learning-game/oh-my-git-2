@@ -182,7 +182,7 @@ export class Graph {
         this.nodeThing = this.nodeThing
             .data(this.nodes)
             .join((enter) =>
-                enter.append("circle").attr("r", 5).attr("fill", "red"),
+                enter.append("circle").attr("r", 10).attr("fill", "red"),
             )
 
         this.linkThing = this.linkThing
@@ -191,7 +191,7 @@ export class Graph {
                 enter
                     .append("line")
                     .attr("stroke", "black")
-                    .attr("stroke-width", 1),
+                    .attr("stroke-width", 2),
             )
 
         this.simulation.alpha(1).restart()
@@ -224,8 +224,8 @@ export class Graph {
         // Create a simulation with several forces.
         this.simulation = d3
             .forceSimulation()
-            .force("link", d3.forceLink())
-            .force("charge", d3.forceManyBody())
+            .force("link", d3.forceLink().distance(50))
+            .force("charge", d3.forceManyBody().strength(-100))
             .force("center", d3.forceCenter(width / 2, height / 2))
             .on("tick", ticked)
 

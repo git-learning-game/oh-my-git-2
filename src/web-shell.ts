@@ -54,8 +54,12 @@ class WebShell {
 
     private appendToSerialDiv(text: string) {
         if (typeof this.serialDiv !== "undefined") {
-            this.serialDiv.innerText += text
-            this.serialDiv.scrollTop = this.serialDiv.scrollHeight
+            let outputInDiv = true
+            if (outputInDiv) {
+                this.serialDiv.textContent += text
+            } else {
+                console.log(text)
+            }
         }
     }
 
@@ -109,6 +113,8 @@ class WebShell {
     ): Promise<string> {
         return new Promise(async (resolve, _) => {
             await this.mutex.acquire()
+            let startTime = Date.now()
+
             this.emulator.serial0_send(cmd + "\n")
             if (!echo_on) {
                 this.appendToSerialDiv(cmd + "\n")
@@ -141,6 +147,14 @@ class WebShell {
 
                     if (output.endsWith("\n")) {
                         output = output.slice(0, -1)
+                    }
+
+                    // Add timing information.
+                    let endTime = Date.now()
+                    let duration = endTime - startTime
+                    this.appendToSerialDiv(`(${duration} ms) `)
+                    if (this.serialDiv !== undefined) {
+                        this.serialDiv.scrollTop = this.serialDiv.scrollHeight
                     }
 
                     resolve(output)

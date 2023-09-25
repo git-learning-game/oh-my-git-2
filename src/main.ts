@@ -26,6 +26,8 @@ shell.boot().then(async () => {
         "git init; touch test.txt; git add .; git commit -m 'Initial commit'",
     )
     await shell.run("echo hi >> test.txt; git commit -am 'Second commit'")
+
+    //updateLoop()
 })
 
 async function update() {
@@ -37,6 +39,11 @@ async function update() {
         2,
     )
     graph.updateNodesAndLinks()
+}
+
+async function updateLoop() {
+    await update()
+    setTimeout(updateLoop, 1000)
 }
 
 document.getElementById("update").addEventListener("click", update)
