@@ -7,11 +7,9 @@ export enum GitNodeType {
     Tree = "tree",
     Commit = "commit",
     Tag = "tag",
-    Ref = "ref",
 }
 
 export abstract class GitNode implements d3.SimulationNodeDatum {
-    type: GitNodeType
     label?: string
     tooltip?: string
 
@@ -38,7 +36,7 @@ export class GitObject extends GitNode {
     }
 }
 
-class GitBlob extends GitObject {
+export class GitBlob extends GitObject {
     content: string
 }
 
@@ -55,7 +53,6 @@ export class GitTree extends GitObject {
 
 type GitTreeEntry = {
     mode: string
-    type: GitNodeType
     oid: ObjectID
     name: string
 }
@@ -144,7 +141,6 @@ export class Repository {
                     ref.name = name
                     ref.target = oid
                     ref.label = name
-                    ref.type = GitNodeType.Ref
                     this.refs[name] = ref
                 } else {
                     this.refs[name].target = oid
@@ -161,7 +157,6 @@ export class Repository {
             ref.name = "HEAD"
             ref.target = target
             ref.label = "HEAD"
-            ref.type = GitNodeType.Ref
             this.refs["HEAD"] = ref
         } else {
             this.refs["HEAD"].target = await this.refTarget("HEAD")
@@ -184,10 +179,9 @@ export class Repository {
                         let entries: GitTreeEntry[] = []
                         for (let line of content.split("\n")) {
                             // line is 'mode type oid\tname'. So split by space and tab!
-                            let [mode, type, oid, name] = line.split(/[\s\t]/)
+                            let [mode, _, oid, name] = line.split(/[\s\t]/)
                             entries.push({
                                 mode: mode,
-                                type: type as GitNodeType,
                                 oid: oid,
                                 name: name,
                             })
@@ -196,7 +190,6 @@ export class Repository {
                         let tree = new GitTree()
                         tree.oid = oid
                         tree.tooltip = content
-                        tree.type = GitNodeType.Tree
                         tree.entries = entries
                         this.objects[oid] = tree
                     } else if (type == GitNodeType.Commit) {
@@ -220,7 +213,6 @@ export class Repository {
                         commit.oid = oid
                         commit.tooltip = content
                         commit.label = oid.slice(0, 7)
-                        commit.type = GitNodeType.Commit
                         commit.tree = tree
                         commit.parents = parents
                         commit.author = author
@@ -230,7 +222,6 @@ export class Repository {
                         let blob = new GitBlob()
                         blob.oid = oid
                         blob.tooltip = content
-                        blob.type = GitNodeType.Blob
                         this.objects[oid] = blob
                     }
                 }

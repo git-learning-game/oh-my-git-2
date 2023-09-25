@@ -4,6 +4,7 @@ import {
     GitNodeType,
     GitCommit,
     GitTree,
+    GitBlob,
     GitRef,
 } from "./repository"
 
@@ -37,7 +38,7 @@ export class Graph {
 
         this.links = []
         for (let node of this.nodes) {
-            if (node.type == GitNodeType.Commit) {
+            if (node instanceof GitCommit) {
                 for (let parent of (node as GitCommit).parents) {
                     this.links.push({
                         source: this.repo.resolve(node.id()),
@@ -48,14 +49,14 @@ export class Graph {
                     source: this.repo.resolve(node.id()),
                     target: this.repo.resolve((node as GitCommit).tree),
                 })
-            } else if (node.type == GitNodeType.Tree) {
+            } else if (node instanceof GitTree) {
                 for (let entry of (node as GitTree).entries) {
                     this.links.push({
                         source: this.repo.resolve(node.id()),
                         target: this.repo.resolve(entry.oid),
                     })
                 }
-            } else if (node.type == GitNodeType.Ref) {
+            } else if (node instanceof GitRef) {
                 this.links.push({
                     source: this.repo.resolve(node.id()),
                     target: this.repo.resolve((node as GitRef).target),
@@ -74,13 +75,13 @@ export class Graph {
                 .append("circle")
                 .attr("r", 15)
                 .attr("fill", (d) => {
-                    if (d.type == GitNodeType.Blob) {
+                    if (d instanceof GitBlob) {
                         return "gray"
-                    } else if (d.type == GitNodeType.Tree) {
+                    } else if (d instanceof GitTree) {
                         return "green"
-                    } else if (d.type == GitNodeType.Commit) {
+                    } else if (d instanceof GitCommit) {
                         return "yellow"
-                    } else if (d.type == GitNodeType.Ref) {
+                    } else if (d instanceof GitRef) {
                         return "#3c99dc"
                     } else {
                         return "red"
