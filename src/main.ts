@@ -46,10 +46,6 @@ async function update() {
     await repo.update()
     let objects = repo.objects
     let refs = repo.refs
-    document.getElementById("objects").innerText =
-        JSON.stringify(objects, null, 2) +
-        "\n\n" +
-        JSON.stringify(refs, null, 2)
     graph.update()
 }
 
