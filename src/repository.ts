@@ -64,6 +64,8 @@ export class Repository {
     objects: {[key: ObjectID]: GitObject} = {}
     refs: {[key: string]: GitRef} = {}
 
+    private allNodes: string[] = []
+
     constructor(path: string, shell: WebShell) {
         this.path = path
         this.shell = shell
@@ -98,9 +100,27 @@ export class Repository {
     }
 
     async update(): Promise<void> {
+        // Keep track of all nodes, so we can delete removed stuff later.
+        this.allNodes = []
+
         await this.updateRefs()
         await this.updateGitObjects()
         await this.updateHead()
+
+        this.removeDeletedNodes()
+    }
+
+    removeDeletedNodes(): void {
+        for (let o in this.objects) {
+            if (!this.allNodes.includes(o)) {
+                delete this.objects[o]
+            }
+        }
+        for (let r in this.refs) {
+            if (!this.allNodes.includes(r)) {
+                delete this.refs[r]
+            }
+        }
     }
 
     async getFileList(): Promise<string[]> {
@@ -116,6 +136,7 @@ export class Repository {
         for (let line of lines) {
             let [oid, name] = line.split(" ")
             if (oid && name) {
+                this.allNodes.push(name)
                 if (this.refs[name] === undefined) {
                     let ref = new GitRef()
                     ref.name = name
@@ -130,6 +151,7 @@ export class Repository {
     }
 
     async updateHead(): Promise<void> {
+        this.allNodes.push("HEAD")
         if (this.refs["HEAD"] === undefined) {
             let target = await this.refTarget("HEAD")
             let ref = new GitRef()
@@ -151,6 +173,7 @@ export class Repository {
         for (let line of lines) {
             let [oid, type] = line.split(" ")
             if (oid && type) {
+                this.allNodes.push(oid)
                 if (!this.objects[oid]) {
                     let content = await this.getGitObjectContent(oid)
                     if (type == GitNodeType.Tree) {
