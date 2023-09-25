@@ -1,5 +1,6 @@
 import WebShell from "./web-shell.ts"
-import {Repository, Graph} from "./repository.ts"
+import {Repository} from "./repository.ts"
+import {Graph} from "./graph.ts"
 
 let shell = new WebShell(
     document.getElementById("screen") as HTMLDivElement,
