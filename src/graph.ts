@@ -175,7 +175,7 @@ export class Graph {
             .attr("width", width)
             .attr("height", height)
             .attr("viewBox", [0, 0, width, height])
-            .attr("style", "max-width: 100%; height: auto;")
+        //.attr("style", "max-width: 100%; height: auto;")
 
         this.linkGroup = svg
             .append("g")
