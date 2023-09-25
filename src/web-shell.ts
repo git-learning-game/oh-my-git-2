@@ -61,7 +61,7 @@ class WebShell {
             if (this.serialBuffer.includes("\n")) {
                 if (outputInDiv) {
                     let currentContent = this.serialDiv.textContent
-                    let maxLength = 1000
+                    let maxLength = 10000
                     if (currentContent.length > maxLength) {
                         currentContent = currentContent.slice(
                             currentContent.length - maxLength,
@@ -206,6 +206,10 @@ class WebShell {
                 }
             }, 100)
         })
+    }
+
+    type(text: string): void {
+        this.emulator.keyboard_send_text(text)
     }
 }
 

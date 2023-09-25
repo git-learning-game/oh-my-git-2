@@ -28,7 +28,9 @@ let graph = new Graph(repo, document.getElementById("graph") as HTMLDivElement)
 shell.boot().then(async () => {
     console.log("Booted!")
     await shell.run("mkdir /root/repo")
+    shell.type("cd repo\n")
     await shell.cd("/root/repo")
+    await shell.run("git config --global init.defaultBranch main;")
     await shell.run("git config --global user.name 'You';")
     await shell.run("git config --global user.email 'mail@example.com'")
     await shell.run(

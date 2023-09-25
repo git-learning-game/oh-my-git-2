@@ -12,9 +12,11 @@ export enum GitNodeType {
 
 export abstract class GitNode implements d3.SimulationNodeDatum {
     type: GitNodeType
+    label?: string
+    tooltip?: string
+
     x?: number
     y?: number
-    tooltip: string
 
     abstract id(): string
 }
@@ -141,6 +143,7 @@ export class Repository {
                     let ref = new GitRef()
                     ref.name = name
                     ref.target = oid
+                    ref.label = name
                     ref.type = GitNodeType.Ref
                     this.refs[name] = ref
                 } else {
@@ -157,6 +160,7 @@ export class Repository {
             let ref = new GitRef()
             ref.name = "HEAD"
             ref.target = target
+            ref.label = "HEAD"
             ref.type = GitNodeType.Ref
             this.refs["HEAD"] = ref
         } else {
@@ -215,6 +219,7 @@ export class Repository {
                         let commit = new GitCommit()
                         commit.oid = oid
                         commit.tooltip = content
+                        commit.label = oid.slice(0, 7)
                         commit.type = GitNodeType.Commit
                         commit.tree = tree
                         commit.parents = parents

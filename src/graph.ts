@@ -69,7 +69,8 @@ export class Graph {
         linkForce.links(this.links)
 
         this.nodeGroup = this.nodeGroup.data(this.nodes).join((enter) => {
-            let enter2 = enter
+            let g = enter.append("g")
+            let circle = g
                 .append("circle")
                 .attr("r", 15)
                 .attr("fill", (d) => {
@@ -80,15 +81,16 @@ export class Graph {
                     } else if (d.type == GitNodeType.Commit) {
                         return "yellow"
                     } else if (d.type == GitNodeType.Ref) {
-                        return "blue"
+                        return "#3c99dc"
                     } else {
                         return "red"
                     }
                 })
 
-            enter2.append("title").text((d) => d.tooltip)
+            g.append("text").text((d) => d.label)
+            circle.append("title").text((d) => d.tooltip)
 
-            return enter2
+            return g
         })
 
         this.linkGroup = this.linkGroup
@@ -135,7 +137,9 @@ export class Graph {
                 .attr("x2", (d) => d.target.x)
                 .attr("y2", (d) => d.target.y)
 
-            this.nodeGroup.attr("cx", (d) => d.x).attr("cy", (d) => d.y)
+            this.nodeGroup.attr("transform", (d) => {
+                return `translate(${d.x}, ${d.y})`
+            })
         }
 
         this.simulation = d3
