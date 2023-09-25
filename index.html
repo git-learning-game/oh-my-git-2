@@ -4,27 +4,16 @@
         <meta charset="utf-8" />
         <title></title>
 
-        <style>
-            .serial {
-                font-family: monospace;
-                white-space: pre;
-                background: #111;
-                color: white;
-                padding: 0.5em;
-                border-radius: 0.5em;
-                margin-top: 0.5em;
-            }
-            #objects {
-                font-family: monospace;
-                white-space: pre;
-            }
-        </style>
+        <link rel="stylesheet" href="reset.css" />
+        <link rel="stylesheet" href="style.css" />
         <script src="./src/main.ts" type="module"></script>
     </head>
     <body>
-        <button id="update">Update graph</button>
-        <div id="graph"></div>
+        <div id="graph">
+            <button id="update">Update graph</button>
+        </div>
         <div id="objects"></div>
-        <div id="terminal"></div>
+        <div id="screen"></div>
+        <div id="serial"></div>
     </body>
 </html>

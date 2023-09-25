@@ -17,15 +17,15 @@ class WebShell {
         disable_mouse: true,
         autostart: true,
     }
-    private serialDiv: HTMLDivElement
+    private serialDiv?: HTMLDivElement
 
     private prompt = "/ # "
 
-    constructor(div?: HTMLDivElement) {
+    constructor(screen?: HTMLDivElement, serial?: HTMLDivElement) {
         this.mutex = new Mutex()
 
-        if (typeof div !== "undefined") {
-            let screenDiv = document.createElement("div")
+        if (typeof screen !== "undefined") {
+            let screenDiv = screen
             screenDiv.style.whiteSpace = "pre"
             screenDiv.style.fontFamily = "monospace"
             screenDiv.style.fontSize = "14px"
@@ -38,12 +38,11 @@ class WebShell {
             screenDiv.appendChild(innerDiv)
             screenDiv.appendChild(canvas)
 
-            this.serialDiv = document.createElement("div")
-            this.serialDiv.classList.add("serial")
-            div.appendChild(screenDiv)
-            div.appendChild(this.serialDiv)
-
             this.config["screen_container"] = screenDiv
+        }
+
+        if (typeof serial !== "undefined") {
+            this.serialDiv = serial
         }
 
         if (this.restoreState) {
@@ -53,9 +52,16 @@ class WebShell {
         }
     }
 
+    private appendToSerialDiv(text: string) {
+        if (typeof this.serialDiv !== "undefined") {
+            this.serialDiv.innerText += text
+            this.serialDiv.scrollTop = this.serialDiv.scrollHeight
+        }
+    }
+
     async send(chars: string): Promise<void> {
         this.emulator.serial0_send(chars)
-        this.serialDiv.innerText += chars
+        this.appendToSerialDiv(chars)
     }
 
     wait_for(chars: string): Promise<void> {
@@ -64,7 +70,7 @@ class WebShell {
             let listener = (char: string) => {
                 if (char !== "\r") {
                     output += char
-                    this.serialDiv.innerText += char
+                    this.appendToSerialDiv(char)
                 }
                 if (output.endsWith(chars)) {
                     this.emulator.remove_listener(
@@ -105,14 +111,14 @@ class WebShell {
             await this.mutex.acquire()
             this.emulator.serial0_send(cmd + "\n")
             if (!echo_on) {
-                this.serialDiv.innerText += cmd + "\n"
+                this.appendToSerialDiv(cmd + "\n")
             }
 
             var output = ""
             var listener = (char: string) => {
                 if (char !== "\r") {
                     output += char
-                    this.serialDiv.innerText += char
+                    this.appendToSerialDiv(char)
                 }
 
                 if (output.endsWith(this.prompt)) {

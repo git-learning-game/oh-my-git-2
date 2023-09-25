@@ -1,0 +1,44 @@
+body {
+    display: grid;
+    grid-template-areas:
+        "graph objects"
+        "screen serial";
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    grid-gap: 1px;
+    height: 100vh;
+}
+
+#graph,
+#screen,
+#serial,
+#objects {
+    background: black;
+    color: white;
+    font-family: monospace;
+    white-space: pre;
+    overflow: auto;
+}
+
+#graph {
+    grid-area: graph;
+    background: peachpuff;
+}
+
+#screen {
+    grid-area: screen;
+    background: lightgreen;
+}
+
+#serial {
+    grid-area: serial;
+    background: deepskyblue;
+    color: black;
+    padding: 0.5em;
+}
+
+#objects {
+    grid-area: objects;
+    background: mediumaquamarine;
+    color: black;
+}

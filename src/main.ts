@@ -1,7 +1,10 @@
 import WebShell from "./web-shell.ts"
 import {Repository, Graph} from "./repository.ts"
 
-let shell = new WebShell(document.getElementById("terminal") as HTMLDivElement)
+let shell = new WebShell(
+    document.getElementById("screen") as HTMLDivElement,
+    document.getElementById("serial") as HTMLDivElement,
+)
 let repo = new Repository("/root/repo", shell)
 
 window["run"] = shell.run.bind(shell)
