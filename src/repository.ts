@@ -10,7 +10,7 @@ enum GitObjectType {
     Tag = "tag",
 }
 
-class GitObject {
+class GitObject implements d3.SimulationNodeDatum {
     oid: ObjectID
     type: GitObjectType
     x?: number
@@ -132,18 +132,26 @@ export class Graph {
     div: HTMLDivElement
 
     nodes: GitObject[] = []
+    simulation: d3.Simulation<
+        d3.SimulationNodeDatum,
+        d3.SimulationLinkDatum<d3.SimulationNodeDatum>
+    >
     links: {source: GitObject; target: GitObject}[] = []
+
+    nodeThing: d3.Selection<any, any, any, any>
+    linkThing: d3.Selection<any, any, any, any>
 
     constructor(repo: Repository, div: HTMLDivElement) {
         this.repo = repo
         this.div = div
-        this.updateNodesAndLinks()
         this.initGraph()
     }
 
     updateNodesAndLinks(): void {
         this.nodes = Object.values(this.repo.objects)
+        this.simulation.nodes(this.nodes)
 
+        this.links = []
         for (let node of this.nodes) {
             if (node.type == GitObjectType.Commit) {
                 for (let parent of (node as GitCommit).parents) {
@@ -165,6 +173,28 @@ export class Graph {
                 }
             }
         }
+        let linkForce: d3.ForceLink<
+            d3.SimulationNodeDatum,
+            d3.SimulationLinkDatum<d3.SimulationNodeDatum>
+        > = this.simulation.force("link")
+        linkForce.links(this.links)
+
+        this.nodeThing = this.nodeThing
+            .data(this.nodes)
+            .join((enter) =>
+                enter.append("circle").attr("r", 5).attr("fill", "red"),
+            )
+
+        this.linkThing = this.linkThing
+            .data(this.links)
+            .join((enter) =>
+                enter
+                    .append("line")
+                    .attr("stroke", "black")
+                    .attr("stroke-width", 1),
+            )
+
+        this.simulation.alpha(1).restart()
     }
 
     initGraph(): void {
@@ -180,13 +210,21 @@ export class Graph {
         //const links = data.links.map((d) => ({ ...d }))
         //const nodes = data.nodes.map((d) => ({ ...d }))
 
+        // Set the position attributes of links and nodes each time the simulation ticks.
+        let ticked = () => {
+            this.linkThing
+                .attr("x1", (d) => d.source.x)
+                .attr("y1", (d) => d.source.y)
+                .attr("x2", (d) => d.target.x)
+                .attr("y2", (d) => d.target.y)
+
+            this.nodeThing.attr("cx", (d) => d.x).attr("cy", (d) => d.y)
+        }
+
         // Create a simulation with several forces.
-        const simulation = d3
-            .forceSimulation(this.nodes as d3.SimulationNodeDatum[])
-            .force(
-                "link",
-                d3.forceLink(this.links), //.id((d) => d.id),
-            )
+        this.simulation = d3
+            .forceSimulation()
+            .force("link", d3.forceLink())
             .force("charge", d3.forceManyBody())
             .force("center", d3.forceCenter(width / 2, height / 2))
             .on("tick", ticked)
@@ -200,29 +238,24 @@ export class Graph {
             .attr("style", "max-width: 100%; height: auto;")
 
         // Add a line for each link, and a circle for each node.
-        const link = svg
+        this.linkThing = svg
             .append("g")
             .attr("stroke", "#999")
             .attr("stroke-opacity", 0.6)
             .selectAll()
-            .data(this.links)
-            .join("line")
-        //.attr("stroke-width", (d) => Math.sqrt(d.value))
 
-        const node = svg
+        this.nodeThing = svg
             .append("g")
             .attr("stroke", "#fff")
             .attr("stroke-width", 1.5)
             .selectAll()
-            .data(this.nodes)
-            .join("circle")
-            .attr("r", 5)
         //.attr("fill", (d) => color(d.group))
 
         //node.append("title").text((d) => d.id)
 
         // Add a drag behavior.
-        node.call(
+
+        this.nodeThing.call(
             d3
                 .drag()
                 .on("start", dragstarted)
@@ -230,19 +263,9 @@ export class Graph {
                 .on("end", dragended),
         )
 
-        // Set the position attributes of links and nodes each time the simulation ticks.
-        function ticked() {
-            link.attr("x1", (d) => d.source.x)
-                .attr("y1", (d) => d.source.y)
-                .attr("x2", (d) => d.target.x)
-                .attr("y2", (d) => d.target.y)
-
-            node.attr("cx", (d) => d.x).attr("cy", (d) => d.y)
-        }
-
         // Reheat the simulation when drag starts, and fix the subject position.
         function dragstarted(event) {
-            if (!event.active) simulation.alphaTarget(0.3).restart()
+            if (!event.active) this.simulation.alphaTarget(0.3).restart()
             event.subject.fx = event.subject.x
             event.subject.fy = event.subject.y
         }
@@ -256,7 +279,7 @@ export class Graph {
         // Restore the target alpha so the simulation cools after dragging ends.
         // Unfix the subject position now that it’s no longer being dragged.
         function dragended(event) {
-            if (!event.active) simulation.alphaTarget(0)
+            if (!event.active) this.simulation.alphaTarget(0)
             event.subject.fx = null
             event.subject.fy = null
         }

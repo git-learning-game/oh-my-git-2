@@ -165,6 +165,9 @@ class WebShell {
                     // Set terminal width so that input lines don't wrap.
                     await this.run_unsafe("stty cols 1000", false, true)
 
+                    // By default HOME seems to be set to "/"?
+                    await this.run_unsafe("export HOME=/root")
+
                     resolve()
                 }
             }, 100)
