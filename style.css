@@ -1,7 +1,7 @@
 body {
     display: grid;
     grid-template-areas:
-        "graph serial"
+        "graph objects"
         "screen serial";
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;

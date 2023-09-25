@@ -31,7 +31,11 @@ export class Graph {
     }
 
     update(): void {
+        //const old = new Map(this.nodeGroup.data().map((d) => [d.id(), d]))
         this.nodes = Object.values(this.repo.objects)
+        /*this.nodes = this.nodes.map((d) =>
+            Object.assign(old.get(d.id()) || {}, d),
+        )*/
         this.nodes = this.nodes.concat(Object.values(this.repo.refs))
 
         this.simulation.nodes(this.nodes)
@@ -63,36 +67,51 @@ export class Graph {
                 })
             }
         }
+        //this.links = this.links.map((d) => Object.assign({}, d))
+
         let linkForce: d3.ForceLink<
             d3.SimulationNodeDatum,
             d3.SimulationLinkDatum<d3.SimulationNodeDatum>
         > = this.simulation.force("link")
         linkForce.links(this.links)
 
-        this.nodeGroup = this.nodeGroup.data(this.nodes).join((enter) => {
-            let g = enter.append("g")
-            let circle = g
-                .append("circle")
-                .attr("r", 15)
-                .attr("fill", (d) => {
-                    if (d instanceof GitBlob) {
-                        return "gray"
-                    } else if (d instanceof GitTree) {
-                        return "green"
-                    } else if (d instanceof GitCommit) {
-                        return "yellow"
-                    } else if (d instanceof GitRef) {
-                        return "#3c99dc"
-                    } else {
-                        return "red"
-                    }
-                })
+        this.nodeGroup = this.nodeGroup
+            .data(this.nodes, (d) => d.id())
+            .join(
+                (enter) => {
+                    let g = enter.append("g")
+                    let circle = g
+                        .append("circle")
+                        .attr("r", 15)
+                        .attr("fill", (d) => {
+                            if (d instanceof GitBlob) {
+                                return "gray"
+                            } else if (d instanceof GitTree) {
+                                return "green"
+                            } else if (d instanceof GitCommit) {
+                                return "yellow"
+                            } else if (d instanceof GitRef) {
+                                return "#3c99dc"
+                            } else {
+                                return "red"
+                            }
+                        })
 
-            g.append("text").text((d) => d.label)
-            circle.append("title").text((d) => d.tooltip)
+                    g.append("text").text((d) => d.label)
+                    circle.append("title").text((d) => d.tooltip)
 
-            return g
-        })
+                    return g
+                },
+                (update) => {
+                    update.select("text").text((d) => d.label)
+                    update.select("title").text((d) => d.tooltip)
+                    return update
+                },
+                (exit) => {
+                    exit.remove()
+                    return exit
+                },
+            )
 
         this.linkGroup = this.linkGroup
             .data(this.links)
@@ -100,7 +119,8 @@ export class Graph {
                 enter
                     .append("line")
                     .attr("stroke", "black")
-                    .attr("stroke-width", 2),
+                    .attr("stroke-width", 2)
+                    .attr("marker-end", "url(#arrowhead)"),
             )
 
         this.nodeGroup.call(
@@ -176,6 +196,29 @@ export class Graph {
             .attr("height", height)
             .attr("viewBox", [0, 0, width, height])
         //.attr("style", "max-width: 100%; height: auto;")
+
+        // Add a marker for the arrowhead.
+        let markerBoxWidth = 10
+        let markerBoxHeight = 10
+        let refX = 13
+        let refY = 2.5
+        let arrowPoints: [number, number][] = [
+            [0, 0],
+            [0, 5],
+            [5, 2.5],
+        ]
+        svg.append("defs")
+            .append("marker")
+            .attr("id", "arrowhead")
+            .attr("viewBox", [0, 0, markerBoxWidth, markerBoxHeight])
+            .attr("refX", refX)
+            .attr("refY", refY)
+            .attr("markerWidth", markerBoxWidth)
+            .attr("markerHeight", markerBoxHeight)
+            .attr("orient", "auto-start-reverse")
+            .append("path")
+            .attr("d", d3.line()(arrowPoints))
+            .attr("stroke", "black")
 
         this.linkGroup = svg
             .append("g")

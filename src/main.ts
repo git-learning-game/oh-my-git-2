@@ -45,6 +45,10 @@ shell.boot().then(async () => {
 async function update() {
     await repo.update()
     let objects = repo.objects
+    document.getElementById("objects").innerText =
+        JSON.stringify(objects, null, 2) +
+        "\n\n" +
+        JSON.stringify(repo.refs, null, 2)
     let refs = repo.refs
     graph.update()
 }
@@ -56,7 +60,7 @@ async function updateLoop() {
 
 async function updateACoupleOfTimes() {
     setTimeout(update, 50)
-    //setTimeout(update, 1000)
+    setTimeout(update, 500)
 }
 
 /*let input = document.getElementById("screen-input") as HTMLInputElement
