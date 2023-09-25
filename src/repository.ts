@@ -21,7 +21,7 @@ export abstract class GitNode implements d3.SimulationNodeDatum {
 
 export class GitRef extends GitNode {
     name: string
-    target: ObjectID
+    target: string
 
     id(): string {
         return this.name
@@ -79,9 +79,28 @@ export class Repository {
         }
     }
 
+    async refTarget(ref: string): Promise<string> {
+        // Test whether this is a symbolic ref.
+        let ret = await this.shell.run(`git symbolic-ref -q ${ref} || true`)
+        if (ret == "") {
+            // If it's not, it's probably a regular ref.
+            if (ref == "HEAD") {
+                ret = (
+                    await this.shell.run("git show-ref --head " + ref)
+                ).split(" ")[0]
+            } else {
+                ret = (await this.shell.run("git show-ref " + ref)).split(
+                    " ",
+                )[0]
+            }
+        }
+        return ret
+    }
+
     async update(): Promise<void> {
         await this.updateRefs()
         await this.updateGitObjects()
+        await this.updateHead()
     }
 
     async getFileList(): Promise<string[]> {
@@ -91,19 +110,35 @@ export class Repository {
     }
 
     async updateRefs(): Promise<void> {
-        //for line in await git("show-ref || true", true):
         await this.shell.cd(this.path)
         let output = await this.shell.git("show-ref")
         let lines = output.split("\n")
         for (let line of lines) {
             let [oid, name] = line.split(" ")
             if (oid && name) {
-                let ref = new GitRef()
-                ref.name = name
-                ref.target = oid
-                ref.type = GitNodeType.Ref
-                this.refs[name] = ref
+                if (this.refs[name] === undefined) {
+                    let ref = new GitRef()
+                    ref.name = name
+                    ref.target = oid
+                    ref.type = GitNodeType.Ref
+                    this.refs[name] = ref
+                } else {
+                    this.refs[name].target = oid
+                }
             }
+        }
+    }
+
+    async updateHead(): Promise<void> {
+        if (this.refs["HEAD"] === undefined) {
+            let target = await this.refTarget("HEAD")
+            let ref = new GitRef()
+            ref.name = "HEAD"
+            ref.target = target
+            ref.type = GitNodeType.Ref
+            this.refs["HEAD"] = ref
+        } else {
+            this.refs["HEAD"].target = await this.refTarget("HEAD")
         }
     }
 
