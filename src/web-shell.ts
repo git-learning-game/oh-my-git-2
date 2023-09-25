@@ -21,6 +21,8 @@ class WebShell {
 
     private prompt = "/ # "
 
+    private serialBuffer = ""
+
     constructor(screen?: HTMLDivElement, serial?: HTMLDivElement) {
         this.mutex = new Mutex()
 
@@ -55,10 +57,22 @@ class WebShell {
     private appendToSerialDiv(text: string) {
         if (typeof this.serialDiv !== "undefined") {
             let outputInDiv = true
-            if (outputInDiv) {
-                this.serialDiv.textContent += text
-            } else {
-                console.log(text)
+            this.serialBuffer += text
+            if (this.serialBuffer.includes("\n")) {
+                if (outputInDiv) {
+                    let currentContent = this.serialDiv.textContent
+                    let maxLength = 1000
+                    if (currentContent.length > maxLength) {
+                        currentContent = currentContent.slice(
+                            currentContent.length - maxLength,
+                        )
+                    }
+                    this.serialDiv.textContent =
+                        currentContent + this.serialBuffer
+                } else {
+                    console.log(this.serialBuffer)
+                }
+                this.serialBuffer = ""
             }
         }
     }
