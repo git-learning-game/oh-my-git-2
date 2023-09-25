@@ -1,21 +1,39 @@
 import WebShell from "./web-shell.ts"
-import {Graph} from "./graph.ts"
 
 type ObjectID = string
 
-export enum GitObjectType {
+export enum GitNodeType {
     Blob = "blob",
     Tree = "tree",
     Commit = "commit",
     Tag = "tag",
+    Ref = "ref",
 }
 
-export class GitObject implements d3.SimulationNodeDatum {
-    oid: ObjectID
-    type: GitObjectType
-    content: string
+export abstract class GitNode implements d3.SimulationNodeDatum {
+    type: GitNodeType
     x?: number
     y?: number
+    tooltip: string
+
+    abstract id(): string
+}
+
+export class GitRef extends GitNode {
+    name: string
+    target: ObjectID
+
+    id(): string {
+        return this.name
+    }
+}
+
+export class GitObject extends GitNode {
+    oid: ObjectID
+
+    id(): string {
+        return this.oid
+    }
 }
 
 class GitBlob extends GitObject {
@@ -35,7 +53,7 @@ export class GitTree extends GitObject {
 
 type GitTreeEntry = {
     mode: string
-    type: GitObjectType
+    type: GitNodeType
     oid: ObjectID
     name: string
 }
@@ -43,17 +61,50 @@ type GitTreeEntry = {
 export class Repository {
     path: string //absolute path
     shell: WebShell
-    objects: {[key: string]: GitObject} = {}
+    objects: {[key: ObjectID]: GitObject} = {}
+    refs: {[key: string]: GitRef} = {}
 
     constructor(path: string, shell: WebShell) {
         this.path = path
         this.shell = shell
     }
 
+    resolve(what: string): GitNode | undefined {
+        if (this.objects[what]) {
+            return this.objects[what]
+        } else if (this.refs[what]) {
+            return this.refs[what]
+        } else {
+            return undefined
+        }
+    }
+
+    async update(): Promise<void> {
+        await this.updateRefs()
+        await this.updateGitObjects()
+    }
+
     async getFileList(): Promise<string[]> {
         await this.shell.cd(this.path)
         let output = await this.shell.run("ls -1 --color=none")
         return output.split("\n")
+    }
+
+    async updateRefs(): Promise<void> {
+        //for line in await git("show-ref || true", true):
+        await this.shell.cd(this.path)
+        let output = await this.shell.git("show-ref")
+        let lines = output.split("\n")
+        for (let line of lines) {
+            let [oid, name] = line.split(" ")
+            if (oid && name) {
+                let ref = new GitRef()
+                ref.name = name
+                ref.target = oid
+                ref.type = GitNodeType.Ref
+                this.refs[name] = ref
+            }
+        }
     }
 
     async updateGitObjects(): Promise<void> {
@@ -67,14 +118,14 @@ export class Repository {
             if (oid && type) {
                 if (!this.objects[oid]) {
                     let content = await this.getGitObjectContent(oid)
-                    if (type == GitObjectType.Tree) {
+                    if (type == GitNodeType.Tree) {
                         let entries: GitTreeEntry[] = []
                         for (let line of content.split("\n")) {
                             // line is 'mode type oid\tname'. So split by space and tab!
                             let [mode, type, oid, name] = line.split(/[\s\t]/)
                             entries.push({
                                 mode: mode,
-                                type: type as GitObjectType,
+                                type: type as GitNodeType,
                                 oid: oid,
                                 name: name,
                             })
@@ -82,11 +133,11 @@ export class Repository {
 
                         let tree = new GitTree()
                         tree.oid = oid
-                        tree.content = content
-                        tree.type = GitObjectType.Tree
+                        tree.tooltip = content
+                        tree.type = GitNodeType.Tree
                         tree.entries = entries
                         this.objects[oid] = tree
-                    } else if (type == GitObjectType.Commit) {
+                    } else if (type == GitNodeType.Commit) {
                         let lines = content.split("\n")
                         let tree = lines[0].split(" ")[1]
                         let parents: string[] = []
@@ -105,8 +156,8 @@ export class Repository {
                         }
                         let commit = new GitCommit()
                         commit.oid = oid
-                        commit.content = content
-                        commit.type = GitObjectType.Commit
+                        commit.tooltip = content
+                        commit.type = GitNodeType.Commit
                         commit.tree = tree
                         commit.parents = parents
                         commit.author = author
@@ -115,9 +166,8 @@ export class Repository {
                     } else {
                         let blob = new GitBlob()
                         blob.oid = oid
-                        blob.content = content
-                        blob.type = GitObjectType.Blob
-                        blob.content = content
+                        blob.tooltip = content
+                        blob.type = GitNodeType.Blob
                         this.objects[oid] = blob
                     }
                 }

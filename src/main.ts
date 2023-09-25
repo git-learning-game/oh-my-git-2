@@ -3,10 +3,10 @@ import {Repository} from "./repository.ts"
 import {Graph} from "./graph.ts"
 
 // Show a warning when the user tries to leave the page (for example, by pressing Ctrl-W...)
-window.onbeforeunload = function (e) {
-    e.preventDefault()
-    e.returnValue = ""
-}
+//window.onbeforeunload = function (e) {
+//    e.preventDefault()
+//    e.returnValue = ""
+//}
 
 let shell = new WebShell(
     document.getElementById("screen") as HTMLDivElement,
@@ -41,14 +41,14 @@ shell.boot().then(async () => {
 })
 
 async function update() {
-    await repo.updateGitObjects()
+    await repo.update()
     let objects = repo.objects
-    document.getElementById("objects").innerText = JSON.stringify(
-        objects,
-        null,
-        2,
-    )
-    graph.updateNodesAndLinks()
+    let refs = repo.refs
+    document.getElementById("objects").innerText =
+        JSON.stringify(objects, null, 2) +
+        "\n\n" +
+        JSON.stringify(refs, null, 2)
+    graph.update()
 }
 
 async function updateLoop() {
@@ -60,8 +60,6 @@ async function updateACoupleOfTimes() {
     setTimeout(update, 50)
     //setTimeout(update, 1000)
 }
-
-document.getElementById("update").addEventListener("click", update)
 
 let input = document.getElementById("screen-input") as HTMLInputElement
 input.addEventListener("keydown", async (e) => {

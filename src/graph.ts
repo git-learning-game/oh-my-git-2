@@ -1,9 +1,10 @@
 import {
     Repository,
-    GitObject,
-    GitObjectType,
+    GitNode,
+    GitNodeType,
     GitCommit,
     GitTree,
+    GitRef,
 } from "./repository"
 
 import * as d3 from "d3"
@@ -12,12 +13,12 @@ export class Graph {
     repo: Repository
     div: HTMLDivElement
 
-    nodes: GitObject[] = []
+    nodes: GitNode[] = []
     simulation: d3.Simulation<
         d3.SimulationNodeDatum,
         d3.SimulationLinkDatum<d3.SimulationNodeDatum>
     >
-    links: {source: GitObject; target: GitObject}[] = []
+    links: {source: GitNode; target: GitNode}[] = []
 
     nodeGroup: d3.Selection<any, any, any, any>
     linkGroup: d3.Selection<any, any, any, any>
@@ -28,30 +29,37 @@ export class Graph {
         this.initGraph()
     }
 
-    updateNodesAndLinks(): void {
+    update(): void {
         this.nodes = Object.values(this.repo.objects)
+        this.nodes = this.nodes.concat(Object.values(this.repo.refs))
+
         this.simulation.nodes(this.nodes)
 
         this.links = []
         for (let node of this.nodes) {
-            if (node.type == GitObjectType.Commit) {
+            if (node.type == GitNodeType.Commit) {
                 for (let parent of (node as GitCommit).parents) {
                     this.links.push({
-                        source: this.repo.objects[node.oid],
-                        target: this.repo.objects[parent],
+                        source: this.repo.resolve(node.id()),
+                        target: this.repo.resolve(parent),
                     })
                 }
                 this.links.push({
-                    source: this.repo.objects[node.oid],
-                    target: this.repo.objects[(node as GitCommit).tree],
+                    source: this.repo.resolve(node.id()),
+                    target: this.repo.resolve((node as GitCommit).tree),
                 })
-            } else if (node.type == GitObjectType.Tree) {
+            } else if (node.type == GitNodeType.Tree) {
                 for (let entry of (node as GitTree).entries) {
                     this.links.push({
-                        source: this.repo.objects[node.oid],
-                        target: this.repo.objects[entry.oid],
+                        source: this.repo.resolve(node.id()),
+                        target: this.repo.resolve(entry.oid),
                     })
                 }
+            } else if (node.type == GitNodeType.Ref) {
+                this.links.push({
+                    source: this.repo.resolve(node.id()),
+                    target: this.repo.resolve((node as GitRef).target),
+                })
             }
         }
         let linkForce: d3.ForceLink<
@@ -65,18 +73,20 @@ export class Graph {
                 .append("circle")
                 .attr("r", 15)
                 .attr("fill", (d) => {
-                    if (d.type == GitObjectType.Blob) {
+                    if (d.type == GitNodeType.Blob) {
                         return "gray"
-                    } else if (d.type == GitObjectType.Tree) {
+                    } else if (d.type == GitNodeType.Tree) {
                         return "green"
-                    } else if (d.type == GitObjectType.Commit) {
+                    } else if (d.type == GitNodeType.Commit) {
                         return "yellow"
+                    } else if (d.type == GitNodeType.Ref) {
+                        return "blue"
                     } else {
                         return "red"
                     }
                 })
 
-            enter2.append("title").text((d) => d.content)
+            enter2.append("title").text((d) => d.tooltip)
 
             return enter2
         })
