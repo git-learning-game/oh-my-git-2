@@ -30,7 +30,7 @@ class WebShell {
             let screenDiv = screen
             screenDiv.style.whiteSpace = "pre"
             screenDiv.style.fontFamily = "monospace"
-            screenDiv.style.fontSize = "14px"
+            screenDiv.style.fontSize = "12px"
             screenDiv.style.lineHeight = "14px"
 
             let innerDiv = document.createElement("div")
