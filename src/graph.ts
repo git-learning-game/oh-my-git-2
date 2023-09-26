@@ -94,27 +94,29 @@ export class Graph {
             .join(
                 (enter) => {
                     let g = enter.append("g")
-                    let circle = g
-                        .append("circle")
-                        .attr("r", 15)
-                        .attr("fill", (d) => {
+
+                    g.append("svg:image")
+                        .attr("x", -15)
+                        .attr("y", -15)
+                        .attr("width", 30)
+                        .attr("height", 30)
+                        .attr("xlink:href", (d) => {
                             if (d instanceof GitBlob) {
-                                return "gray"
+                                return "images/blob.png"
                             } else if (d instanceof GitTree) {
-                                return "green"
+                                return "images/tree.png"
                             } else if (d instanceof GitCommit) {
-                                return "yellow"
+                                return "images/commit.png"
                             } else if (d instanceof GitRef) {
-                                return "#3c99dc"
+                                return "images/ref.png"
                             } else if (d instanceof GitIndex) {
-                                return "#e70045"
+                                return "images/index.png"
                             } else {
-                                return "red"
+                                return "images/generic.png"
                             }
                         })
 
                     g.on("mouseover", function (_, __) {
-                        console.log("mouseover")
                         d3.select(this)
                             .select(".tooltip text")
                             .style("visibility", "visible")
@@ -162,7 +164,6 @@ export class Graph {
             d3
                 .drag()
                 .on("start", (event) => {
-                    console.log(event)
                     if (!event.active)
                         this.simulation.alphaTarget(0.3).restart()
                     event.subject.fx = event.subject.x
