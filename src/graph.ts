@@ -5,6 +5,7 @@ import {
     GitTree,
     GitBlob,
     GitRef,
+    GitIndex,
 } from "./repository"
 
 import * as d3 from "d3"
@@ -36,6 +37,7 @@ export class Graph {
             Object.assign(old.get(d.id()) || {}, d),
         )*/
         this.nodes = this.nodes.concat(Object.values(this.repo.refs))
+        this.nodes.push(this.repo.index)
 
         this.simulation.nodes(this.nodes)
 
@@ -74,6 +76,11 @@ export class Graph {
                 }
             }
         }
+
+        for (let entry of this.repo.index.entries) {
+            tryAddLink(this.repo.index.id(), entry.oid)
+        }
+
         //this.links = this.links.map((d) => Object.assign({}, d))
 
         let linkForce: d3.ForceLink<
@@ -99,6 +106,8 @@ export class Graph {
                                 return "yellow"
                             } else if (d instanceof GitRef) {
                                 return "#3c99dc"
+                            } else if (d instanceof GitIndex) {
+                                return "#e70045"
                             } else {
                                 return "red"
                             }

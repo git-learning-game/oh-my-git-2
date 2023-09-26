@@ -57,8 +57,12 @@ type GitTreeEntry = {
     name: string
 }
 
-export class GitIndex {
+export class GitIndex extends GitNode {
     entries: IndexEntry[] = []
+
+    id(): string {
+        return "INDEX"
+    }
 }
 
 type IndexEntry = {
@@ -79,6 +83,8 @@ export class Repository {
     constructor(path: string, shell: WebShell) {
         this.path = path
         this.shell = shell
+
+        this.index.label = "Index"
     }
 
     resolve(what: string): GitNode | undefined {
@@ -86,6 +92,8 @@ export class Repository {
             return this.objects[what]
         } else if (this.refs[what]) {
             return this.refs[what]
+        } else if (what == "INDEX") {
+            return this.index
         } else {
             return undefined
         }
@@ -175,6 +183,7 @@ export class Repository {
 
     async updateIndex(): Promise<void> {
         let output = await this.shell.git("ls-files -s")
+        this.index.tooltip = output
         let lines = output.split("\n")
         this.index.entries = []
         for (let line of lines) {
@@ -189,6 +198,53 @@ export class Repository {
         }
     }
 
+    buildTree(content: string): GitTree {
+        let tree = new GitTree()
+
+        let entries: GitTreeEntry[] = []
+        for (let line of content.split("\n")) {
+            if (line !== "") {
+                // line is 'mode type oid\tname'. So split by space and tab!
+                let [mode, _, oid, name] = line.split(/[\s\t]/)
+                entries.push({
+                    mode: mode,
+                    oid: oid,
+                    name: name,
+                })
+            }
+        }
+
+        tree.entries = entries
+        return tree
+    }
+
+    buildCommit(content: string): GitCommit {
+        let lines = content.split("\n")
+        let tree = lines[0].split(" ")[1]
+        let parents: string[] = []
+        let author = ""
+        let message = ""
+
+        for (let line of lines.slice(1)) {
+            if (line.startsWith("parent")) {
+                parents.push(line.split(" ")[1])
+            } else if (line.startsWith("author")) {
+                author = line.split(" ").slice(1).join(" ")
+            } else if (line.startsWith("committer")) {
+                //ignore
+            } else {
+                message = line
+            }
+        }
+
+        let commit = new GitCommit()
+        commit.tree = tree
+        commit.parents = parents
+        commit.author = author
+        commit.message = message
+        return commit
+    }
+
     async updateGitObjects(): Promise<void> {
         let output = await this.shell.git(
             "cat-file --batch-check='%(objectname) %(objecttype)' --batch-all-objects",
@@ -200,57 +256,18 @@ export class Repository {
                 this.allNodes.push(oid)
                 if (!this.objects[oid]) {
                     let content = await this.getGitObjectContent(oid)
+                    let object: GitObject
                     if (type == GitNodeType.Tree) {
-                        let entries: GitTreeEntry[] = []
-                        for (let line of content.split("\n")) {
-                            if (line !== "") {
-                                // line is 'mode type oid\tname'. So split by space and tab!
-                                let [mode, _, oid, name] = line.split(/[\s\t]/)
-                                entries.push({
-                                    mode: mode,
-                                    oid: oid,
-                                    name: name,
-                                })
-                            }
-                        }
-
-                        let tree = new GitTree()
-                        tree.oid = oid
-                        tree.tooltip = content
-                        tree.entries = entries
-                        this.objects[oid] = tree
+                        object = this.buildTree(content)
                     } else if (type == GitNodeType.Commit) {
-                        let lines = content.split("\n")
-                        let tree = lines[0].split(" ")[1]
-                        let parents: string[] = []
-                        let author = ""
-                        let message = ""
-                        for (let line of lines.slice(1)) {
-                            if (line.startsWith("parent")) {
-                                parents.push(line.split(" ")[1])
-                            } else if (line.startsWith("author")) {
-                                author = line.split(" ").slice(1).join(" ")
-                            } else if (line.startsWith("committer")) {
-                                //ignore
-                            } else {
-                                message = line
-                            }
-                        }
-                        let commit = new GitCommit()
-                        commit.oid = oid
-                        commit.tooltip = content
-                        commit.label = oid.slice(0, 7)
-                        commit.tree = tree
-                        commit.parents = parents
-                        commit.author = author
-                        commit.message = message
-                        this.objects[oid] = commit
+                        object = this.buildCommit(content)
                     } else {
-                        let blob = new GitBlob()
-                        blob.oid = oid
-                        blob.tooltip = content
-                        this.objects[oid] = blob
+                        object = new GitBlob()
                     }
+                    object.oid = oid
+                    object.tooltip = content
+                    object.label = oid.slice(0, 7)
+                    this.objects[oid] = object
                 }
             }
         }
