@@ -118,11 +118,11 @@ export class Graph {
 
                     g.on("mouseover", function (_, __) {
                         d3.select(this)
-                            .select(".tooltip text")
+                            .select(".tooltip")
                             .style("visibility", "visible")
                     }).on("mouseout", function (_, __) {
                         d3.select(this)
-                            .select(".tooltip text")
+                            .select(".tooltip")
                             .style("visibility", "hidden")
                     })
 
@@ -134,7 +134,17 @@ export class Graph {
                         .attr("transform", "translate(0, 20)")
                         .style("visibility", "hidden")
 
-                    tooltip.append("text").text((d) => d.tooltip)
+                    tooltip
+                        .append("foreignObject")
+                        .attr("width", 1000)
+                        .attr("height", 1000)
+                        .append("xhtml:p")
+                        .text((d) => d.tooltip)
+                        .style("color", "black")
+                        .style("white-space", "pre")
+                        .style("background-color", "rgba(255, 255, 255, 0.8)")
+                        .style("border-radius", "5px")
+                        .style("padding", "5px")
 
                     return g
                 },
