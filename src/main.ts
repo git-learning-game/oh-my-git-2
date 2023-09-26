@@ -41,9 +41,15 @@ class App {
             await this.shell.run(
                 "git config --global user.email 'mail@example.com'",
             )
+
             await this.shell.run("git init")
-            //"git init; echo hi > test.txt; git add .; git commit -m 'Initial commit'",
-            //await this.shell.run("echo hi >> test.txt; git commit -am 'Second commit'")
+
+            await this.shell.run(
+                "git init; echo hi > test.txt; git add .; git commit -m 'Initial commit'",
+            )
+            await this.shell.run(
+                "echo hi >> test.txt; git commit -am 'Second commit'",
+            )
 
             //updateLoop()
             this.updateACoupleOfTimes()

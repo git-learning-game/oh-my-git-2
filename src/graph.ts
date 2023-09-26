@@ -113,14 +113,33 @@ export class Graph {
                             }
                         })
 
+                    g.on("mouseover", function (_, __) {
+                        console.log("mouseover")
+                        d3.select(this)
+                            .select(".tooltip text")
+                            .style("visibility", "visible")
+                    }).on("mouseout", function (_, __) {
+                        d3.select(this)
+                            .select(".tooltip text")
+                            .style("visibility", "hidden")
+                    })
+
                     g.append("text").text((d) => d.label)
-                    circle.append("title").text((d) => d.tooltip)
+
+                    let tooltip = g
+                        .append("g")
+                        .attr("class", "tooltip")
+                        .attr("transform", "translate(0, 20)")
+                        .style("visibility", "hidden")
+
+                    tooltip.append("text").text((d) => d.tooltip)
 
                     return g
                 },
                 (update) => {
                     update.select("text").text((d) => d.label)
                     update.select("title").text((d) => d.tooltip)
+                    update.select(".tooltip text").text((d) => d.tooltip)
                     return update
                 },
                 (exit) => {
