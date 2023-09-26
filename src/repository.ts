@@ -123,13 +123,11 @@ export class Repository {
     }
 
     async getFileList(): Promise<string[]> {
-        await this.shell.cd(this.path)
         let output = await this.shell.run("ls -1 --color=none")
         return output.split("\n")
     }
 
     async updateRefs(): Promise<void> {
-        await this.shell.cd(this.path)
         let output = await this.shell.git("show-ref || true")
         let lines = output.split("\n")
         for (let line of lines) {
@@ -164,7 +162,6 @@ export class Repository {
     }
 
     async updateGitObjects(): Promise<void> {
-        await this.shell.cd(this.path)
         let output = await this.shell.git(
             "cat-file --batch-check='%(objectname) %(objecttype)' --batch-all-objects",
         )
