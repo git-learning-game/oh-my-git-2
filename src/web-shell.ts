@@ -119,6 +119,12 @@ class WebShell {
         return output
     }
 
+    async script(cmds: string[]): Promise<void> {
+        for (let cmd of cmds) {
+            await this.run(cmd)
+        }
+    }
+
     // Run a command via the serial port (/dev/ttyS0) and return the output.
     run_unsafe(
         cmd: string,

@@ -30,28 +30,41 @@ class App {
         )
     }
 
+    async runConfigureCommands() {
+        await this.shell.script([
+            "git config --global init.defaultBranch main",
+            "git config --global user.name 'You'",
+            "git config --global user.email 'mail@example.com'",
+        ])
+    }
+
+    async runLazynessCommands() {
+        await this.shell.script([
+            "git config --global alias.ec 'commit --allow-empty -m \"Empty commit\"'",
+        ])
+    }
+
+    async runInitCommands() {
+        await this.shell.script([
+            "mkdir /root/repo",
+            "cd /root/repo",
+
+            "git init",
+
+            "git init; echo hi > test.txt; git add .; git commit -m 'Initial commit'",
+            "echo hi >> test.txt; git commit -am 'Second commit'",
+        ])
+    }
+
     async start() {
         this.shell.boot().then(async () => {
             console.log("Booted!")
-            await this.shell.run("mkdir /root/repo")
+            await this.runConfigureCommands()
+            await this.runLazynessCommands()
+            await this.runInitCommands()
+
             this.shell.type("cd repo\n")
-            await this.shell.cd("/root/repo")
-            await this.shell.run("git config --global init.defaultBranch main;")
-            await this.shell.run("git config --global user.name 'You';")
-            await this.shell.run(
-                "git config --global user.email 'mail@example.com'",
-            )
 
-            await this.shell.run("git init")
-
-            await this.shell.run(
-                "git init; echo hi > test.txt; git add .; git commit -m 'Initial commit'",
-            )
-            await this.shell.run(
-                "echo hi >> test.txt; git commit -am 'Second commit'",
-            )
-
-            //updateLoop()
             this.updateACoupleOfTimes()
 
             window.addEventListener("keydown", (e) => {
