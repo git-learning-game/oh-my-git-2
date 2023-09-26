@@ -189,7 +189,7 @@ export class Graph {
                 }),
         )
 
-        //this.simulation.alpha(0.3).restart()
+        this.simulation.alpha(0.3).restart()
     }
 
     initGraph(): void {
