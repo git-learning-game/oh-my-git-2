@@ -1,7 +1,6 @@
 import {
     Repository,
     GitNode,
-    GitNodeType,
     GitCommit,
     GitTree,
     GitBlob,
@@ -41,30 +40,38 @@ export class Graph {
         this.simulation.nodes(this.nodes)
 
         this.links = []
+
+        let tryAddLink = (sourceID: string, targetID: string): void => {
+            let source = this.repo.resolve(sourceID)
+            if (source === undefined) {
+                throw new Error(
+                    `Link source with id ${sourceID} not found in repo`,
+                )
+            }
+            let target = this.repo.resolve(targetID)
+            if (target === undefined) {
+                throw new Error(
+                    `Link target with id ${targetID} not found in repo`,
+                )
+            }
+            this.links.push({source, target})
+        }
+
         for (let node of this.nodes) {
             if (node instanceof GitCommit) {
                 for (let parent of (node as GitCommit).parents) {
-                    this.links.push({
-                        source: this.repo.resolve(node.id()),
-                        target: this.repo.resolve(parent),
-                    })
+                    tryAddLink(node.id(), parent)
                 }
-                this.links.push({
-                    source: this.repo.resolve(node.id()),
-                    target: this.repo.resolve((node as GitCommit).tree),
-                })
+                tryAddLink(node.id(), (node as GitCommit).tree)
             } else if (node instanceof GitTree) {
                 for (let entry of (node as GitTree).entries) {
-                    this.links.push({
-                        source: this.repo.resolve(node.id()),
-                        target: this.repo.resolve(entry.oid),
-                    })
+                    tryAddLink(node.id(), entry.oid)
                 }
             } else if (node instanceof GitRef) {
-                this.links.push({
-                    source: this.repo.resolve(node.id()),
-                    target: this.repo.resolve((node as GitRef).target),
-                })
+                let target = this.repo.resolve((node as GitRef).target)
+                if (target !== undefined) {
+                    tryAddLink(node.id(), (node as GitRef).target)
+                }
             }
         }
         //this.links = this.links.map((d) => Object.assign({}, d))
@@ -166,7 +173,7 @@ export class Graph {
         this.simulation = d3
             .forceSimulation()
             .force("link", d3.forceLink().distance(50))
-            .force("charge", d3.forceManyBody().strength(-100))
+            .force("charge", d3.forceManyBody().strength(-50))
             .force("center", d3.forceCenter(width / 2, height * 0.6))
             /*.force(
                 "commit-y",

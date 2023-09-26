@@ -130,7 +130,7 @@ export class Repository {
 
     async updateRefs(): Promise<void> {
         await this.shell.cd(this.path)
-        let output = await this.shell.git("show-ref")
+        let output = await this.shell.git("show-ref || true")
         let lines = output.split("\n")
         for (let line of lines) {
             let [oid, name] = line.split(" ")
@@ -178,13 +178,15 @@ export class Repository {
                     if (type == GitNodeType.Tree) {
                         let entries: GitTreeEntry[] = []
                         for (let line of content.split("\n")) {
-                            // line is 'mode type oid\tname'. So split by space and tab!
-                            let [mode, _, oid, name] = line.split(/[\s\t]/)
-                            entries.push({
-                                mode: mode,
-                                oid: oid,
-                                name: name,
-                            })
+                            if (line !== "") {
+                                // line is 'mode type oid\tname'. So split by space and tab!
+                                let [mode, _, oid, name] = line.split(/[\s\t]/)
+                                entries.push({
+                                    mode: mode,
+                                    oid: oid,
+                                    name: name,
+                                })
+                            }
                         }
 
                         let tree = new GitTree()

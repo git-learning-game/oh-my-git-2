@@ -33,10 +33,9 @@ shell.boot().then(async () => {
     await shell.run("git config --global init.defaultBranch main;")
     await shell.run("git config --global user.name 'You';")
     await shell.run("git config --global user.email 'mail@example.com'")
-    await shell.run(
-        "git init; echo hi > test.txt; git add .; git commit -m 'Initial commit'",
-    )
-    await shell.run("echo hi >> test.txt; git commit -am 'Second commit'")
+    await shell.run("git init")
+    //"git init; echo hi > test.txt; git add .; git commit -m 'Initial commit'",
+    //await shell.run("echo hi >> test.txt; git commit -am 'Second commit'")
 
     //updateLoop()
     updateACoupleOfTimes()
