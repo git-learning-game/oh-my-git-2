@@ -59,11 +59,17 @@ class App {
     async update() {
         console.log(this, this.repo)
         await this.repo.update()
-        let objects = this.repo.objects
-        document.getElementById("objects").innerText =
-            JSON.stringify(objects, null, 2) +
-            "\n\n" +
-            JSON.stringify(this.repo.refs, null, 2)
+        let displayed = {
+            index: this.repo.index,
+            objects: this.repo.objects,
+            refs: this.repo.refs,
+        }
+        document.getElementById("objects").innerText = JSON.stringify(
+            displayed,
+            null,
+            2,
+        )
+
         this.graph.update()
     }
 

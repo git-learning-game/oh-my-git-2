@@ -57,11 +57,22 @@ type GitTreeEntry = {
     name: string
 }
 
+export class GitIndex {
+    entries: IndexEntry[] = []
+}
+
+type IndexEntry = {
+    mode: string
+    oid: ObjectID
+    name: string
+}
+
 export class Repository {
     path: string //absolute path
     shell: WebShell
     objects: {[key: ObjectID]: GitObject} = {}
     refs: {[key: string]: GitRef} = {}
+    index: GitIndex = new GitIndex()
 
     private allNodes: string[] = []
 
@@ -105,6 +116,7 @@ export class Repository {
         await this.updateRefs()
         await this.updateGitObjects()
         await this.updateHead()
+        await this.updateIndex()
 
         this.removeDeletedNodes()
     }
@@ -158,6 +170,22 @@ export class Repository {
             this.refs["HEAD"] = ref
         } else {
             this.refs["HEAD"].target = await this.refTarget("HEAD")
+        }
+    }
+
+    async updateIndex(): Promise<void> {
+        let output = await this.shell.git("ls-files -s")
+        let lines = output.split("\n")
+        this.index.entries = []
+        for (let line of lines) {
+            if (line !== "") {
+                let [mode, oid, _, name] = line.split(/[\s\t]/)
+                this.index.entries.push({
+                    mode,
+                    oid,
+                    name,
+                })
+            }
         }
     }
 
