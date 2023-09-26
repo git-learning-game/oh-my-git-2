@@ -93,8 +93,9 @@ class App {
     }
 
     updateACoupleOfTimes() {
-        setTimeout(() => this.update(), 50)
-        setTimeout(() => this.update(), 500)
+        setTimeout(async () => {
+            await this.update(), setTimeout(() => this.update(), 450)
+        }, 50)
     }
 }
 

@@ -14,12 +14,10 @@ export class Graph {
     repo: Repository
     div: HTMLDivElement
 
-    nodes: GitNode[] = []
     simulation: d3.Simulation<
         d3.SimulationNodeDatum,
         d3.SimulationLinkDatum<d3.SimulationNodeDatum>
     >
-    links: {source: GitNode; target: GitNode}[] = []
 
     nodeGroup: d3.Selection<any, any, any, any>
     linkGroup: d3.Selection<any, any, any, any>
@@ -32,16 +30,16 @@ export class Graph {
 
     update(): void {
         //const old = new Map(this.nodeGroup.data().map((d) => [d.id(), d]))
-        this.nodes = Object.values(this.repo.objects)
+        let nodes: GitNode[] = Object.values(this.repo.objects)
         /*this.nodes = this.nodes.map((d) =>
             Object.assign(old.get(d.id()) || {}, d),
         )*/
-        this.nodes = this.nodes.concat(Object.values(this.repo.refs))
-        this.nodes.push(this.repo.index)
+        nodes = nodes.concat(Object.values(this.repo.refs))
+        nodes.push(this.repo.index)
 
-        this.simulation.nodes(this.nodes)
+        this.simulation.nodes(nodes).alphaTarget(0.3)
 
-        this.links = []
+        let links: {source: GitNode; target: GitNode}[] = []
 
         let tryAddLink = (sourceID: string, targetID: string): void => {
             let source = this.repo.resolve(sourceID)
@@ -56,10 +54,10 @@ export class Graph {
                     `Link target with id ${targetID} not found in repo`,
                 )
             }
-            this.links.push({source, target})
+            links.push({source, target})
         }
 
-        for (let node of this.nodes) {
+        for (let node of nodes) {
             if (node instanceof GitCommit) {
                 for (let parent of (node as GitCommit).parents) {
                     tryAddLink(node.id(), parent)
@@ -81,16 +79,17 @@ export class Graph {
             tryAddLink(this.repo.index.id(), entry.oid)
         }
 
-        //this.links = this.links.map((d) => Object.assign({}, d))
+        //links = links.map((d) => Object.assign({}, d))
 
         let linkForce: d3.ForceLink<
             d3.SimulationNodeDatum,
             d3.SimulationLinkDatum<d3.SimulationNodeDatum>
         > = this.simulation.force("link")
-        linkForce.links(this.links)
+
+        linkForce.links(links)
 
         this.nodeGroup = this.nodeGroup
-            .data(this.nodes, (d) => d.id())
+            .data(nodes, (d) => d.id())
             .join(
                 (enter) => {
                     let g = enter.append("g")
@@ -161,7 +160,7 @@ export class Graph {
             )
 
         this.linkGroup = this.linkGroup
-            .data(this.links)
+            .data(links)
             .join((enter) =>
                 enter
                     .append("line")
@@ -174,8 +173,8 @@ export class Graph {
             d3
                 .drag()
                 .on("start", (event) => {
-                    if (!event.active)
-                        this.simulation.alphaTarget(0.3).restart()
+                    //if (!event.active)
+                    //    this.simulation.alphaTarget(0.3).restart()
                     event.subject.fx = event.subject.x
                     event.subject.fy = event.subject.y
                 })
@@ -184,13 +183,13 @@ export class Graph {
                     event.subject.fy = event.y
                 })
                 .on("end", (event) => {
-                    if (!event.active) this.simulation.alphaTarget(0)
+                    //if (!event.active) this.simulation.alphaTarget(0)
                     event.subject.fx = null
                     event.subject.fy = null
                 }),
         )
 
-        this.simulation.alpha(1).restart()
+        //this.simulation.alpha(0.3).restart()
     }
 
     initGraph(): void {
@@ -211,9 +210,14 @@ export class Graph {
 
         this.simulation = d3
             .forceSimulation()
-            .force("link", d3.forceLink().distance(50))
+            .force("link", d3.forceLink().distance(60))
             .force("charge", d3.forceManyBody().strength(-50))
-            .force("center", d3.forceCenter(width / 2, height * 0.6))
+            .force(
+                "center",
+                d3.forceCenter(width / 2, height * 0.6).strength(0.5),
+            )
+            .force("x", d3.forceX(width / 2).strength(0.01))
+            .force("y", d3.forceY(height / 2).strength(0.01))
             /*.force(
                 "commit-y",
                 d3.forceY(height / 2).strength((d) => {
