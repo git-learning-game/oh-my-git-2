@@ -231,7 +231,21 @@ export class Graph {
             .attr("width", width)
             .attr("height", height)
             .attr("viewBox", [0, 0, width, height])
-        //.attr("style", "max-width: 100%; height: auto;")
+
+        const g = svg.append("g")
+
+        svg.call(
+            d3
+                .zoom()
+                .extent([
+                    [0, 0],
+                    [width, height],
+                ])
+                .scaleExtent([1, 8])
+                .on("zoom", ({transform}) => {
+                    g.attr("transform", transform)
+                }),
+        )
 
         // Add a marker for the arrowhead.
         let markerBoxWidth = 10
@@ -256,14 +270,14 @@ export class Graph {
             .attr("d", d3.line()(arrowPoints))
             .attr("stroke", "black")
 
-        this.linkGroup = svg
+        this.linkGroup = g
             .append("g")
             .attr("stroke", "#999")
             .attr("stroke-opacity", 0.6)
             .attr("stroke-width", 2)
             .selectAll()
 
-        this.nodeGroup = svg.append("g").selectAll()
+        this.nodeGroup = g.append("g").selectAll()
 
         this.div.appendChild(svg.node())
     }
