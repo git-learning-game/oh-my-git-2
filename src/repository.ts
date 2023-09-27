@@ -104,14 +104,20 @@ export class Repository {
         let ret = await this.shell.run(`git symbolic-ref -q ${ref} || true`)
         if (ret == "") {
             // If it's not, it's probably a regular ref.
-            if (ref == "HEAD") {
-                ret = (
-                    await this.shell.run("git show-ref --head " + ref)
-                ).split(" ")[0]
-            } else {
-                ret = (await this.shell.run("git show-ref " + ref)).split(
-                    " ",
-                )[0]
+            ret = await this.shell.run(`git rev-parse ${ref}`)
+        }
+        return ret
+    }
+
+    // The difference to the previous version is that this might return undefined,
+    // if the ref doesn't exist.
+    async maybeRefTarget(ref: string): Promise<string | undefined> {
+        let ret = await this.shell.run(`git symbolic-ref -q ${ref} || true`)
+        if (ret == "") {
+            try {
+                ret = await this.shell.run(`git rev-parse ${ref}`)
+            } catch (e) {
+                return undefined
             }
         }
         return ret
@@ -123,7 +129,7 @@ export class Repository {
 
         await this.updateRefs()
         await this.updateGitObjects()
-        await this.updateHead()
+        await this.updateSpecialRefs()
         await this.updateIndex()
 
         this.removeDeletedNodes()
@@ -167,17 +173,27 @@ export class Repository {
         }
     }
 
-    async updateHead(): Promise<void> {
-        this.allNodes.push("HEAD")
-        if (this.refs["HEAD"] === undefined) {
-            let target = await this.refTarget("HEAD")
-            let ref = new GitRef()
-            ref.name = "HEAD"
-            ref.target = target
-            ref.label = "HEAD"
-            this.refs["HEAD"] = ref
+    async updateSpecialRefs(): Promise<void> {
+        let specialRefs = ["HEAD", "FETCH_HEAD", "ORIG_HEAD", "MERGE_HEAD"]
+        for (let ref of specialRefs) {
+            await this.updateSpecialRef(ref)
+        }
+    }
+
+    async updateSpecialRef(name: string): Promise<void> {
+        let target = await this.maybeRefTarget(name)
+
+        if (target === undefined) {
+            // Ref doesn't exist. That's okay.
         } else {
-            this.refs["HEAD"].target = await this.refTarget("HEAD")
+            if (this.refs[name] === undefined) {
+                let ref = new GitRef()
+                ref.name = name
+                ref.label = name
+                this.refs[name] = ref
+            }
+            this.refs[name].target = target
+            this.allNodes.push(name) // TODO: This might conflict with an OID hash?
         }
     }
 

@@ -70,11 +70,14 @@ class App {
 
             "git init",
 
-            "echo hi > test.txt",
+            "touch apple",
             "git add .",
-            "git commit -m 'Initial commit'",
-            "echo hi >> test.txt",
-            "git commit -am 'Second commit'",
+            "git commit -m 'Apple exists'",
+            "echo 'green' > apple",
+            "git commit -am 'Apple is green'",
+            "git checkout @^",
+            "echo 'red' > apple",
+            "git commit -am 'Apple is red'",
         ])
     }
 
