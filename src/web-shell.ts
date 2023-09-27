@@ -217,6 +217,12 @@ class WebShell {
     type(text: string): void {
         this.emulator.keyboard_send_text(text)
     }
+
+    async putFile(path: string, lines: string[]): Promise<void> {
+        let escapedContent = lines.join("\n").replace(/'/g, "'\\''")
+        await this.run(`echo '${escapedContent}' > ${path}`)
+        return
+    }
 }
 
 export default WebShell

@@ -31,17 +31,36 @@ class App {
     }
 
     async runConfigureCommands() {
-        await this.shell.script([
-            "git config --global init.defaultBranch main",
-            "git config --global user.name 'You'",
-            "git config --global user.email 'mail@example.com'",
+        await this.shell.putFile("~/.gitconfig", [
+            "[init]",
+            "    defaultBranch = main",
+            "[user]",
+            "    name = You",
+            "    email = mail@example.com",
+            "[alias]",
+            "    graph = log --graph --pretty=oneline --abbrev-commit --all --decorate",
+            "    st = status",
+            "    take = checkout -b",
+            "[color]",
+            "    ui = never",
         ])
     }
 
     async runLazynessCommands() {
-        await this.shell.script([
-            "git config --global alias.ec 'commit --allow-empty -m \"Empty commit\"'",
+        await this.shell.putFile("~/.aliases", [
+            "alias ga='git add'",
+            "alias gc='git commit'",
+            "alias gca='git commit -a'",
+            "alias gcaa='git commit -a --amend'",
+            "alias gco='git checkout'",
+            "alias gd='git diff'",
+            "alias gg='git graph'",
+            "alias gs='git status --short'",
+            "alias gec='git commit --allow-empty -m \"Empty commit\"'",
+
+            "alias l='ls -al'",
         ])
+        this.shell.type("source ~/.aliases\nclear\n")
     }
 
     async runInitCommands() {
@@ -51,8 +70,11 @@ class App {
 
             "git init",
 
-            "git init; echo hi > test.txt; git add .; git commit -m 'Initial commit'",
-            "echo hi >> test.txt; git commit -am 'Second commit'",
+            "echo hi > test.txt",
+            "git add .",
+            "git commit -m 'Initial commit'",
+            "echo hi >> test.txt",
+            "git commit -am 'Second commit'",
         ])
     }
 
@@ -63,7 +85,7 @@ class App {
             await this.runLazynessCommands()
             await this.runInitCommands()
 
-            this.shell.type("cd repo\n")
+            this.shell.type("cd repo\nclear\n")
 
             this.updateACoupleOfTimes()
 
