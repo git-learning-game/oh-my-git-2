@@ -6,6 +6,7 @@ import {
     GitBlob,
     GitRef,
     GitIndex,
+    WorkingDirectory,
 } from "./repository"
 
 import * as d3 from "d3"
@@ -220,10 +221,40 @@ export class Graph {
             .force("charge", d3.forceManyBody().strength(-50))
             .force(
                 "center",
-                d3.forceCenter(width / 2, height * 0.6).strength(0.5),
+                d3.forceCenter(width / 2, height / 2).strength(0.2),
             )
-            .force("x", d3.forceX(width / 2).strength(0.01))
-            .force("y", d3.forceY(height / 2).strength(0.01))
+            .force(
+                "x",
+                d3
+                    .forceX(function (d) {
+                        if (d instanceof GitCommit) {
+                            return width * 0.4
+                        } else if (d instanceof GitBlob) {
+                            return width * 0.6
+                        } else if (
+                            d instanceof GitIndex ||
+                            d instanceof WorkingDirectory
+                        ) {
+                            return width * 0.8
+                        } else {
+                            return 0
+                        }
+                    })
+                    .strength(function (d) {
+                        if (
+                            d instanceof GitCommit ||
+                            d instanceof GitBlob ||
+                            d instanceof GitIndex ||
+                            d instanceof WorkingDirectory
+                        ) {
+                            return 0.5
+                        } else {
+                            return 0
+                        }
+                    }),
+            )
+            .force("cx", d3.forceX(width / 2).strength(0.01))
+            .force("cy", d3.forceY(height / 2).strength(0.01))
             /*.force(
                 "commit-y",
                 d3.forceY(height / 2).strength((d) => {
