@@ -1,9 +1,11 @@
 <script lang="ts">
     import {onMount} from "svelte"
 
+    import Graph from "./Graph.svelte"
+    import Help from "./Help.svelte"
+
     import WebShell from "./web-shell.ts"
     import {Repository} from "./repository.ts"
-    import Graph from "./Graph.svelte"
 
     // Show a warning when the user tries to leave the page (for example, by pressing Ctrl-W...)
     //window.onbeforeunload = function (e) {
@@ -59,14 +61,14 @@
 
             "git init",
 
-            "touch apple",
+            "echo 'no color' > bikeshed",
             "git add .",
-            "git commit -m 'Apple exists'",
-            "echo 'green' > apple",
-            "git commit -am 'Apple is green'",
+            "git commit -m 'Bike shed exists'",
+            "echo 'green' > bikeshed",
+            "git commit -am 'Bike shed is green'",
             "git checkout @^",
-            "echo 'red' > apple",
-            "git commit -am 'Apple is red'",
+            "echo 'red' > bikeshed",
+            "git commit -am 'Bike shed is red'",
         ])
     }
 
@@ -123,25 +125,27 @@
     })
 </script>
 
-<div id="screen">
+<div id="container">
     <div id="grid">
         <div id="graph">
             <Graph bind:this={graph} />
         </div>
         <!--<div id="objects" bind:this={objectsDiv} />-->
         <div id="screen" bind:this={screenDiv} />
-        <div id="help">help</div>
+        <div id="help">
+            <Help />
+        </div>
         <!--<div id="serial" bind:this={serialDiv} />-->
     </div>
 </div>
 
 <style>
     :root {
-        --term-width: 40em;
-        --term-height: 30em;
+        --term-width: 30.2em;
+        --term-height: 22em;
     }
 
-    #screen {
+    #container {
         display: flex;
         flex-direction: column;
     }
@@ -167,9 +171,6 @@
     #help,
     #serial,
     #objects {
-        background: black;
-        color: white;
-        font-family: monospace;
         overflow: auto;
     }
 
@@ -181,6 +182,7 @@
     #screen {
         grid-area: screen;
         background: lightgreen;
+        font-family: monospace;
     }
 
     #serial {
