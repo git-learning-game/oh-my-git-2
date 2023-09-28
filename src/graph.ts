@@ -7,6 +7,7 @@ import {
     GitRef,
     GitIndex,
     WorkingDirectory,
+    UnAddedFile,
 } from "./repository"
 
 import * as d3 from "d3"
@@ -249,6 +250,10 @@ export class Graph {
                                 return "images/ref.png"
                             } else if (d instanceof GitIndex) {
                                 return "images/index.png"
+                            } else if (d instanceof WorkingDirectory) {
+                                return "images/wd.png"
+                            } else if (d instanceof UnAddedFile) {
+                                return "images/file.png"
                             } else {
                                 return "images/generic.png"
                             }
@@ -289,7 +294,7 @@ export class Graph {
                 (update) => {
                     update.select("text").text((d) => d.label)
                     update.select("title").text((d) => d.tooltip)
-                    update.select(".tooltip text").text((d) => d.tooltip)
+                    update.select(".tooltip p").text((d) => d.tooltip)
                     return update
                 },
                 (exit) => {

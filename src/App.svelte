@@ -22,6 +22,7 @@
     let graph: Graph
 
     async function runConfigureCommands() {
+        await shell.type("stty rows 10\nclear\n")
         await shell.putFile("~/.gitconfig", [
             "[init]",
             "    defaultBranch = main",
@@ -141,8 +142,8 @@
 
 <style>
     :root {
-        --term-width: 30.2em;
-        --term-height: 22em;
+        --term-width: 730px;
+        --term-height: 210px;
     }
 
     #container {

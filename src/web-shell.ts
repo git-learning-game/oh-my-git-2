@@ -32,8 +32,8 @@ class WebShell {
             let screenDiv = screen
             screenDiv.style.whiteSpace = "pre"
             screenDiv.style.fontFamily = "monospace"
-            screenDiv.style.fontSize = "12px"
-            screenDiv.style.lineHeight = "14px"
+            screenDiv.style.fontSize = "18px"
+            screenDiv.style.lineHeight = "20px"
 
             let innerDiv = document.createElement("div")
             let canvas = document.createElement("canvas")

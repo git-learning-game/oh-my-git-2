@@ -380,7 +380,7 @@ export class Repository {
                         object = new GitBlob(oid, content)
                     }
                     object.tooltip = content
-                    object.label = oid.slice(0, 7)
+                    object.label = oid.slice(0, 4)
                     this.objects[oid] = object
                 }
             }

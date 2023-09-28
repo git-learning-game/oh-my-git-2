@@ -1,6 +1,6 @@
 <div>
     <h2>
-        <img src="/images/generic.png" />Uncommitted file
+        <img src="/images/file.png" />Uncommitted file
         <span>Before it becomes a blob</span>
     </h2>
 
@@ -8,7 +8,10 @@
         <li>Create: <code>echo <i>content</i> &gt; <i>filename</i></code></li>
     </ul>
 
-    <h2><img src="/images/blob.png" />Blob</h2>
+    <h2>
+        <img src="/images/blob.png" />Blob
+        <span>A piece of nameless information</span>
+    </h2>
 
     <ul>
         <li>
@@ -18,7 +21,7 @@
     </ul>
 
     <h2>
-        <img src="/images/generic.png" />Working directory
+        <img src="/images/wd.png" />Working directory
         <span>What you actually see</span>
     </h2>
 
@@ -33,7 +36,7 @@
     </ul>
 
     <h2>
-        <img src="/images/index.png" />Index <span>Prepares next tree</span>
+        <img src="/images/index.png" />Index <span>Prepares the next tree</span>
     </h2>
 
     <ul>
@@ -46,30 +49,29 @@
     </ul>
 
     <h2>
-        <img src="/images/commit.png" />Commit
-        <span>Records author of a tree, can have parents </span>
-    </h2>
-
-    <ul>
-        <li>
-            Create from tree: <code
-                >git commit-tree <i>tree</i> -m <i>"message"</i></code
-            >
-        </li>
-        <li>
-            Create (with parent): <code
-                >git commit-tree <i>tree</i> -<i>p parent</i></code
-            >
-        </li>
-    </ul>
-
-    <h2>
         <img src="/images/tree.png" />Tree
         <span>A collection of blobs or other trees</span>
     </h2>
 
     <ul>
         <li>Create from index: <code>git write-tree</code></li>
+    </ul>
+
+    <h2>
+        <img src="/images/commit.png" />Commit
+        <span>Adds info to a tree, can have parents </span>
+    </h2>
+
+    <ul>
+        <li>
+            Create: <code>git commit-tree <i>tree</i> -m <i>"message"</i></code>
+        </li>
+        <li>
+            Create (with parent): <code
+                >git commit-tree <i>tree</i> -p <i>parent</i> -m
+                <i>"message"</i></code
+            >
+        </li>
     </ul>
 
     <!--<h2><img src="/images/ref.png" />HEAD</h2>
