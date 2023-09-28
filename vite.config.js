@@ -1,4 +1,5 @@
 import {defineConfig} from "vite"
+import {svelte} from "@sveltejs/vite-plugin-svelte"
 import legacy from "@rollup/plugin-legacy"
 import checker from "vite-plugin-checker"
 
@@ -9,5 +10,6 @@ export default defineConfig({
             //"./src/testy.js": "testy",
         }),
         checker({typescript: true}),
+        svelte(),
     ],
 })

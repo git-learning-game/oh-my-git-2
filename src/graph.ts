@@ -26,7 +26,143 @@ export class Graph {
     constructor(repo: Repository, div: HTMLDivElement) {
         this.repo = repo
         this.div = div
-        this.initGraph()
+
+        const width = 928
+        const height = 600
+
+        let ticked = () => {
+            this.linkGroup
+                .attr("x1", (d) => d.source.x)
+                .attr("y1", (d) => d.source.y)
+                .attr("x2", (d) => d.target.x)
+                .attr("y2", (d) => d.target.y)
+
+            this.nodeGroup.attr("transform", (d) => {
+                return `translate(${d.x}, ${d.y})`
+            })
+        }
+
+        this.simulation = d3
+            .forceSimulation()
+            .force("link", d3.forceLink().distance(60))
+            .force("charge", d3.forceManyBody().strength(-50))
+            .force(
+                "center",
+                d3.forceCenter(width / 2, height / 2).strength(0.2),
+            )
+            .force(
+                "x",
+                d3
+                    .forceX(function (d) {
+                        if (d instanceof GitCommit) {
+                            return width * 0.4
+                        } else if (d instanceof GitBlob) {
+                            return width * 0.6
+                        } else if (
+                            d instanceof GitIndex ||
+                            d instanceof WorkingDirectory
+                        ) {
+                            return width * 0.8
+                        } else {
+                            return 0
+                        }
+                    })
+                    .strength(function (d) {
+                        if (
+                            d instanceof GitCommit ||
+                            d instanceof GitBlob ||
+                            d instanceof GitIndex ||
+                            d instanceof WorkingDirectory
+                        ) {
+                            return 0.5
+                        } else {
+                            return 0
+                        }
+                    }),
+            )
+            .force("cx", d3.forceX(width / 2).strength(0.01))
+            .force("cy", d3.forceY(height / 2).strength(0.01))
+            /*.force(
+                "commit-y",
+                d3.forceY(height / 2).strength((d) => {
+                    if (d instanceof GitCommit) {
+                        return 1
+                    } else {
+                        return 0
+                    }
+                }),
+            )
+            .force(
+                "ref-y",
+                d3.forceY(height / 4).strength((d) => {
+                    if (d instanceof GitRef) {
+                        return 1
+                    } else {
+                        return 0
+                    }
+                }),
+            )*/
+            .on("tick", ticked)
+
+        const svg = d3
+            .create("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("viewBox", [0, 0, width, height])
+
+        const g = svg.append("g")
+
+        function zoomed(event: d3.D3ZoomEvent<SVGSVGElement, unknown>) {
+            g.attr("transform", event.transform as any)
+        }
+
+        svg.call(
+            d3
+                .zoom()
+                .extent([
+                    [0, 0],
+                    [width, height],
+                ])
+                .scaleExtent([1, 8])
+                .on("zoom", zoomed) as any,
+        )
+
+        // Add a marker for the arrowhead.
+        let markerBoxWidth = 10
+        let markerBoxHeight = 10
+        let refX = 13
+        let refY = 2.5
+        let arrowPoints: [number, number][] = [
+            [0, 0],
+            [0, 5],
+            [5, 2.5],
+        ]
+        svg.append("defs")
+            .append("marker")
+            .attr("id", "arrowhead")
+            .attr("viewBox", [0, 0, markerBoxWidth, markerBoxHeight])
+            .attr("refX", refX)
+            .attr("refY", refY)
+            .attr("markerWidth", markerBoxWidth)
+            .attr("markerHeight", markerBoxHeight)
+            .attr("orient", "auto-start-reverse")
+            .append("path")
+            .attr("d", d3.line()(arrowPoints))
+            .attr("stroke", "black")
+
+        this.linkGroup = g
+            .append("g")
+            .attr("stroke", "#999")
+            .attr("stroke-opacity", 0.6)
+            .attr("stroke-width", 2)
+            .selectAll()
+
+        this.nodeGroup = g.append("g").selectAll()
+
+        let svgNode = svg.node()
+        if (svgNode !== null) {
+            this.div.appendChild(svgNode)
+        }
     }
 
     update(): void {
@@ -88,11 +224,7 @@ export class Graph {
 
         //links = links.map((d) => Object.assign({}, d))
 
-        let linkForce: d3.ForceLink<
-            d3.SimulationNodeDatum,
-            d3.SimulationLinkDatum<d3.SimulationNodeDatum>
-        > = this.simulation.force("link")
-
+        let linkForce: any = this.simulation.force("link")
         linkForce.links(links)
 
         this.nodeGroup = this.nodeGroup
@@ -197,139 +329,5 @@ export class Graph {
         )
 
         this.simulation.alpha(0.3).restart()
-    }
-
-    initGraph(): void {
-        const width = 928
-        const height = 600
-
-        let ticked = () => {
-            this.linkGroup
-                .attr("x1", (d) => d.source.x)
-                .attr("y1", (d) => d.source.y)
-                .attr("x2", (d) => d.target.x)
-                .attr("y2", (d) => d.target.y)
-
-            this.nodeGroup.attr("transform", (d) => {
-                return `translate(${d.x}, ${d.y})`
-            })
-        }
-
-        this.simulation = d3
-            .forceSimulation()
-            .force("link", d3.forceLink().distance(60))
-            .force("charge", d3.forceManyBody().strength(-50))
-            .force(
-                "center",
-                d3.forceCenter(width / 2, height / 2).strength(0.2),
-            )
-            .force(
-                "x",
-                d3
-                    .forceX(function (d) {
-                        if (d instanceof GitCommit) {
-                            return width * 0.4
-                        } else if (d instanceof GitBlob) {
-                            return width * 0.6
-                        } else if (
-                            d instanceof GitIndex ||
-                            d instanceof WorkingDirectory
-                        ) {
-                            return width * 0.8
-                        } else {
-                            return 0
-                        }
-                    })
-                    .strength(function (d) {
-                        if (
-                            d instanceof GitCommit ||
-                            d instanceof GitBlob ||
-                            d instanceof GitIndex ||
-                            d instanceof WorkingDirectory
-                        ) {
-                            return 0.5
-                        } else {
-                            return 0
-                        }
-                    }),
-            )
-            .force("cx", d3.forceX(width / 2).strength(0.01))
-            .force("cy", d3.forceY(height / 2).strength(0.01))
-            /*.force(
-                "commit-y",
-                d3.forceY(height / 2).strength((d) => {
-                    if (d instanceof GitCommit) {
-                        return 1
-                    } else {
-                        return 0
-                    }
-                }),
-            )
-            .force(
-                "ref-y",
-                d3.forceY(height / 4).strength((d) => {
-                    if (d instanceof GitRef) {
-                        return 1
-                    } else {
-                        return 0
-                    }
-                }),
-            )*/
-            .on("tick", ticked)
-
-        const svg = d3
-            .create("svg")
-            .attr("width", width)
-            .attr("height", height)
-            .attr("viewBox", [0, 0, width, height])
-
-        const g = svg.append("g")
-
-        svg.call(
-            d3
-                .zoom()
-                .extent([
-                    [0, 0],
-                    [width, height],
-                ])
-                .scaleExtent([1, 8])
-                .on("zoom", ({transform}) => {
-                    g.attr("transform", transform)
-                }),
-        )
-
-        // Add a marker for the arrowhead.
-        let markerBoxWidth = 10
-        let markerBoxHeight = 10
-        let refX = 13
-        let refY = 2.5
-        let arrowPoints: [number, number][] = [
-            [0, 0],
-            [0, 5],
-            [5, 2.5],
-        ]
-        svg.append("defs")
-            .append("marker")
-            .attr("id", "arrowhead")
-            .attr("viewBox", [0, 0, markerBoxWidth, markerBoxHeight])
-            .attr("refX", refX)
-            .attr("refY", refY)
-            .attr("markerWidth", markerBoxWidth)
-            .attr("markerHeight", markerBoxHeight)
-            .attr("orient", "auto-start-reverse")
-            .append("path")
-            .attr("d", d3.line()(arrowPoints))
-            .attr("stroke", "black")
-
-        this.linkGroup = g
-            .append("g")
-            .attr("stroke", "#999")
-            .attr("stroke-opacity", 0.6)
-            .attr("stroke-width", 2)
-            .selectAll()
-
-        this.nodeGroup = g.append("g").selectAll()
-
-        this.div.appendChild(svg.node())
     }
 }

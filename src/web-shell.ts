@@ -1,4 +1,6 @@
+// @ts-ignore
 import V86Starter from "../external/v86/build/libv86.js"
+
 import {Mutex} from "async-mutex"
 
 class WebShell {
@@ -7,7 +9,7 @@ class WebShell {
 
     // Whether or not to restore the VM state from a file. Set to false to perform a regular boot.
     private restoreState = true
-    private config = {
+    private config: any = {
         wasm_path: "../external/v86/build/v86.wasm",
         memory_size: 64 * 1024 * 1024,
         vga_memory_size: 2 * 1024 * 1024,
@@ -26,7 +28,7 @@ class WebShell {
     constructor(screen?: HTMLDivElement, serial?: HTMLDivElement) {
         this.mutex = new Mutex()
 
-        if (typeof screen !== "undefined") {
+        if (screen) {
             let screenDiv = screen
             screenDiv.style.whiteSpace = "pre"
             screenDiv.style.fontFamily = "monospace"
@@ -62,6 +64,9 @@ class WebShell {
                 if (outputInDiv) {
                     let currentContent = this.serialDiv.textContent
                     let maxLength = 10000
+                    if (currentContent === null) {
+                        currentContent = ""
+                    }
                     if (currentContent.length > maxLength) {
                         currentContent = currentContent.slice(
                             currentContent.length - maxLength,

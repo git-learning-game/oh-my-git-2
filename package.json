@@ -1,6 +1,7 @@
 {
     "name": "web-shell",
     "version": "0.1.0",
+    "type": "module",
     "scripts": {
         "dev": "vite",
         "build": "vite build",
@@ -14,6 +15,8 @@
     },
     "devDependencies": {
         "@rollup/plugin-legacy": "^3.0.1",
+        "@sveltejs/vite-plugin-svelte": "^2.4.6",
+        "@tsconfig/svelte": "^5.0.2",
         "@types/d3": "^7.4.0",
         "@vitest/browser": "^0.34.4",
         "prettier": "^3.0.3",

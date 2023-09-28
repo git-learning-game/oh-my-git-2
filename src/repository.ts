@@ -10,8 +10,8 @@ export enum GitNodeType {
 }
 
 export abstract class GitNode implements d3.SimulationNodeDatum {
-    label?: string
-    tooltip?: string
+    label: string = ""
+    tooltip: string = ""
 
     x?: number
     y?: number
@@ -23,6 +23,12 @@ export class GitRef extends GitNode {
     name: string
     target: string
 
+    constructor(name: string, target: string) {
+        super()
+        this.name = name
+        this.target = target
+    }
+
     id(): string {
         return this.name
     }
@@ -31,6 +37,11 @@ export class GitRef extends GitNode {
 export class GitObject extends GitNode {
     oid: ObjectID
 
+    constructor(oid: ObjectID) {
+        super()
+        this.oid = oid
+    }
+
     id(): string {
         return this.oid
     }
@@ -38,6 +49,11 @@ export class GitObject extends GitNode {
 
 export class GitBlob extends GitObject {
     content: string
+
+    constructor(oid: ObjectID, content: string) {
+        super(oid)
+        this.content = content
+    }
 }
 
 export class GitCommit extends GitObject {
@@ -45,10 +61,29 @@ export class GitCommit extends GitObject {
     parents: ObjectID[]
     author: string
     message: string
+
+    constructor(
+        oid: ObjectID,
+        tree: ObjectID,
+        parents: ObjectID[],
+        author: string,
+        message: string,
+    ) {
+        super(oid)
+        this.tree = tree
+        this.parents = parents
+        this.author = author
+        this.message = message
+    }
 }
 
 export class GitTree extends GitObject {
     entries: GitTreeEntry[]
+
+    constructor(oid: ObjectID, entries: GitTreeEntry[]) {
+        super(oid)
+        this.entries = entries
+    }
 }
 
 type GitTreeEntry = {
@@ -74,6 +109,12 @@ type IndexEntry = {
 export class UnAddedFile extends GitNode {
     name: string
     content: string
+
+    constructor(name: string, content: string) {
+        super()
+        this.name = name
+        this.content = content
+    }
 
     id(): string {
         return this.name
@@ -193,9 +234,7 @@ export class Repository {
             if (oid && name) {
                 this.allNodes.push(name)
                 if (this.refs[name] === undefined) {
-                    let ref = new GitRef()
-                    ref.name = name
-                    ref.target = oid
+                    let ref = new GitRef(name, oid)
                     ref.label = name
                     this.refs[name] = ref
                 } else {
@@ -219,12 +258,12 @@ export class Repository {
             // Ref doesn't exist. That's okay.
         } else {
             if (this.refs[name] === undefined) {
-                let ref = new GitRef()
-                ref.name = name
+                let ref = new GitRef(name, target)
                 ref.label = name
                 this.refs[name] = ref
+            } else {
+                this.refs[name].target = target
             }
-            this.refs[name].target = target
             this.allNodes.push(name) // TODO: This might conflict with an OID hash?
         }
     }
@@ -273,17 +312,14 @@ export class Repository {
     }
 
     async buildUnAddedFile(name: string): Promise<UnAddedFile> {
-        let file = new UnAddedFile()
         let content = await this.shell.run(`cat "${name}"`)
-        file.content = content
+        let file = new UnAddedFile(name, content)
         file.label = name
         file.tooltip = content
         return file
     }
 
-    buildTree(content: string): GitTree {
-        let tree = new GitTree()
-
+    buildTree(oid: ObjectID, content: string): GitTree {
         let entries: GitTreeEntry[] = []
         for (let line of content.split("\n")) {
             if (line !== "") {
@@ -297,11 +333,11 @@ export class Repository {
             }
         }
 
-        tree.entries = entries
+        let tree = new GitTree(oid, entries)
         return tree
     }
 
-    buildCommit(content: string): GitCommit {
+    buildCommit(oid: ObjectID, content: string): GitCommit {
         let lines = content.split("\n")
         let tree = lines[0].split(" ")[1]
         let parents: string[] = []
@@ -320,11 +356,7 @@ export class Repository {
             }
         }
 
-        let commit = new GitCommit()
-        commit.tree = tree
-        commit.parents = parents
-        commit.author = author
-        commit.message = message
+        let commit = new GitCommit(oid, tree, parents, author, message)
         return commit
     }
 
@@ -341,13 +373,12 @@ export class Repository {
                     let content = await this.getGitObjectContent(oid)
                     let object: GitObject
                     if (type == GitNodeType.Tree) {
-                        object = this.buildTree(content)
+                        object = this.buildTree(oid, content)
                     } else if (type == GitNodeType.Commit) {
-                        object = this.buildCommit(content)
+                        object = this.buildCommit(oid, content)
                     } else {
-                        object = new GitBlob()
+                        object = new GitBlob(oid, content)
                     }
-                    object.oid = oid
                     object.tooltip = content
                     object.label = oid.slice(0, 7)
                     this.objects[oid] = object
