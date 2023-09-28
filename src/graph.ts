@@ -74,7 +74,7 @@ export class Graph {
                             d instanceof GitIndex ||
                             d instanceof WorkingDirectory
                         ) {
-                            return 0.5
+                            return 0.3
                         } else {
                             return 0
                         }

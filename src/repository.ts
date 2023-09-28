@@ -297,11 +297,11 @@ export class Repository {
             let name = line.substr(2)
             if (name !== "") {
                 // Check if this file has already been hashed.
-                try {
+                let oid = await this.shell.run(`git hash-object "${name}"`)
+                if (this.resolve(oid) !== undefined) {
                     // Yup!
-                    let oid = await this.shell.run(`git hash-object "${name}"`)
                     this.workingDirectory.entries.push({name, oid})
-                } catch (e) {
+                } else {
                     // Nope!
                     this.workingDirectory.entries.push({name})
                     this.files[name] = await this.buildUnAddedFile(name)
