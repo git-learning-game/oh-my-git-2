@@ -35,7 +35,9 @@ export class Graph {
             Object.assign(old.get(d.id()) || {}, d),
         )*/
         nodes = nodes.concat(Object.values(this.repo.refs))
+        nodes = nodes.concat(Object.values(this.repo.files))
         nodes.push(this.repo.index)
+        nodes.push(this.repo.workingDirectory)
 
         this.simulation.nodes(nodes).alphaTarget(0.3)
 
@@ -77,6 +79,10 @@ export class Graph {
 
         for (let entry of this.repo.index.entries) {
             tryAddLink(this.repo.index.id(), entry.oid)
+        }
+
+        for (let entry of this.repo.workingDirectory.entries) {
+            tryAddLink(this.repo.workingDirectory.id(), entry.oid || entry.name)
         }
 
         //links = links.map((d) => Object.assign({}, d))

@@ -71,12 +71,37 @@ type IndexEntry = {
     name: string
 }
 
+export class UnAddedFile extends GitNode {
+    name: string
+    content: string
+
+    id(): string {
+        return this.name
+        // TODO collision potential!
+    }
+}
+
+type WorkingDirectoryEntry = {
+    name: string
+    oid?: ObjectID
+}
+
+export class WorkingDirectory extends GitNode {
+    entries: WorkingDirectoryEntry[] = []
+
+    id(): string {
+        return "WORKING_DIRECTORY"
+    }
+}
+
 export class Repository {
     path: string //absolute path
     shell: WebShell
     objects: {[key: ObjectID]: GitObject} = {}
     refs: {[key: string]: GitRef} = {}
     index: GitIndex = new GitIndex()
+    files: {[key: string]: UnAddedFile} = {}
+    workingDirectory: WorkingDirectory = new WorkingDirectory()
 
     private allNodes: string[] = []
 
@@ -85,6 +110,8 @@ export class Repository {
         this.shell = shell
 
         this.index.label = "Index"
+
+        this.workingDirectory.label = "Working dir"
     }
 
     resolve(what: string): GitNode | undefined {
@@ -92,8 +119,12 @@ export class Repository {
             return this.objects[what]
         } else if (this.refs[what]) {
             return this.refs[what]
+        } else if (this.files[what]) {
+            return this.files[what]
         } else if (what == "INDEX") {
             return this.index
+        } else if (what == "WORKING_DIRECTORY") {
+            return this.workingDirectory
         } else {
             return undefined
         }
@@ -131,6 +162,7 @@ export class Repository {
         await this.updateGitObjects()
         await this.updateSpecialRefs()
         await this.updateIndex()
+        await this.updateWorkingDirectory()
 
         this.removeDeletedNodes()
     }
@@ -212,6 +244,41 @@ export class Repository {
                 })
             }
         }
+    }
+
+    async updateWorkingDirectory(): Promise<void> {
+        var output = await this.shell.run(
+            "find . -type f -not -path '*/\\.git/*'",
+        )
+        let lines = output.split("\n")
+        this.workingDirectory.entries = []
+        this.workingDirectory.tooltip = output
+        this.files = {}
+        for (let line of lines) {
+            let name = line.substr(2)
+            if (name !== "") {
+                // Check if this file has already been hashed.
+                try {
+                    // Yup!
+                    let oid = await this.shell.run(`git hash-object "${name}"`)
+                    this.workingDirectory.entries.push({name, oid})
+                } catch (e) {
+                    // Nope!
+                    this.workingDirectory.entries.push({name})
+                    this.files[name] = await this.buildUnAddedFile(name)
+                    this.allNodes.push(name)
+                }
+            }
+        }
+    }
+
+    async buildUnAddedFile(name: string): Promise<UnAddedFile> {
+        let file = new UnAddedFile()
+        let content = await this.shell.run(`cat "${name}"`)
+        file.content = content
+        file.label = name
+        file.tooltip = content
+        return file
     }
 
     buildTree(content: string): GitTree {

@@ -104,6 +104,7 @@ class App {
         console.log(this, this.repo)
         await this.repo.update()
         let displayed = {
+            files: this.repo.files,
             index: this.repo.index,
             objects: this.repo.objects,
             refs: this.repo.refs,
