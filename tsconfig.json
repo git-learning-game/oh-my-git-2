@@ -6,6 +6,5 @@
         "lib": ["es2015", "dom"],
         "allowJs": true
     },
-    "include": ["src/**/*.ts", "src/**/*.svelte"],
-    "exclude": ["external"]
+    "include": ["src/**/*.ts", "src/**/*.svelte"]
 }

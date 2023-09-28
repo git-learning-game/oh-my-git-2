@@ -10,7 +10,7 @@ class WebShell {
     // Whether or not to restore the VM state from a file. Set to false to perform a regular boot.
     private restoreState = true
     private config: any = {
-        wasm_path: "../external/v86/build/v86.wasm",
+        wasm_path: "./v86.wasm",
         memory_size: 64 * 1024 * 1024,
         vga_memory_size: 2 * 1024 * 1024,
         bios: {url: "./images/seabios.bin"},
