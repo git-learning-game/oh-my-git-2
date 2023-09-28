@@ -71,6 +71,7 @@
     }
 
     async function update() {
+        graph.setRefreshing(true)
         await repo.update()
         let displayed = {
             files: repo.files,
@@ -78,19 +79,24 @@
             objects: repo.objects,
             refs: repo.refs,
         }
-        objectsDiv.innerText = JSON.stringify(displayed, null, 2)
+
+        if (objectsDiv) {
+            objectsDiv.innerText = JSON.stringify(displayed, null, 2)
+        }
 
         graph.update()
+        graph.setRefreshing(false)
     }
 
     function updateACoupleOfTimes() {
         setTimeout(async () => {
-            await update(), setTimeout(() => update(), 450)
-        }, 50)
+            await update()
+            //setTimeout(() => update(), 450)
+        }, 500)
     }
 
     onMount(() => {
-        shell = new WebShell(screenDiv, serialDiv)
+        shell = new WebShell(screenDiv)
 
         window["run"] = shell.run.bind(shell)
         window["shell"] = shell
@@ -117,31 +123,48 @@
     })
 </script>
 
-<div id="grid">
-    <div id="graph">
-        <Graph bind:this={graph} />
+<div id="screen">
+    <div id="grid">
+        <div id="graph">
+            <Graph bind:this={graph} />
+        </div>
+        <!--<div id="objects" bind:this={objectsDiv} />-->
+        <div id="screen" bind:this={screenDiv} />
+        <div id="help">help</div>
+        <!--<div id="serial" bind:this={serialDiv} />-->
     </div>
-    <div id="objects" bind:this={objectsDiv} />
-    <div id="screen" bind:this={screenDiv} />
-    <div id="serial" bind:this={serialDiv} />
 </div>
 
 <style>
+    :root {
+        --term-width: 40em;
+        --term-height: 30em;
+    }
+
+    #screen {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #help {
+        grid-area: help;
+    }
+
     #grid {
         width: 100vw;
         height: 100vh;
         display: grid;
         grid-template-areas:
-            "graph objects"
-            "screen serial";
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: 1fr 1fr;
+            "graph help"
+            "graph screen";
+        grid-template-columns: 1fr var(--term-width);
+        grid-template-rows: 1fr var(--term-height);
         grid-gap: 1px;
-        height: 100vh;
     }
 
     #graph,
     #screen,
+    #help,
     #serial,
     #objects {
         background: black;
