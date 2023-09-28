@@ -193,6 +193,7 @@ class WebShell {
     boot(): Promise<void> {
         return new Promise((resolve, _) => {
             // Start the this.emulator!
+            //@ts-ignore
             this.emulator = new V86Starter(this.config)
 
             // Wait for the this.emulator to start, then resolve the promise.

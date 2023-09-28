@@ -3,7 +3,7 @@
 
     import WebShell from "./web-shell.ts"
     import {Repository} from "./repository.ts"
-    import {Graph} from "./graph.ts"
+    import Graph from "./Graph.svelte"
 
     // Show a warning when the user tries to leave the page (for example, by pressing Ctrl-W...)
     //window.onbeforeunload = function (e) {
@@ -11,7 +11,6 @@
     //    e.returnValue = ""
     //}
 
-    let graphDiv: HTMLDivElement
     let screenDiv: HTMLDivElement
     let serialDiv: HTMLDivElement
     let objectsDiv: HTMLDivElement
@@ -97,8 +96,7 @@
         window["shell"] = shell
 
         repo = new Repository("/root/repo", shell)
-
-        graph = new Graph(repo, graphDiv)
+        graph.setRepo(repo)
 
         shell.boot().then(async () => {
             console.log("Booted!")
@@ -120,7 +118,9 @@
 </script>
 
 <div id="grid">
-    <div id="graph" bind:this={graphDiv} />
+    <div id="graph">
+        <Graph bind:this={graph} />
+    </div>
     <div id="objects" bind:this={objectsDiv} />
     <div id="screen" bind:this={screenDiv} />
     <div id="serial" bind:this={serialDiv} />

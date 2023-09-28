@@ -4,8 +4,7 @@
         "allowImportingTsExtensions": true,
         "typeRoots": ["typings", "node_modules/@types"],
         "lib": ["es2015", "dom"],
-        "allowJs": true,
-        "checkJs": true
+        "allowJs": true
     },
     "include": ["src/**/*.ts", "src/**/*.svelte"],
     "exclude": ["external"]
