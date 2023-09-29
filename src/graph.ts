@@ -33,10 +33,17 @@ export class Graph {
 
         let ticked = () => {
             this.linkGroup
+                .select("line")
                 .attr("x1", (d) => d.source.x)
                 .attr("y1", (d) => d.source.y)
                 .attr("x2", (d) => d.target.x)
                 .attr("y2", (d) => d.target.y)
+
+            this.linkGroup.select("text").attr("transform", (d) => {
+                let x = (d.source.x + d.target.x) / 2
+                let y = (d.source.y + d.target.y) / 2
+                return `translate(${x}, ${y})`
+            })
 
             this.nodeGroup.attr("transform", (d) => {
                 return `translate(${d.x}, ${d.y})`
@@ -45,8 +52,8 @@ export class Graph {
 
         this.simulation = d3
             .forceSimulation()
-            .force("link", d3.forceLink().distance(60))
-            .force("charge", d3.forceManyBody().strength(-50))
+            .force("link", d3.forceLink().distance(100))
+            .force("charge", d3.forceManyBody().strength(-100))
             .force(
                 "center",
                 d3.forceCenter(width / 2, height / 2).strength(0.2),
@@ -174,9 +181,13 @@ export class Graph {
 
         this.simulation.nodes(nodes).alphaTarget(0.3)
 
-        let links: {source: GitNode; target: GitNode}[] = []
+        let links: {source: GitNode; target: GitNode; label?: string}[] = []
 
-        let tryAddLink = (sourceID: string, targetID: string): void => {
+        let tryAddLink = (
+            sourceID: string,
+            targetID: string,
+            label?: string,
+        ): void => {
             let source = this.repo.resolve(sourceID)
             if (source === undefined) {
                 throw new Error(
@@ -189,7 +200,7 @@ export class Graph {
                     `Link target with id ${targetID} not found in repo`,
                 )
             }
-            links.push({source, target})
+            links.push({source, target, label})
         }
 
         for (let node of nodes) {
@@ -211,11 +222,15 @@ export class Graph {
         }
 
         for (let entry of this.repo.index.entries) {
-            tryAddLink(this.repo.index.id(), entry.oid)
+            tryAddLink(this.repo.index.id(), entry.oid, entry.name)
         }
 
         for (let entry of this.repo.workingDirectory.entries) {
-            tryAddLink(this.repo.workingDirectory.id(), entry.oid || entry.name)
+            tryAddLink(
+                this.repo.workingDirectory.id(),
+                entry.oid || entry.name,
+                entry.name,
+            )
         }
 
         //links = links.map((d) => Object.assign({}, d))
@@ -301,15 +316,30 @@ export class Graph {
                 },
             )
 
-        this.linkGroup = this.linkGroup
-            .data(links)
-            .join((enter) =>
-                enter
-                    .append("line")
+        this.linkGroup = this.linkGroup.data(links).join(
+            (enter) => {
+                let g = enter.append("g")
+
+                g.append("line")
                     .attr("stroke", "#111")
                     .attr("stroke-width", 2)
-                    .attr("marker-end", "url(#arrowhead)"),
-            )
+                    .attr("marker-end", "url(#arrowhead)")
+
+                g.filter((d: any) => d.label !== undefined)
+                    .append("text")
+                    .attr("text-anchor", "middle")
+                    .attr("dominant-baseline", "middle")
+                    .attr("font-style", "italic")
+                    .attr("fill", "#444")
+                    .text((d: any) => d.label)
+
+                return g
+            },
+            (update) => {
+                update.select("text").text((d: any) => d.label)
+                return update
+            },
+        )
 
         this.nodeGroup.call(
             d3
