@@ -24,7 +24,6 @@
     let terminalNote = ""
 
     async function runConfigureCommands() {
-        await shell.type("stty rows 10\nclear\n")
         await shell.putFile("~/.gitconfig", [
             "[init]",
             "    defaultBranch = main",
@@ -54,7 +53,6 @@
 
             "alias l='ls -al'",
         ])
-        shell.type("source ~/.aliases\nclear\n")
     }
 
     async function runInitCommands() {
@@ -112,6 +110,8 @@
 
         terminalNote = "Booting Linux..."
         shell.boot().then(async () => {
+            shell.type("stty rows 10\n")
+            shell.type("clear\n")
             shell.setKeyboardActive(false)
             console.log("Booted!")
             terminalNote = "Initializing..."
@@ -119,9 +119,11 @@
             await runLazynessCommands()
             await runInitCommands()
 
-            shell.type("cd repo\nclear\n")
             terminalNote = ""
             shell.setKeyboardActive(true)
+            shell.type("source ~/.aliases\n")
+            shell.type("cd repo\n")
+            shell.type("clear\n")
 
             updateACoupleOfTimes()
 

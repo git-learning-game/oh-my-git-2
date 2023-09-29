@@ -5,6 +5,7 @@ import {Mutex} from "async-mutex"
 
 class WebShell {
     private mutex: Mutex
+    private mutex2: Mutex
     private emulator: any
 
     // Whether or not to restore the VM state from a file. Set to false to perform a regular boot.
@@ -27,6 +28,7 @@ class WebShell {
 
     constructor(screen?: HTMLDivElement, serial?: HTMLDivElement) {
         this.mutex = new Mutex()
+        this.mutex2 = new Mutex()
 
         if (screen) {
             let screenDiv = screen
@@ -116,8 +118,11 @@ class WebShell {
     }
 
     async run(cmd: string): Promise<string> {
+        await this.mutex2.acquire()
         let output = await this.run_unsafe(cmd)
         let exit_code = await this.run_unsafe("echo $?")
+        this.mutex2.release()
+
         if (exit_code != "0") {
             throw new Error(`Command '${cmd}' exited with code '${exit_code}'`)
         }
