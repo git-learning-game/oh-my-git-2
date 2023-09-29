@@ -70,6 +70,16 @@
             Point to file: <code>git add <i>filename</i></code>
         </li>
         <li>
+            Point to blob in HEAD commit: <code
+                >git restore --staged <i>filename</i></code
+            >
+        </li>
+        <li>
+            Point to blob: <code
+                >git restore --staged -s <i>commit</i> <i>filename</i></code
+            >
+        </li>
+        <li>
             Release file: <code>git rm --cached -f <i>filename</i></code>
         </li>
     </ul>

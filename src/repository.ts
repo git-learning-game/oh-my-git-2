@@ -146,6 +146,7 @@ export class Repository {
     workingDirectory: WorkingDirectory = new WorkingDirectory()
 
     private allNodes: string[] = []
+    private timings: {[key: string]: number} = {}
 
     constructor(path: string, shell: WebShell) {
         this.path = path
@@ -196,15 +197,31 @@ export class Repository {
         return ret
     }
 
+    private async time(desc: string, f: () => void): Promise<void> {
+        let start = performance.now()
+        await f()
+        let end = performance.now()
+        this.timings[desc] = end - start
+    }
+
     async update(): Promise<void> {
         // Keep track of all nodes, so we can delete removed stuff later.
         this.allNodes = []
 
-        await this.updateRefs()
-        await this.updateGitObjects()
-        await this.updateSpecialRefs()
-        await this.updateIndex()
-        await this.updateWorkingDirectory()
+        this.timings = {}
+
+        await this.time("refs", async () => await this.updateRefs())
+        await this.time("objects", async () => await this.updateGitObjects())
+        await this.time(
+            "specialrefs",
+            async () => await this.updateSpecialRefs(),
+        )
+        await this.time("index", async () => await this.updateIndex())
+        await this.time("wd", async () => await this.updateWorkingDirectory())
+
+        for (let t in this.timings) {
+            console.warn(`${t}: ${this.timings[t]}ms`)
+        }
 
         this.removeDeletedNodes()
     }
@@ -247,7 +264,7 @@ export class Repository {
     }
 
     async updateSpecialRefs(): Promise<void> {
-        let specialRefs = ["HEAD", "FETCH_HEAD", "ORIG_HEAD", "MERGE_HEAD"]
+        let specialRefs = ["HEAD"] //, "FETCH_HEAD", "ORIG_HEAD", "MERGE_HEAD"]
         for (let ref of specialRefs) {
             await this.updateSpecialRef(ref)
         }

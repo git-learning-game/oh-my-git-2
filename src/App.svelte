@@ -125,7 +125,7 @@
             shell.type("cd repo\n")
             shell.type("clear\n")
             shell.type(
-                "# If you're not usig a QWERTY keyboard, you can set your keyboard layout like this: loadkeys <de/fr/...>\n"
+                "# If you're not usig a QWERTY keyboard, you can set your keyboard layout using this command: loadkeys <de/fr/...>\n"
             )
 
             updateACoupleOfTimes()
