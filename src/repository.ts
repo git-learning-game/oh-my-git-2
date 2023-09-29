@@ -272,7 +272,6 @@ export class Repository {
 
     async updateIndex(): Promise<void> {
         let output = await this.shell.git("ls-files -s")
-        this.index.tooltip = output
         let lines = output.split("\n")
         this.index.entries = []
         for (let line of lines) {
@@ -294,7 +293,6 @@ export class Repository {
         )
         let lines = output.split("\n")
         this.workingDirectory.entries = []
-        this.workingDirectory.tooltip = output
         this.files = {}
         for (let line of lines) {
             let name = line.substr(2)

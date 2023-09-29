@@ -45,7 +45,7 @@
 
     <h2>
         <img src="/images/wd.png" />Working directory
-        <span>What you see in your directory</span>
+        <span>What you see in your project</span>
     </h2>
 
     <ul>
@@ -62,7 +62,7 @@
 
     <h2>
         <img src="/images/index.png" />Index
-        <span>A template for the next tree</span>
+        <span>A template for building a tree</span>
     </h2>
 
     <ul>

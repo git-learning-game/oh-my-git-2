@@ -110,7 +110,7 @@
 
         terminalNote = "Booting Linux..."
         shell.boot().then(async () => {
-            shell.type("stty rows 10\n")
+            shell.type("stty rows 15\n")
             shell.type("clear\n")
             shell.setKeyboardActive(false)
             console.log("Booted!")
@@ -163,7 +163,7 @@
 <style>
     :root {
         --term-width: 730px;
-        --term-height: 210px;
+        --term-height: 305px;
     }
 
     #container {
