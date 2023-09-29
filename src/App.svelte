@@ -1,6 +1,7 @@
 <script lang="ts">
     import {onMount} from "svelte"
 
+    import Terminal from "./Terminal.svelte"
     import Graph from "./Graph.svelte"
     import Help from "./Help.svelte"
 
@@ -13,13 +14,14 @@
     //    e.returnValue = ""
     //}
 
-    let screenDiv: HTMLDivElement
     let serialDiv: HTMLDivElement
     let objectsDiv: HTMLDivElement
 
     let shell: WebShell
     let repo: Repository
     let graph: Graph
+    let terminal: Terminal
+    let terminalNote = ""
 
     async function runConfigureCommands() {
         await shell.type("stty rows 10\nclear\n")
@@ -99,6 +101,7 @@
     }
 
     onMount(() => {
+        let screenDiv = terminal.getTerminalDiv()
         shell = new WebShell(screenDiv)
 
         window["run"] = shell.run.bind(shell)
@@ -107,13 +110,18 @@
         repo = new Repository("/root/repo", shell)
         graph.setRepo(repo)
 
+        terminalNote = "Booting Linux..."
         shell.boot().then(async () => {
+            shell.setKeyboardActive(false)
             console.log("Booted!")
+            terminalNote = "Initializing..."
             await runConfigureCommands()
             await runLazynessCommands()
             await runInitCommands()
 
             shell.type("cd repo\nclear\n")
+            terminalNote = ""
+            shell.setKeyboardActive(true)
 
             updateACoupleOfTimes()
 
@@ -132,12 +140,14 @@
             <Graph bind:this={graph} />
         </div>
         <!--<div id="objects" bind:this={objectsDiv} />-->
-        <div id="screen" bind:this={screenDiv} />
+        <div id="screen">
+            <Terminal bind:this={terminal} note={terminalNote} />
+        </div>
         <div id="help">
             <Help />
         </div>
-        <!--<div id="serial" bind:this={serialDiv} />-->
     </div>
+    <!--<div id="serial" bind:this={serialDiv} />-->
 </div>
 
 <style>

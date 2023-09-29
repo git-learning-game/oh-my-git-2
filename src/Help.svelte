@@ -112,6 +112,13 @@
         </li>
         <li>Delete: <code>git update-ref -d <i>name</i></code></li>
     </ul>
+
+    <!--<h2>Fun things to try</h2>
+
+    <ul>
+    <li><input type="checkbox"/> Create a </li>
+    </ul>
+    -->
 </div>
 
 <style>

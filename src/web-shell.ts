@@ -229,6 +229,10 @@ class WebShell {
         await this.run(`echo '${escapedContent}' > ${path}`)
         return
     }
+
+    setKeyboardActive(active: boolean): void {
+        this.emulator.keyboard_set_status(active)
+    }
 }
 
 export default WebShell
