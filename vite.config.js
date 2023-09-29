@@ -6,8 +6,7 @@ import checker from "vite-plugin-checker"
 export default defineConfig({
     plugins: [
         legacy({
-            "./external/v86/build/libv86.js": "V86Starter",
-            //"./src/testy.js": "testy",
+            "./public/v86/libv86.js": "V86Starter",
         }),
         checker({typescript: true}),
         svelte(),

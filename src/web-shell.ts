@@ -1,5 +1,5 @@
 // @ts-ignore
-import V86Starter from "../external/v86/build/libv86.js"
+import V86Starter from "../public/v86/libv86.js"
 
 import {Mutex} from "async-mutex"
 
@@ -10,12 +10,12 @@ class WebShell {
     // Whether or not to restore the VM state from a file. Set to false to perform a regular boot.
     private restoreState = true
     private config: any = {
-        wasm_path: "./v86.wasm",
+        wasm_path: "./v86/v86.wasm",
         memory_size: 64 * 1024 * 1024,
         vga_memory_size: 2 * 1024 * 1024,
-        bios: {url: "./images/seabios.bin"},
-        vga_bios: {url: "./images/vgabios.bin"},
-        cdrom: {url: "./images/image.iso.zst"},
+        bios: {url: "./v86/seabios.bin"},
+        vga_bios: {url: "./v86/vgabios.bin"},
+        cdrom: {url: "./v86/image.iso.zst"},
         disable_mouse: true,
         autostart: true,
     }
@@ -51,7 +51,7 @@ class WebShell {
 
         if (this.restoreState) {
             this.config["initial_state"] = {
-                url: "./images/booted-state.bin.zst",
+                url: "./v86/booted-state.bin.zst",
             }
         }
     }
