@@ -52,7 +52,16 @@ export class Graph {
 
         this.simulation = d3
             .forceSimulation()
-            .force("link", d3.forceLink().distance(100))
+            .force(
+                "link",
+                d3.forceLink().distance((d: any) => {
+                    if (d.label !== undefined) {
+                        return 100
+                    } else {
+                        return 50
+                    }
+                }),
+            )
             .force("charge", d3.forceManyBody().strength(-100))
             .force(
                 "center",
@@ -222,7 +231,11 @@ export class Graph {
         }
 
         for (let entry of this.repo.index.entries) {
-            tryAddLink(this.repo.index.id(), entry.oid, entry.name)
+            tryAddLink(
+                this.repo.index.id(),
+                entry.oid,
+                entry.name + (entry.stage > 0 ? ` (${entry.stage})` : ""),
+            )
         }
 
         for (let entry of this.repo.workingDirectory.entries) {

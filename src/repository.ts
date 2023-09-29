@@ -104,6 +104,7 @@ type IndexEntry = {
     mode: string
     oid: ObjectID
     name: string
+    stage: number
 }
 
 export class UnAddedFile extends GitNode {
@@ -276,11 +277,12 @@ export class Repository {
         this.index.entries = []
         for (let line of lines) {
             if (line !== "") {
-                let [mode, oid, _, name] = line.split(/[\s\t]/)
+                let [mode, oid, stage, name] = line.split(/[\s\t]/)
                 this.index.entries.push({
                     mode,
                     oid,
                     name,
+                    stage: parseInt(stage),
                 })
             }
         }
