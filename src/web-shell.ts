@@ -31,7 +31,7 @@ class WebShell {
         if (screen) {
             let screenDiv = screen
             screenDiv.style.whiteSpace = "pre"
-            screenDiv.style.fontFamily = "monospace"
+            screenDiv.style.fontFamily = "Iosevka"
             screenDiv.style.fontSize = "18px"
             screenDiv.style.lineHeight = "20px"
 

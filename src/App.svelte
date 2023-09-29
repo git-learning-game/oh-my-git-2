@@ -193,7 +193,7 @@
     #screen {
         grid-area: screen;
         background: lightgreen;
-        font-family: monospace;
+        font-family: Iosevka;
     }
 
     #serial {

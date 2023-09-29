@@ -34,7 +34,7 @@
         width: 100%;
         height: 100%;
         position: relative;
-        font-family: monospace;
+        font-family: Iosevka;
     }
     #refreshing {
         position: absolute;
