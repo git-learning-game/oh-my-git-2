@@ -1,4 +1,23 @@
 <div>
+    <h1>Oh My Git (in your browser!)</h1>
+
+    <p>
+        This is a early technical preview by <a
+            target="_blank"
+            href="https://bleeptrack.de">bleeptrack</a
+        >
+        and <a target="_blank" href="https://blinry.org">blinry</a>. We boot a
+        Linux VM in your browser, where you can use a <b>real Git!</b> We invite
+        you to try these low-level operations, and check out how the graph
+        changes in response! Expect (and
+        <a
+            target="_blank"
+            href="https://github.com/git-learning-game/oh-my-git-web">report</a
+        >) bugs! 💚
+    </p>
+
+    <hr />
+
     <h2>
         <img src="/images/file.png" />Uncommitted file
         <span>Before it becomes a blob</span>
@@ -10,7 +29,7 @@
 
     <h2>
         <img src="/images/blob.png" />Blob
-        <span>A piece of nameless information</span>
+        <span>A piece of content</span>
     </h2>
 
     <ul>
@@ -22,7 +41,7 @@
 
     <h2>
         <img src="/images/wd.png" />Working directory
-        <span>What you actually see</span>
+        <span>What you see in your directory</span>
     </h2>
 
     <ul>
@@ -30,13 +49,16 @@
             Point to blob in index: <code>git restore <i>filename</i> </code>
         </li>
         <li>
-            Point to blob: <code>git restore -s commit <i>filename</i> </code>
+            Point to blob: <code
+                >git restore -s <i>commit</i> <i>filename</i>
+            </code>
         </li>
         <li>Release file: <code>rm <i>filename</i></code></li>
     </ul>
 
     <h2>
-        <img src="/images/index.png" />Index <span>Prepares the next tree</span>
+        <img src="/images/index.png" />Index
+        <span>A template for the next tree</span>
     </h2>
 
     <ul>
@@ -98,8 +120,7 @@
 
     <ul>
         <li>
-            Create: <code>git update-ref <i>name</i> <i>target</i></code>
-            (should start with <code>ref/</code>)
+            Create: <code>git update-ref refs/<i>name</i> <i>target</i></code>
         </li>
         <li>
             Point at object: <code
@@ -122,6 +143,11 @@
 </div>
 
 <style>
+    hr {
+        border: none;
+        margin-bottom: 1em;
+    }
+
     h2 span {
         font-size: 70%;
         font-style: italic;

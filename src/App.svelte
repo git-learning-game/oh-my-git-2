@@ -124,6 +124,9 @@
             shell.type("source ~/.aliases\n")
             shell.type("cd repo\n")
             shell.type("clear\n")
+            shell.type(
+                "# If you're not usig a QWERTY keyboard, you can set your keyboard layout like this: loadkeys <de/fr/...>\n"
+            )
 
             updateACoupleOfTimes()
 
@@ -176,7 +179,6 @@
             "graph screen";
         grid-template-columns: 1fr var(--term-width);
         grid-template-rows: 1fr var(--term-height);
-        grid-gap: 1px;
     }
 
     #graph,
@@ -194,7 +196,6 @@
 
     #screen {
         grid-area: screen;
-        background: lightgreen;
         font-family: Iosevka;
     }
 

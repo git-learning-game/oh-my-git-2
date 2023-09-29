@@ -49,7 +49,7 @@
      inkscape:window-width="1920"
      inkscape:window-height="1080"
      inkscape:window-x="0"
-     inkscape:window-y="1024"
+     inkscape:window-y="0"
      inkscape:window-maximized="1"
      inkscape:snap-global="false"
      inkscape:showpageshadow="2"
@@ -73,18 +73,10 @@
      transform="translate(-103.71105,-96.205322)">
     <path
        id="rect831"
-       style="fill:#3d43cf;fill-rule:evenodd;stroke-width:0.0999996;stroke-linecap:round;stroke-linejoin:round"
-       d="m 111.42581,96.205322 13.52541,0 c 1.85371,0 3.34605,1.492338 3.34605,3.346048 v 17.89412 c 0,1.85371 -1.49234,3.34605 -3.34605,3.34605 l -13.52541,0 c -1.85371,0 -3.34605,-1.49234 -3.34605,-3.34605 V 99.55137 c 0,-1.85371 1.49234,-3.346048 3.34605,-3.346048 z"
-       sodipodi:nodetypes="sssssssss" />
+       style="fill:#6064dc;fill-rule:evenodd;stroke-width:0.0999996;stroke-linecap:round;stroke-linejoin:round;fill-opacity:1"
+       d="M 111.42582 96.205322 C 109.93994 96.205322 108.6883 97.165038 108.24927 98.500272 L 103.71105 108.93374 L 108.3981 118.87629 L 108.40275 118.87732 C 108.93787 120.00978 110.08581 120.79142 111.42582 120.79142 L 124.9511 120.79142 C 126.80481 120.79142 128.29715 119.29908 128.29715 117.44537 L 128.29715 99.551371 C 128.29715 97.697663 126.80481 96.205322 124.9511 96.205322 L 111.42582 96.205322 z " />
     <g
        id="g1255"
        transform="matrix(0.31877122,0.94783169,0.94783169,-0.31877122,-4.6248535,15.568302)" />
-    <path
-       style="fill:#3d43cf;fill-opacity:1;stroke-width:2.11667;stroke-linecap:square"
-       d="m 108.41684,98.11536 -4.70579,10.8185 4.68716,9.94266 4.2188,0.92411 7.0282,-14.29288 -7.56931,-6.898053 z"
-       id="path1"
-       inkscape:path-effect="#path-effect1"
-       inkscape:original-d="m 108.41684,98.11536 -4.70579,10.8185 4.68716,9.94266 4.2188,0.92411 7.0282,-14.29288 -7.56931,-6.898053 z"
-       sodipodi:nodetypes="ccccccc" />
   </g>
 </svg>

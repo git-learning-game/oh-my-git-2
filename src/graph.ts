@@ -51,7 +51,7 @@ export class Graph {
                 "center",
                 d3.forceCenter(width / 2, height / 2).strength(0.2),
             )
-            .force(
+            /*.force(
                 "x",
                 d3
                     .forceX(function (d) {
@@ -80,7 +80,7 @@ export class Graph {
                             return 0
                         }
                     }),
-            )
+            )*/
             .force("cx", d3.forceX(width / 2).strength(0.01))
             .force("cy", d3.forceY(height / 2).strength(0.01))
             /*.force(
@@ -149,14 +149,9 @@ export class Graph {
             .attr("orient", "auto-start-reverse")
             .append("path")
             .attr("d", d3.line()(arrowPoints))
-            .attr("stroke", "black")
+            .attr("fill", "#111")
 
-        this.linkGroup = g
-            .append("g")
-            .attr("stroke", "#999")
-            .attr("stroke-opacity", 0.6)
-            .attr("stroke-width", 2)
-            .selectAll()
+        this.linkGroup = g.append("g").selectAll()
 
         this.nodeGroup = g.append("g").selectAll()
 
@@ -261,6 +256,7 @@ export class Graph {
 
                     g.on("mouseover", function (_, __) {
                         d3.select(this)
+                            .filter((d: any) => d.tooltip !== "")
                             .select(".tooltip")
                             .style("visibility", "visible")
                     }).on("mouseout", function (_, __) {
@@ -269,17 +265,19 @@ export class Graph {
                             .style("visibility", "hidden")
                     })
 
-                    g.append("text").text((d) => d.label)
+                    g.append("text")
+                        .attr("transform", "translate(-16, 5)")
+                        .text((d) => d.label)
 
                     let tooltip = g
                         .append("g")
                         .attr("class", "tooltip")
-                        .attr("transform", "translate(0, 20)")
+                        .attr("transform", "translate(-16, 20)")
                         .style("visibility", "hidden")
 
                     tooltip
                         .append("foreignObject")
-                        .attr("width", 1000)
+                        .attr("width", 600)
                         .attr("height", 1000)
                         .append("xhtml:p")
                         .text((d) => d.tooltip)
@@ -308,7 +306,7 @@ export class Graph {
             .join((enter) =>
                 enter
                     .append("line")
-                    .attr("stroke", "black")
+                    .attr("stroke", "#111")
                     .attr("stroke-width", 2)
                     .attr("marker-end", "url(#arrowhead)"),
             )
