@@ -220,7 +220,7 @@ export class Graph {
                 tryAddLink(node.id(), (node as GitCommit).tree)
             } else if (node instanceof GitTree) {
                 for (let entry of (node as GitTree).entries) {
-                    tryAddLink(node.id(), entry.oid)
+                    tryAddLink(node.id(), entry.oid, entry.name)
                 }
             } else if (node instanceof GitRef) {
                 let target = this.repo.resolve((node as GitRef).target)

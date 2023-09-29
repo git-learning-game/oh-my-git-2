@@ -13,7 +13,12 @@
         and <a target="_blank" href="https://blinry.org">blinry</a>. We boot a
         Linux VM in your browser, where you can use a <b>real Git!</b> We invite
         you to try these low-level operations, and check out how the graph
-        changes in response! Expect (and
+        changes in response! You can learn more in the
+        <a
+            target="_blank"
+            href="https://git-scm.com/book/en/v2/Git-Internals-Plumbing-and-Porcelain"
+            >Git Book</a
+        >. Expect (and
         <a
             target="_blank"
             href="https://github.com/git-learning-game/oh-my-git-web">report</a

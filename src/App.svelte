@@ -64,12 +64,12 @@
 
             "echo 'no color' > bikeshed",
             "git add .",
-            "git commit -m 'Bike shed exists'",
+            "git commit -m 'Build a bike shed'",
             "echo 'green' > bikeshed",
-            "git commit -am 'Bike shed is green'",
+            "git commit -am 'The bike shed should be green'",
             "git checkout @^",
             "echo 'red' > bikeshed",
-            "git commit -am 'Bike shed is red'",
+            "git commit -am 'The bike shed should be red'",
         ])
     }
 

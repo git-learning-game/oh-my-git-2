@@ -394,10 +394,11 @@ export class Repository {
                         object = this.buildTree(oid, content)
                     } else if (type == GitNodeType.Commit) {
                         object = this.buildCommit(oid, content)
+                        object.tooltip = content
                     } else {
                         object = new GitBlob(oid, content)
+                        object.tooltip = content
                     }
-                    object.tooltip = content
                     object.label = oid.slice(0, 4)
                     this.objects[oid] = object
                 }
