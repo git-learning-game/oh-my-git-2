@@ -230,15 +230,16 @@ export class Repository {
         let output = await this.shell.git("show-ref || true")
         let lines = output.split("\n")
         for (let line of lines) {
-            let [oid, name] = line.split(" ")
-            if (oid && name) {
+            let [_, name] = line.split(" ")
+            if (name) {
+                let target = await this.refTarget(name)
                 this.allNodes.push(name)
                 if (this.refs[name] === undefined) {
-                    let ref = new GitRef(name, oid)
+                    let ref = new GitRef(name, target)
                     ref.label = name
                     this.refs[name] = ref
                 } else {
-                    this.refs[name].target = oid
+                    this.refs[name].target = target
                 }
             }
         }
