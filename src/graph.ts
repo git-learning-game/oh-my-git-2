@@ -227,7 +227,7 @@ export class Graph {
             .data(nodes, (d) => d.id())
             .join(
                 (enter) => {
-                    let g = enter.append("g")
+                    let g = enter.append("g").style("cursor", "pointer")
 
                     g.append("svg:image")
                         .attr("x", -15)

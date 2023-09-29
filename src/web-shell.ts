@@ -59,27 +59,23 @@ class WebShell {
     }
 
     private appendToSerialDiv(text: string) {
-        if (typeof this.serialDiv !== "undefined") {
-            let outputInDiv = true
-            this.serialBuffer += text
-            if (this.serialBuffer.includes("\n")) {
-                if (outputInDiv) {
-                    let currentContent = this.serialDiv.textContent
-                    let maxLength = 10000
-                    if (currentContent === null) {
-                        currentContent = ""
-                    }
-                    if (currentContent.length > maxLength) {
-                        currentContent = currentContent.slice(
-                            currentContent.length - maxLength,
-                        )
-                    }
-                    this.serialDiv.textContent =
-                        currentContent + this.serialBuffer
-                } else {
-                    console.log(this.serialBuffer)
+        this.serialBuffer += text
+        if (this.serialBuffer.includes("\n")) {
+            if (typeof this.serialDiv !== "undefined") {
+                let currentContent = this.serialDiv.textContent
+                let maxLength = 10000
+                if (currentContent === null) {
+                    currentContent = ""
                 }
+                if (currentContent.length > maxLength) {
+                    currentContent = currentContent.slice(
+                        currentContent.length - maxLength,
+                    )
+                }
+                this.serialDiv.textContent = currentContent + this.serialBuffer
                 this.serialBuffer = ""
+            } else {
+                console.log(this.serialBuffer)
             }
         }
     }

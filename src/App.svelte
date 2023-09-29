@@ -137,6 +137,11 @@
             })
         })
     })
+
+    async function cleanCallback() {
+        await shell.script(["rm -rf /root/repo/* /root/repo/.git", "git init"])
+        await updateACoupleOfTimes()
+    }
 </script>
 
 <div id="container">
@@ -149,7 +154,7 @@
             <Terminal bind:this={terminal} note={terminalNote} />
         </div>
         <div id="help">
-            <Help />
+            <Help {cleanCallback} />
         </div>
     </div>
     <!--<div id="serial" bind:this={serialDiv} />-->

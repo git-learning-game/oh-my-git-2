@@ -5,6 +5,12 @@
     font-style: normal;
 }
 
+@font-face {
+    font-family: "Fira Sans";
+    src: url("/fonts/FiraSans-Bold.ttf");
+    font-weight: bold;
+}
+
 body {
     font-family: sans-serif;
 }
@@ -12,4 +18,14 @@ body {
 svg {
     width: 100%;
     height: 100%;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: "Fira Sans", sans-serif;
+    font-weight: bold;
 }

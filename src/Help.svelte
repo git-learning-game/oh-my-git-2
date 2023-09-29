@@ -1,4 +1,8 @@
-<div>
+<script lang="ts">
+    export let cleanCallback: () => void
+</script>
+
+<div id="container">
     <h1>Oh My Git (in your browser!)</h1>
 
     <p>
@@ -140,6 +144,9 @@
     <li><input type="checkbox"/> Create a </li>
     </ul>
     -->
+    <div id="clean" on:click={() => cleanCallback()}>
+        ✨ Start with empty repo
+    </div>
 </div>
 
 <style>
@@ -149,6 +156,7 @@
     }
 
     h2 span {
+        font-family: sans-serif;
         font-size: 70%;
         font-style: italic;
         font-weight: normal;
@@ -165,5 +173,22 @@
     }
     li {
         list-style-type: none;
+    }
+
+    #clean {
+        padding: 0.5em;
+        border-radius: 0.5em;
+        background-color: #eee;
+        color: black;
+        display: inline-block;
+        margin-top: 1em;
+    }
+    #clean:hover {
+        cursor: pointer;
+        box-shadow: 0 1px 0.2em rgba(0, 0, 0, 0.2);
+    }
+    #clean:active {
+        background-color: #ddd;
+        box-shadow: 0 0 0.2em rgba(0, 0, 0, 0.2);
     }
 </style>
