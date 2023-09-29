@@ -124,7 +124,7 @@ export class Graph {
                     [0, 0],
                     [width, height],
                 ])
-                .scaleExtent([1, 8])
+                .scaleExtent([0.5, 8])
                 .on("zoom", zoomed) as any,
         )
 
