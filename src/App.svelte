@@ -8,6 +8,8 @@
     import WebShell from "./web-shell.ts"
     import {Repository} from "./repository.ts"
 
+    import {CardGame} from "./cards.ts"
+
     // Show a warning when the user tries to leave the page (for example, by pressing Ctrl-W...)
     //window.onbeforeunload = function (e) {
     //    e.preventDefault()
@@ -56,21 +58,7 @@
     }
 
     async function runInitCommands() {
-        await shell.script([
-            "mkdir /root/repo",
-            "cd /root/repo",
-
-            "git init",
-
-            "echo 'no color' > bikeshed",
-            "git add .",
-            "git commit -m 'Build a bike shed'",
-            "echo 'green' > bikeshed",
-            "git commit -am 'The bike shed should be green'",
-            "git checkout @^",
-            "echo 'red' > bikeshed",
-            "git commit -am 'The bike shed should be red'",
-        ])
+        await shell.script(["mkdir /root/repo", "cd /root/repo", "git init"])
     }
 
     async function update() {
@@ -99,11 +87,15 @@
     }
 
     onMount(() => {
+
         let screenDiv = terminal.getTerminalDiv()
         shell = new WebShell(screenDiv)
 
-        window["run"] = shell.run.bind(shell)
-        window["shell"] = shell
+        let game = new CardGame(shell)
+        ;(window as any)["game"] = game
+
+        ;(window as any)["run"] = shell.run.bind(shell)
+        ;(window as any)["shell"] = shell
 
         repo = new Repository("/root/repo", shell)
         graph.setRepo(repo)
@@ -116,12 +108,12 @@
             console.log("Booted!")
             terminalNote = "Initializing..."
             await runConfigureCommands()
-            await runLazynessCommands()
+            //await runLazynessCommands()
             await runInitCommands()
 
             terminalNote = ""
             shell.setKeyboardActive(true)
-            shell.type("source ~/.aliases\n")
+            //shell.type("source ~/.aliases\n")
             shell.type("cd repo\n")
             shell.type("clear\n")
             shell.type(

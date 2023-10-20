@@ -116,15 +116,25 @@ class WebShell {
     }
 
     async run(cmd: string): Promise<string> {
+        let result = await this.run_with_exit_code(cmd)
+
+        if (result.exit_code != 0) {
+            throw new Error(
+                `Command '${cmd}' exited with code '${result.exit_code}'`,
+            )
+        }
+        return result.output
+    }
+
+    async run_with_exit_code(
+        cmd: string,
+    ): Promise<{output: string; exit_code: number}> {
         await this.mutex2.acquire()
         let output = await this.run_unsafe(cmd)
         let exit_code = await this.run_unsafe("echo $?")
         this.mutex2.release()
 
-        if (exit_code != "0") {
-            throw new Error(`Command '${cmd}' exited with code '${exit_code}'`)
-        }
-        return output
+        return {output: output, exit_code: parseInt(exit_code)}
     }
 
     async script(cmds: string[]): Promise<void> {
