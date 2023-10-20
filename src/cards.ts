@@ -1,11 +1,11 @@
 import WebShell from "./web-shell.ts"
 import {cloneDeep} from "lodash"
 
-class Card {
+export class Card {
     constructor(public name: string) {}
 }
 
-class CreatureCard extends Card {
+export class CreatureCard extends Card {
     constructor(
         name: string,
         public attack: number,
@@ -15,7 +15,7 @@ class CreatureCard extends Card {
     }
 }
 
-class CommandCard extends Card {
+export class CommandCard extends Card {
     constructor(
         name: string,
         public command: Command,
@@ -35,7 +35,10 @@ const templates = {
     blobeater: new CreatureCard("Blob Eater", 1, 1),
     clonewarrior: new CreatureCard("Clone Warrior", 2, 2),
     add: new CommandCard("Add", new Command("git add FILE")),
+    add_all: new CommandCard("Add all", new Command("git add .")),
     restore: new CommandCard("Restore", new Command("git restore FILE")),
+    rm: new CommandCard("Remove", new Command("git rm FILE")),
+    commit: new CommandCard("Commit", new Command("git commit -m 'Commit'")),
 }
 
 function randomCard(): Card {

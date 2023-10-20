@@ -4,11 +4,12 @@
     import Terminal from "./Terminal.svelte"
     import Graph from "./Graph.svelte"
     import Help from "./Help.svelte"
+    import Cards from "./Cards.svelte"
 
     import WebShell from "./web-shell.ts"
-    import {Repository} from "./repository.ts"
+    import {Repository, GitBlob} from "./repository.ts"
 
-    import {CardGame} from "./cards.ts"
+    import {CardGame, Card} from "./cards.ts"
 
     // Show a warning when the user tries to leave the page (for example, by pressing Ctrl-W...)
     //window.onbeforeunload = function (e) {
@@ -24,6 +25,12 @@
     let graph: Graph
     let terminal: Terminal
     let terminalNote = ""
+
+    let game: CardGame
+    let hand: Card[] = []
+
+    let files: {[path: string]: string} = {}
+    let index: {[path: string]: string} = {}
 
     async function runConfigureCommands() {
         await shell.putFile("~/.gitconfig", [
@@ -75,6 +82,37 @@
             objectsDiv.innerText = JSON.stringify(displayed, null, 2)
         }
 
+
+        // Update card-related stuff.
+        hand = game.hand
+        files = {}
+        for (let entry of repo.workingDirectory.entries) {
+            let content = ""
+            if (entry.oid) {
+                let blob = repo.objects[entry.oid]
+                if (blob instanceof GitBlob) {
+                    content = blob.content
+                } else {
+                    throw new Error("Requested OI is not a blob")
+                }
+            } else {
+                content = repo.files[entry.name].content
+            }
+
+            files[entry.name] = content
+        }
+        index = {}
+        for (let entry of repo.index.entries) {
+            let blob = repo.objects[entry.oid]
+            let content = ""
+            if (blob instanceof GitBlob) {
+                content = blob.content
+            } else {
+                throw new Error("Requested OID is not a blob")
+            }
+            index[entry.name] = content
+        }
+
         graph.update()
         graph.setRefreshing(false)
     }
@@ -91,8 +129,9 @@
         let screenDiv = terminal.getTerminalDiv()
         shell = new WebShell(screenDiv)
 
-        let game = new CardGame(shell)
+        game = new CardGame(shell)
         ;(window as any)["game"] = game
+        hand = game.hand
 
         ;(window as any)["run"] = shell.run.bind(shell)
         ;(window as any)["shell"] = shell
@@ -134,6 +173,22 @@
         await shell.script(["rm -rf /root/repo/* /root/repo/.git", "git init"])
         await updateACoupleOfTimes()
     }
+
+    async function cardDrag(e) {
+        console.log("drag", e.detail)
+        const file = e.detail.slotIndex + 1
+        await game.playCardFromHand(e.detail.cardIndex, file)
+
+        if (game.hand.length == 0) {
+            await game.drawCard()
+            await game.drawCard()
+            await game.drawCard()
+            await game.drawCard()
+            await game.drawCard()
+        }
+
+        await updateACoupleOfTimes()
+    }
 </script>
 
 <div id="container">
@@ -145,8 +200,11 @@
         <div id="screen">
             <Terminal bind:this={terminal} note={terminalNote} />
         </div>
-        <div id="help">
+        <!--<div id="help">
             <Help {cleanCallback} />
+        </div>-->
+        <div id="cards">
+            <Cards {hand} on:drag={cardDrag} {files} {index} />
         </div>
     </div>
     <!--<div id="serial" bind:this={serialDiv} />-->
@@ -172,7 +230,7 @@
         height: 100vh;
         display: grid;
         grid-template-areas:
-            "graph help"
+            "graph cards"
             "graph screen";
         grid-template-columns: 1fr var(--term-width);
         grid-template-rows: 1fr var(--term-height);
@@ -189,6 +247,11 @@
     #graph {
         grid-area: graph;
         background: peachpuff;
+    }
+
+    #cards {
+        grid-area: cards;
+        background: lightblue;
     }
 
     #screen {
