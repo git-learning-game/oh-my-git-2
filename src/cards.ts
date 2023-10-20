@@ -110,6 +110,8 @@ function shuffle(array: any[]) {
 }
 
 export class CardGame {
+    eventLog: string[] = []
+
     health = 20
     enemyHealth = 20
 
@@ -134,6 +136,10 @@ export class CardGame {
         }
     }
 
+    log(event: string) {
+        this.eventLog.push(event)
+    }
+
     async playCardFromHand(i: number, target: number) {
         if (i < 0 || i >= this.hand.length) {
             throw new Error(`Invalid hand index: ${i}`)
@@ -146,10 +152,16 @@ export class CardGame {
             this.slots[target] = cloneDeep(card)
             let fileContent = [card.stringify()]
             this.shell.putFile(`/root/repo/${target}`, fileContent)
+            this.log(`Played ${card.name} to slot ${target}.`)
             success = true
         } else if (card instanceof CommandCard) {
             const command = card.command.template.replace("FILE", `${target}`)
             this.shell.type(command + "\n")
+            if (card.command.template.includes("FILE")) {
+                this.log(`Played ${card.name} to slot ${target}.`)
+            } else {
+                this.log(`Played ${card.name}.`)
+            }
             success = true
         } else {
             throw new Error(`Unknown card type: ${card}`)
@@ -168,19 +180,38 @@ export class CardGame {
             if (playerCard && enemyCard) {
                 // Both players have a card in this slot. They fight!
                 playerCard.health -= enemyCard.attack
+                this.log(
+                    `Enemy ${enemyCard.name} dealt ${enemyCard.attack} damage to ${playerCard.name}.`,
+                )
+
                 enemyCard.health -= playerCard.attack
+                this.log(
+                    `Your ${playerCard.name} dealt ${playerCard.attack} damage to ${enemyCard.name}.`,
+                )
                 if (playerCard.health <= 0) {
                     this.slots[i] = null
+                    this.shell.run(`rm /root/repo/${i + 1}`)
+                    this.log(`Your ${playerCard.name} died.`)
+                } else {
+                    let fileContent = [playerCard.stringify()]
+                    this.shell.putFile(`/root/repo/${i + 1}`, fileContent)
                 }
                 if (enemyCard.health <= 0) {
                     this.enemySlots[i] = null
+                    this.log(`Enemy ${enemyCard.name} died.`)
                 }
             } else if (playerCard) {
                 // Only the player has a card in this slot. It attacks the enemy player.
                 this.enemyHealth -= playerCard.attack
+                this.log(
+                    `${playerCard.name} dealt ${playerCard.attack} damage to the enemy player.`,
+                )
             } else if (enemyCard) {
                 // Only the enemy has a card in this slot. It attacks the player.
                 this.health -= enemyCard.attack
+                this.log(
+                    `Enemy ${enemyCard.name} dealt ${enemyCard.attack} damage to you.`,
+                )
             }
         }
 
@@ -188,6 +219,7 @@ export class CardGame {
         let randomSlot = Math.floor(Math.random() * this.enemySlots.length)
         let randomEnemy = randomCard(creatureTemplates) as CreatureCard
         this.enemySlots[randomSlot] = randomEnemy
+        this.log(`Enemy played ${randomEnemy.name} to slot ${randomSlot}.`)
 
         this.drawCard()
     }
@@ -197,10 +229,12 @@ export class CardGame {
             this.drawPile = this.discardPile
             shuffle(this.drawPile)
             this.discardPile = []
+            this.log(`Shuffled discard pile into draw pile.`)
         }
         const card = this.drawPile.pop()
         if (card) {
             this.hand.push(card)
+            this.log(`You drew ${card.name}.`)
         }
     }
 
@@ -210,12 +244,5 @@ export class CardGame {
         }
         const card = this.hand.splice(i, 1)[0]
         this.discardPile.push(card)
-    }
-
-    print() {
-        console.log("Hand:")
-        for (const card of this.hand) {
-            console.log(card)
-        }
     }
 }

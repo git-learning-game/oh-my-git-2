@@ -24,6 +24,16 @@
 
 <div id="wrapper">
     {#if game}
+        <h2>Event log</h2>
+
+        <div id="log">
+            <ul>
+                {#each game.eventLog as event}
+                    <li>{event}</li>
+                {/each}
+            </ul>
+        </div>
+
         <h2>Enemy cards (enemy health: {game.enemyHealth}) </h2>
 
         <div class="cards">
@@ -65,6 +75,10 @@
 <style>
     #wrapper {
         padding: 1em;
+    }
+    #log {
+        height: 7em;
+        overflow-y: scroll;
     }
     .cards {
         display: flex;

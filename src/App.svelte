@@ -151,7 +151,7 @@
 
     async function endTurn() {
         game.endTurn()
-        updateCardGame()
+        update()
     }
 
     function updateCardGame() {
@@ -163,7 +163,7 @@
                 if (blob instanceof GitBlob) {
                     content = blob.content
                 } else {
-                    throw new Error("Requested OI is not a blob")
+                    throw new Error("Requested OID is not a blob")
                 }
             } else {
                 content = repo.files[entry.name].content
