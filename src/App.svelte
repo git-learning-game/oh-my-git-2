@@ -31,6 +31,7 @@
 
     let files: {[path: string]: string} = {}
     let index: {[path: string]: string} = {}
+    let enemies: {[path: string]: string} = {}
 
     async function runConfigureCommands() {
         await shell.putFile("~/.gitconfig", [
@@ -204,7 +205,7 @@
             <Help {cleanCallback} />
         </div>-->
         <div id="cards">
-            <Cards {hand} on:drag={cardDrag} {files} {index} />
+            <Cards {hand} on:drag={cardDrag} {files} {index} {enemies} />
         </div>
     </div>
     <!--<div id="serial" bind:this={serialDiv} />-->

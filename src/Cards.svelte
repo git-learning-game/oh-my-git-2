@@ -6,8 +6,10 @@
     import CardSvelte from "./Card.svelte"
 
     export let hand: Card[] = []
+
     export let files: {[path: string]: string}
     export let index: {[path: string]: string}
+    export let enemies: {[path: string]: string}
 
     let slots = ["1", "2", "3"]
 
@@ -22,11 +24,11 @@
 </script>
 
 <div id="wrapper">
-    <h2>Hand</h2>
+    <h2>Enemy cards</h2>
 
     <div class="cards">
-    {#each hand as card, index}
-        <CardSvelte {card} {index} />
+    {#each slots as slot, i}
+        <div class="slot"  on:dragover={e => e.preventDefault()} on:drop={e => drop(e, i)}><span>{enemies[slot] ?? "–"}</span></div>
     {/each}
     </div>
 
@@ -45,6 +47,15 @@
         <div class="slot"  on:dragover={e => e.preventDefault()} on:drop={e => drop(e, i)}><span>{index[slot] ?? "–"}</span></div>
     {/each}
     </div>
+
+    <h2>Hand</h2>
+
+    <div class="cards">
+    {#each hand as card, index}
+        <CardSvelte {card} {index} />
+    {/each}
+    </div>
+
 </div>
 
 <style>
