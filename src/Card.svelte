@@ -1,7 +1,7 @@
 <script lang="ts">
     import {Card, CreatureCard, CommandCard} from "./cards.ts"
 
-    export let card: Card
+    export let card: Card | null
     export let index: number
 
     function dragStart(e: DragEvent) {
@@ -10,24 +10,28 @@
     }
 </script>
 
-<div class="card" draggable="true" on:dragstart={e => dragStart(e)}>
-    <div class="card-header">
-        <h3>{card.name}</h3>
-    </div>
-    {#if card instanceof CreatureCard}
-        <div class="attack"> {card.attack} </div>
-        <div class="health"> {card.health} </div>
-    {:else if card instanceof CommandCard}
-        <div class="card-body">
-            <code>{card.command.template}</code>
+<div class="card" draggable="true" on:dragstart={e => dragStart(e)} on:dragover on:drop>
+    {#if card}
+        <div class="card-header">
+            <h3>{card.name}</h3>
         </div>
+        {#if card instanceof CreatureCard}
+            <div class="attack"> {card.attack} </div>
+            <div class="health"> {card.health} </div>
+        {:else if card instanceof CommandCard}
+            <div class="card-body">
+                <code>{card.command.template}</code>
+            </div>
+        {/if}
+    {:else}
+        –
     {/if}
 </div>
 
 <style>
     .card {
         width: 10em;
-        height: 15em;
+        height: 10em;
         background: white;
         border-radius: 1em;
         display: inline-block;

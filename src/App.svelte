@@ -9,7 +9,7 @@
     import WebShell from "./web-shell.ts"
     import {Repository, GitBlob} from "./repository.ts"
 
-    import {CardGame, Card} from "./cards.ts"
+    import {CardGame, Card, CreatureCard} from "./cards.ts"
 
     // Show a warning when the user tries to leave the page (for example, by pressing Ctrl-W...)
     //window.onbeforeunload = function (e) {
@@ -27,11 +27,7 @@
     let terminalNote = ""
 
     let game: CardGame
-    let hand: Card[] = []
-
-    let files: {[path: string]: string} = {}
-    let index: {[path: string]: string} = {}
-    let enemies: {[path: string]: string} = {}
+    let indexSlots: (CreatureCard | null)[]
 
     async function runConfigureCommands() {
         await shell.putFile("~/.gitconfig", [
@@ -83,36 +79,7 @@
             objectsDiv.innerText = JSON.stringify(displayed, null, 2)
         }
 
-
-        // Update card-related stuff.
-        hand = game.hand
-        files = {}
-        for (let entry of repo.workingDirectory.entries) {
-            let content = ""
-            if (entry.oid) {
-                let blob = repo.objects[entry.oid]
-                if (blob instanceof GitBlob) {
-                    content = blob.content
-                } else {
-                    throw new Error("Requested OI is not a blob")
-                }
-            } else {
-                content = repo.files[entry.name].content
-            }
-
-            files[entry.name] = content
-        }
-        index = {}
-        for (let entry of repo.index.entries) {
-            let blob = repo.objects[entry.oid]
-            let content = ""
-            if (blob instanceof GitBlob) {
-                content = blob.content
-            } else {
-                throw new Error("Requested OID is not a blob")
-            }
-            index[entry.name] = content
-        }
+        updateCardGame()
 
         graph.update()
         graph.setRefreshing(false)
@@ -132,7 +99,6 @@
 
         game = new CardGame(shell)
         ;(window as any)["game"] = game
-        hand = game.hand
 
         ;(window as any)["run"] = shell.run.bind(shell)
         ;(window as any)["shell"] = shell
@@ -180,15 +146,49 @@
         const file = e.detail.slotIndex + 1
         await game.playCardFromHand(e.detail.cardIndex, file)
 
-        if (game.hand.length == 0) {
-            await game.drawCard()
-            await game.drawCard()
-            await game.drawCard()
-            await game.drawCard()
-            await game.drawCard()
+        update()
+    }
+
+    async function endTurn() {
+        game.endTurn()
+        updateCardGame()
+    }
+
+    function updateCardGame() {
+        game.slots = [null, null, null]
+        for (let entry of repo.workingDirectory.entries) {
+            let content = ""
+            if (entry.oid) {
+                let blob = repo.objects[entry.oid]
+                if (blob instanceof GitBlob) {
+                    content = blob.content
+                } else {
+                    throw new Error("Requested OI is not a blob")
+                }
+            } else {
+                content = repo.files[entry.name].content
+            }
+
+            if (["1", "2", "3"].includes(entry.name)) {
+                game.slots[parseInt(entry.name) - 1] = CreatureCard.parse(content)
+            }
         }
 
-        await updateACoupleOfTimes()
+        indexSlots = [null, null, null]
+        for (let entry of repo.index.entries) {
+            let blob = repo.objects[entry.oid]
+            let content = ""
+            if (blob instanceof GitBlob) {
+                content = blob.content
+            } else {
+                throw new Error("Requested OID is not a blob")
+            }
+            if (["1", "2", "3"].includes(entry.name)) {
+                indexSlots[parseInt(entry.name) - 1] = CreatureCard.parse(content)
+            }
+        }
+
+        game = game
     }
 </script>
 
@@ -205,7 +205,7 @@
             <Help {cleanCallback} />
         </div>-->
         <div id="cards">
-            <Cards {hand} on:drag={cardDrag} {files} {index} {enemies} />
+            <Cards on:drag={cardDrag} on:endTurn={endTurn} {game} {indexSlots} />
         </div>
     </div>
     <!--<div id="serial" bind:this={serialDiv} />-->

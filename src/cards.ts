@@ -57,31 +57,7 @@ class Command {
     constructor(public template: string) {}
 }
 
-const templates = [
-    new CommandCard("Init", 0, new Command("git init")),
-    new CommandCard("Remove", 0, new Command("git rm FILE")),
-    new CommandCard("Add", 1, new Command("git add FILE")),
-    new CommandCard("Add all", 2, new Command("git add .")),
-    new CommandCard("Restore", 2, new Command("git restore FILE")),
-    new CommandCard("Commit", 2, new Command("git commit -m 'Commit'")),
-    new CommandCard(
-        "Commit all",
-        3,
-        new Command("git add .; git commit -m 'Commit'"),
-    ),
-    new CommandCard("Stash", 3, new Command("git stash")),
-    new CommandCard("Pop stash", 2, new Command("git stash pop")),
-    new CommandCard("Branch", 1, new Command("git branch FILE")), // TODO: Allow branch targets
-    new CommandCard("Switch", 1, new Command("git switch -f FILE")), // TODO: Allow branch targets
-    new CommandCard("Merge", 2, new Command("git merge FILE")), // TODO: Allow branch targets
-
-    /* TODO:
-    cp
-    mv
-    restore -s
-    restore
-    */
-
+const creatureTemplates = [
     new CreatureCard("Graph Gnome", 1, 1, 2),
     new CreatureCard("Blob Eater", 2, 2, 2),
     new CreatureCard("Time Snail", 1, 1, 1),
@@ -92,8 +68,36 @@ const templates = [
     new CreatureCard("Collab Centaur", 1, 1, 1),
 ]
 
-function randomCard(): Card {
-    const card = templates[Math.floor(Math.random() * templates.length)]
+const commandTemplates = [
+    //new CommandCard("Init", 0, new Command("git init")),
+    new CommandCard("Remove", 0, new Command("git rm FILE")),
+    new CommandCard("Add", 1, new Command("git add FILE")),
+    new CommandCard("Add all", 2, new Command("git add .")),
+    new CommandCard("Restore", 2, new Command("git restore FILE")),
+    new CommandCard("Commit", 2, new Command("git commit -m 'Commit'")),
+    new CommandCard(
+        "Commit all",
+        3,
+        new Command("git add .; git commit -m 'Commit'"),
+    ),
+    //new CommandCard("Stash", 3, new Command("git stash")),
+    //new CommandCard("Pop stash", 2, new Command("git stash pop")),
+    new CommandCard("Branch", 1, new Command("git branch FILE")), // TODO: Allow branch targets
+    new CommandCard("Switch", 1, new Command("git switch -f FILE")), // TODO: Allow branch targets
+    new CommandCard("Merge", 2, new Command("git merge FILE")), // TODO: Allow branch targets
+
+    /* TODO:
+    cp
+    mv
+    restore -s
+    restore
+    */
+]
+
+const templates = [...creatureTemplates, ...commandTemplates]
+
+function randomCard(array: Card[]): Card {
+    const card = array[Math.floor(Math.random() * array.length)]
     return cloneDeep(card)
 }
 
@@ -106,6 +110,9 @@ function shuffle(array: any[]) {
 }
 
 export class CardGame {
+    health = 20
+    enemyHealth = 20
+
     drawPile: Card[] = []
     hand: Card[] = []
     discardPile: Card[] = []
@@ -114,10 +121,13 @@ export class CardGame {
     enemySlots: (CreatureCard | null)[] = [null, null, null]
 
     constructor(private shell: WebShell) {
-        const deckSize = 10
-        for (let i = 0; i < deckSize; i++) {
-            this.drawPile.push(randomCard())
+        //for (let i = 0; i < deckSize; i++) {
+        //    this.drawPile.push(randomCard(templates))
+        //}
+        for (let template of templates) {
+            this.drawPile.push(cloneDeep(template))
         }
+        shuffle(this.drawPile)
         const handSize = 5
         for (let i = 0; i < handSize; i++) {
             this.drawCard()
@@ -133,16 +143,14 @@ export class CardGame {
         let success = false
         let output = ""
         if (card instanceof CreatureCard) {
+            this.slots[target] = cloneDeep(card)
             let fileContent = [card.stringify()]
             this.shell.putFile(`/root/repo/${target}`, fileContent)
             success = true
         } else if (card instanceof CommandCard) {
             const command = card.command.template.replace("FILE", `${target}`)
-            const result = await this.shell.run_with_exit_code(command)
-            if (result.exit_code == 0) {
-                success = true
-            }
-            output = result.output
+            this.shell.type(command + "\n")
+            success = true
         } else {
             throw new Error(`Unknown card type: ${card}`)
         }
@@ -150,6 +158,38 @@ export class CardGame {
             this.discardHandCard(i)
         }
         return output
+    }
+
+    endTurn() {
+        // Fight! Let creatures take damage. If there is no defense, damage goes to players.
+        for (let i = 0; i < this.slots.length; i++) {
+            const playerCard = this.slots[i]
+            const enemyCard = this.enemySlots[i]
+            if (playerCard && enemyCard) {
+                // Both players have a card in this slot. They fight!
+                playerCard.health -= enemyCard.attack
+                enemyCard.health -= playerCard.attack
+                if (playerCard.health <= 0) {
+                    this.slots[i] = null
+                }
+                if (enemyCard.health <= 0) {
+                    this.enemySlots[i] = null
+                }
+            } else if (playerCard) {
+                // Only the player has a card in this slot. It attacks the enemy player.
+                this.enemyHealth -= playerCard.attack
+            } else if (enemyCard) {
+                // Only the enemy has a card in this slot. It attacks the player.
+                this.health -= enemyCard.attack
+            }
+        }
+
+        // Add a random enemy.
+        let randomSlot = Math.floor(Math.random() * this.enemySlots.length)
+        let randomEnemy = randomCard(creatureTemplates) as CreatureCard
+        this.enemySlots[randomSlot] = randomEnemy
+
+        this.drawCard()
     }
 
     drawCard() {

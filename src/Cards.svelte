@@ -2,82 +2,89 @@
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher()
 
-    import {Card} from "./cards.ts"
+    import {CardGame, Card, CreatureCard} from "./cards.ts"
     import CardSvelte from "./Card.svelte"
 
-    export let hand: Card[] = []
-
-    export let files: {[path: string]: string}
-    export let index: {[path: string]: string}
-    export let enemies: {[path: string]: string}
-
-    let slots = ["1", "2", "3"]
+    export let game: CardGame
+    export let indexSlots: (CreatureCard | null)[] = []
 
     function drop(e: DragEvent, slotIndex: number) {
         console.log("drop", slotIndex)
         e.preventDefault()
         const cardIndex = parseInt(e.dataTransfer?.getData("text/plain") ?? "")
-        if (cardIndex >= 0 && cardIndex < hand.length) {
+        if (cardIndex >= 0 && cardIndex < game.hand.length) {
             dispatch("drag", {cardIndex, slotIndex})
         }
+    }
+
+    function endTurn() {
+        dispatch("endTurn")
     }
 </script>
 
 <div id="wrapper">
-    <h2>Enemy cards</h2>
+    {#if game}
+        <h2>Enemy cards (enemy health: {game.enemyHealth}) </h2>
 
-    <div class="cards">
-    {#each slots as slot, i}
-        <div class="slot"  on:dragover={e => e.preventDefault()} on:drop={e => drop(e, i)}><span>{enemies[slot] ?? "–"}</span></div>
-    {/each}
-    </div>
+        <div class="cards">
+            {#each game.enemySlots as slot, index}
+                <CardSvelte card={slot} {index} on:dragover={e => e.preventDefault()} on:drop={e => drop(e, index)} />
+            {/each}
+        </div>
 
-    <h2>Working directory</h2>
+        <h2>Working directory (your health: {game.health})</h2>
 
-    <div class="cards">
-    {#each slots as slot, i}
-        <div class="slot"  on:dragover={e => e.preventDefault()} on:drop={e => drop(e, i)}><span>{files[slot] ?? "–"}</span></div>
-    {/each}
-    </div>
+        <div class="cards">
+            {#each game.slots as slot, index}
+                <CardSvelte card={slot} {index} on:dragover={e => e.preventDefault()} on:drop={e => drop(e, index)} />
+            {/each}
+        </div>
 
-    <h2>Index</h2>
+        <h2>Index</h2>
 
-    <div class="cards">
-    {#each slots as slot, i}
-        <div class="slot"  on:dragover={e => e.preventDefault()} on:drop={e => drop(e, i)}><span>{index[slot] ?? "–"}</span></div>
-    {/each}
-    </div>
+        <div class="cards">
+            {#each indexSlots as slot, index}
+                <CardSvelte card={slot} {index} on:dragover={e => e.preventDefault()} on:drop={e => drop(e, index)} />
+            {/each}
+        </div>
 
-    <h2>Hand</h2>
+        <h2>Hand</h2>
 
-    <div class="cards">
-    {#each hand as card, index}
-        <CardSvelte {card} {index} />
-    {/each}
-    </div>
+        <div class="cards">
+            {#each game.hand as card, index}
+                <CardSvelte {card} {index} />
+            {/each}
+        </div>
 
+        <div class="button" on:click={endTurn}>
+            ✨ End turn
+        </div>
+    {/if}
 </div>
 
 <style>
     #wrapper {
         padding: 1em;
     }
-    .slot {
-        width: 10em;
-        height: 15em;
-        background: beige;
-        display: inline-flex;
-        justify-content: center;
-        align-items: center;
-        margin: 0.5em;
-    }
-    .slot span {
-        display: block;
-        text-align: center;
-        font-size: 200%;
-    }
     .cards {
         display: flex;
         flex-wrap: wrap;
     }
+    .button {
+        padding: 0.5em;
+        border-radius: 0.5em;
+        background-color: #eee;
+        color: black;
+        display: inline-block;
+        margin-top: 1em;
+    }
+    .button:hover {
+        cursor: pointer;
+        box-shadow: 0 1px 0.2em rgba(0, 0, 0, 0.2);
+    }
+    .button:active {
+        background-color: #ddd;
+        box-shadow: 0 0 0.2em rgba(0, 0, 0, 0.2);
+    }
+
 </style>
