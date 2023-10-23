@@ -1,4 +1,3 @@
-import WebShell from "./web-shell.ts"
 import {cloneDeep} from "lodash"
 import * as YAML from "yaml"
 
@@ -136,6 +135,9 @@ export class CardGame {
     eventLog: string[] = []
 
     health = 20
+    energy = 1
+    maxEnergy = 1
+
     enemyHealth = 20
 
     drawPile: Card[] = []
@@ -145,7 +147,7 @@ export class CardGame {
     slots: (CreatureCard | null)[] = [null, null, null]
     enemySlots: (CreatureCard | null)[] = [null, null, null]
 
-    constructor(private shell: WebShell) {
+    constructor() {
         //for (let i = 0; i < deckSize; i++) {
         //    this.drawPile.push(randomCard(templates))
         //}
@@ -169,8 +171,16 @@ export class CardGame {
         if (i < 0 || i >= this.hand.length) {
             throw new Error(`Invalid hand index: ${i}`)
         }
+
         const card = this.hand[i]
-        console.log(card)
+
+        if (card.energy > this.energy) {
+            this.log(`Not enough energy to play ${card.name}.`)
+            return []
+        } else {
+            this.energy -= card.energy
+        }
+
         let success = false
         let output = ""
         if (card instanceof CreatureCard) {
@@ -256,6 +266,10 @@ export class CardGame {
         this.log(`Enemy played ${randomEnemy.name} to slot ${randomSlot + 1}.`)
 
         this.drawCard()
+        if (this.maxEnergy < 10) {
+            this.maxEnergy += 1
+        }
+        this.energy = this.maxEnergy
 
         return effects
     }

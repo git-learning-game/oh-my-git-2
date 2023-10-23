@@ -42,7 +42,7 @@
             {/each}
         </div>
 
-        <h2>Working directory (your health: {game.health})</h2>
+        <h2>Working directory (your health: {game.health}, energy: {game.energy}/{game.maxEnergy})</h2>
 
         <div class="cards">
             {#each game.slots as slot, index}

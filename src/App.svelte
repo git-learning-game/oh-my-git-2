@@ -97,7 +97,7 @@
         let screenDiv = terminal.getTerminalDiv()
         shell = new WebShell(screenDiv)
 
-        game = new CardGame(shell)
+        game = new CardGame()
         ;(window as any)["game"] = game
 
         ;(window as any)["run"] = shell.run.bind(shell)

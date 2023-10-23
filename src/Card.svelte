@@ -13,7 +13,7 @@
 <div class="card" draggable="true" on:dragstart={e => dragStart(e)} on:dragover on:drop>
     {#if card}
         <div class="card-header">
-            <h3>{card.name}</h3>
+            <h3>({card.energy}) {card.name}</h3>
         </div>
         {#if card instanceof CreatureCard}
             <div class="attack"> {card.attack} </div>
