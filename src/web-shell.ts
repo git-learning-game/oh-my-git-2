@@ -59,7 +59,7 @@ class WebShell {
     }
 
     private appendToSerialDiv(text: string) {
-        /* Disabled for performance reasons!
+        /*
         this.serialBuffer += text
         if (this.serialBuffer.includes("\n")) {
             if (typeof this.serialDiv !== "undefined") {

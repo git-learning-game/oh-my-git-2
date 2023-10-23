@@ -390,17 +390,19 @@ export class Repository {
                 if (!this.objects[oid]) {
                     let content = await this.getGitObjectContent(oid)
                     let object: GitObject
-                    if (type == GitNodeType.Tree) {
-                        object = this.buildTree(oid, content)
-                    } else if (type == GitNodeType.Commit) {
+                    if (type == GitNodeType.Commit) {
                         object = this.buildCommit(oid, content)
                         object.tooltip = content
-                    } else {
+
+                        object.label = oid.slice(0, 4)
+                        this.objects[oid] = object
+                    } else if (type == GitNodeType.Blob) {
                         object = new GitBlob(oid, content)
                         object.tooltip = content
+
+                        object.label = oid.slice(0, 4)
+                        this.objects[oid] = object
                     }
-                    object.label = oid.slice(0, 4)
-                    this.objects[oid] = object
                 }
             }
         }

@@ -109,6 +109,29 @@ function shuffle(array: any[]) {
     }
 }
 
+export class SideEffect {}
+
+export class FileChangeEffect extends SideEffect {
+    constructor(
+        public path: string,
+        public content: string,
+    ) {
+        super()
+    }
+}
+
+export class FileDeleteEffect extends SideEffect {
+    constructor(public path: string) {
+        super()
+    }
+}
+
+export class CommandEffect extends SideEffect {
+    constructor(public command: string) {
+        super()
+    }
+}
+
 export class CardGame {
     eventLog: string[] = []
 
@@ -140,7 +163,9 @@ export class CardGame {
         this.eventLog.push(event)
     }
 
-    async playCardFromHand(i: number, target: number) {
+    async playCardFromHand(i: number, target: number): Promise<SideEffect[]> {
+        let effects = []
+
         if (i < 0 || i >= this.hand.length) {
             throw new Error(`Invalid hand index: ${i}`)
         }
@@ -149,14 +174,16 @@ export class CardGame {
         let success = false
         let output = ""
         if (card instanceof CreatureCard) {
-            this.slots[target] = cloneDeep(card)
-            let fileContent = [card.stringify()]
-            this.shell.putFile(`/root/repo/${target}`, fileContent)
+            this.slots[target - 1] = cloneDeep(card)
+            let fileContent = card.stringify()
+            effects.push(
+                new FileChangeEffect(`/root/repo/${target}`, fileContent),
+            )
             this.log(`Played ${card.name} to slot ${target}.`)
             success = true
         } else if (card instanceof CommandCard) {
             const command = card.command.template.replace("FILE", `${target}`)
-            this.shell.type(command + "\n")
+            effects.push(new CommandEffect(command))
             if (card.command.template.includes("FILE")) {
                 this.log(`Played ${card.name} to slot ${target}.`)
             } else {
@@ -169,10 +196,12 @@ export class CardGame {
         if (success) {
             this.discardHandCard(i)
         }
-        return output
+        return effects
     }
 
     endTurn() {
+        this.log("--- You ended your turn ---")
+        let effects = []
         // Fight! Let creatures take damage. If there is no defense, damage goes to players.
         for (let i = 0; i < this.slots.length; i++) {
             const playerCard = this.slots[i]
@@ -190,11 +219,16 @@ export class CardGame {
                 )
                 if (playerCard.health <= 0) {
                     this.slots[i] = null
-                    this.shell.run(`rm /root/repo/${i + 1}`)
+                    effects.push(new FileDeleteEffect(`/root/repo/${i + 1}`))
                     this.log(`Your ${playerCard.name} died.`)
                 } else {
-                    let fileContent = [playerCard.stringify()]
-                    this.shell.putFile(`/root/repo/${i + 1}`, fileContent)
+                    let fileContent = playerCard.stringify()
+                    effects.push(
+                        new FileChangeEffect(
+                            `/root/repo/${i + 1}`,
+                            fileContent,
+                        ),
+                    )
                 }
                 if (enemyCard.health <= 0) {
                     this.enemySlots[i] = null
@@ -219,9 +253,11 @@ export class CardGame {
         let randomSlot = Math.floor(Math.random() * this.enemySlots.length)
         let randomEnemy = randomCard(creatureTemplates) as CreatureCard
         this.enemySlots[randomSlot] = randomEnemy
-        this.log(`Enemy played ${randomEnemy.name} to slot ${randomSlot}.`)
+        this.log(`Enemy played ${randomEnemy.name} to slot ${randomSlot + 1}.`)
 
         this.drawCard()
+
+        return effects
     }
 
     drawCard() {

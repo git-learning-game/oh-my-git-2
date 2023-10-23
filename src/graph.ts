@@ -184,9 +184,9 @@ export class Graph {
             Object.assign(old.get(d.id()) || {}, d),
         )*/
         nodes = nodes.concat(Object.values(this.repo.refs))
-        nodes = nodes.concat(Object.values(this.repo.files))
-        nodes.push(this.repo.index)
-        nodes.push(this.repo.workingDirectory)
+        //nodes = nodes.concat(Object.values(this.repo.files))
+        //nodes.push(this.repo.index)
+        //nodes.push(this.repo.workingDirectory)
 
         this.simulation.nodes(nodes).alphaTarget(0.3)
 
@@ -217,11 +217,12 @@ export class Graph {
                 for (let parent of (node as GitCommit).parents) {
                     tryAddLink(node.id(), parent)
                 }
-                tryAddLink(node.id(), (node as GitCommit).tree)
-            } else if (node instanceof GitTree) {
+                //tryAddLink(node.id(), (node as GitCommit).tree)
+                /* } else if (node instanceof GitTree) {
                 for (let entry of (node as GitTree).entries) {
                     tryAddLink(node.id(), entry.oid, entry.name)
                 }
+            } */
             } else if (node instanceof GitRef) {
                 let target = this.repo.resolve((node as GitRef).target)
                 if (target !== undefined) {
@@ -230,7 +231,7 @@ export class Graph {
             }
         }
 
-        for (let entry of this.repo.index.entries) {
+        /*for (let entry of this.repo.index.entries) {
             tryAddLink(
                 this.repo.index.id(),
                 entry.oid,
@@ -244,7 +245,7 @@ export class Graph {
                 entry.oid || entry.name,
                 entry.name,
             )
-        }
+        }*/
 
         //links = links.map((d) => Object.assign({}, d))
 

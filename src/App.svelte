@@ -9,7 +9,7 @@
     import WebShell from "./web-shell.ts"
     import {Repository, GitBlob} from "./repository.ts"
 
-    import {CardGame, Card, CreatureCard} from "./cards.ts"
+    import {CardGame, Card, CreatureCard, SideEffect, FileChangeEffect, FileDeleteEffect, CommandEffect} from "./cards.ts"
 
     // Show a warning when the user tries to leave the page (for example, by pressing Ctrl-W...)
     //window.onbeforeunload = function (e) {
@@ -79,7 +79,7 @@
             objectsDiv.innerText = JSON.stringify(displayed, null, 2)
         }
 
-        updateCardGame()
+        updateFromRepoToCardGame()
 
         graph.update()
         graph.setRefreshing(false)
@@ -144,17 +144,30 @@
     async function cardDrag(e) {
         console.log("drag", e.detail)
         const file = e.detail.slotIndex + 1
-        await game.playCardFromHand(e.detail.cardIndex, file)
-
-        update()
+        let effects = await game.playCardFromHand(e.detail.cardIndex, file)
+        await realizeEffects(effects)
     }
 
     async function endTurn() {
-        game.endTurn()
-        update()
+        let effects = game.endTurn()
+        await realizeEffects(effects)
     }
 
-    function updateCardGame() {
+    async function realizeEffects(effects: SideEffect[]) {
+        for (let effect of effects) {
+            if (effect instanceof FileChangeEffect) {
+                await shell.putFile(effect.path, [effect.content])
+            } else if (effect instanceof FileDeleteEffect) {
+                await shell.run(`rm ${effect.path}`)
+            } else if (effect instanceof CommandEffect) {
+                shell.type(effect.command + "\n")
+                updateACoupleOfTimes()
+            }
+        }
+        game = game
+    }
+
+    function updateFromRepoToCardGame() {
         game.slots = [null, null, null]
         for (let entry of repo.workingDirectory.entries) {
             let content = ""
@@ -232,7 +245,7 @@
         display: grid;
         grid-template-areas:
             "graph cards"
-            "graph screen";
+            "screen cards";
         grid-template-columns: 1fr var(--term-width);
         grid-template-rows: 1fr var(--term-height);
     }
