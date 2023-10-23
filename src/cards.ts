@@ -55,10 +55,10 @@ export class CreatureCard extends Card {
         return this
     }
 
-    triggerEffects(game: CardGame, trigger: Trigger, source: Source) {
+    triggerEffects(battle: Battle, trigger: Trigger, source: Source) {
         for (let [t, effect] of this.effects) {
             if (t === trigger) {
-                effect.apply(game, source)
+                effect.apply(battle, source)
             }
         }
     }
@@ -91,7 +91,7 @@ export const triggerDescriptions: Record<Trigger, string> = {
 
 abstract class Effect {
     constructor(public description: string) {}
-    abstract apply(game: CardGame, source: Source): void
+    abstract apply(battle: Battle, source: Source): void
 }
 
 class Source {}
@@ -110,11 +110,11 @@ class DeleteRandomEnemyEffect extends Effect {
         super("delete a random enemy")
     }
 
-    apply(game: CardGame, source: Source) {
+    apply(battle: Battle, source: Source) {
         if (source instanceof CreatureSource) {
             let targetSideCreatures = source.player
-                ? game.enemySlots
-                : game.slots
+                ? battle.enemySlots
+                : battle.slots
 
             let slotsWithCreature = (targetSideCreatures as CreatureCard[])
                 .map((card, i) => [card, i])
@@ -126,10 +126,10 @@ class DeleteRandomEnemyEffect extends Effect {
                 let card = targetSideCreatures[slotToDelete]
                 targetSideCreatures[slotToDelete] = null
                 let sourceCreature = source.player
-                    ? game.slots[source.slot]
-                    : game.enemySlots[source.slot]
+                    ? battle.slots[source.slot]
+                    : battle.enemySlots[source.slot]
                 if (sourceCreature && card) {
-                    game.log(`${sourceCreature.name} killed ${card.name}.`)
+                    battle.log(`${sourceCreature.name} killed ${card.name}.`)
                 } else {
                     throw new Error(
                         "Source or target of a random enemy deletion was null.",
@@ -149,11 +149,11 @@ class DrawCardEffect extends Effect {
         super(`draw ${count} card${count > 1 ? "s" : ""}`)
     }
 
-    apply(game: CardGame, source: Source) {
+    apply(battle: Battle, source: Source) {
         if (source instanceof CreatureSource) {
             if (source.player) {
                 for (let i = 0; i < this.count; i++) {
-                    game.drawCard()
+                    battle.drawCard()
                 }
             }
         } else {
@@ -172,21 +172,21 @@ class GiveFriendsEffect extends Effect {
         super(`give all friends +${attack}/${health}`)
     }
 
-    apply(game: CardGame, source: Source) {
+    apply(battle: Battle, source: Source) {
         if (source instanceof CreatureSource) {
             let targetSideCreatures = source.player
-                ? game.slots
-                : game.enemySlots
+                ? battle.slots
+                : battle.enemySlots
             for (let i = 0; i < targetSideCreatures.length; i++) {
                 let card = targetSideCreatures[i]
                 if (card) {
                     card.attack += this.attack
                     card.health += this.health
                     let sourceCreature = source.player
-                        ? game.slots[source.slot]
-                        : game.enemySlots[source.slot]
+                        ? battle.slots[source.slot]
+                        : battle.enemySlots[source.slot]
                     if (sourceCreature) {
-                        game.log(
+                        battle.log(
                             `${sourceCreature.name} gave ${card.name} +${this.attack}/${this.health}.`,
                         )
                     } else {
@@ -288,7 +288,15 @@ export class CommandSideEffect extends SideEffect {
     }
 }
 
-export class CardGame {
+class Enemy {}
+
+class AlwaysPassingEnemy extends Enemy {
+    makeMove(battle: Battle) {}
+}
+
+export class Adventure {}
+
+export class Battle {
     eventLog: string[] = []
 
     health = 20

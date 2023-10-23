@@ -9,7 +9,7 @@
     import WebShell from "./web-shell.ts"
     import {Repository, GitBlob} from "./repository.ts"
 
-    import {CardGame, Card, CreatureCard, SideEffect, FileChangeSideEffect, FileDeleteSideEffect, CommandSideEffect} from "./cards.ts"
+    import {Battle, Card, CreatureCard, SideEffect, FileChangeSideEffect, FileDeleteSideEffect, CommandSideEffect} from "./cards.ts"
 
     // Show a warning when the user tries to leave the page (for example, by pressing Ctrl-W...)
     //window.onbeforeunload = function (e) {
@@ -26,7 +26,7 @@
     let terminal: Terminal
     let terminalNote = ""
 
-    let game: CardGame
+    let battle: Battle
     let indexSlots: (CreatureCard | null)[]
 
     async function runConfigureCommands() {
@@ -97,8 +97,8 @@
         let screenDiv = terminal.getTerminalDiv()
         shell = new WebShell(screenDiv)
 
-        game = new CardGame()
-        ;(window as any)["game"] = game
+        battle = new Battle()
+        ;(window as any)["battle"] = battle
 
         ;(window as any)["run"] = shell.run.bind(shell)
         ;(window as any)["shell"] = shell
@@ -144,12 +144,12 @@
     async function cardDrag(e) {
         console.log("drag", e.detail)
         const file = e.detail.slotIndex + 1
-        let effects = await game.playCardFromHand(e.detail.cardIndex, file)
+        let effects = await battle.playCardFromHand(e.detail.cardIndex, file)
         await realizeEffects(effects)
     }
 
     async function endTurn() {
-        let effects = game.endTurn()
+        let effects = battle.endTurn()
         await realizeEffects(effects)
     }
 
@@ -164,11 +164,11 @@
                 updateACoupleOfTimes()
             }
         }
-        game = game
+        battle = battle
     }
 
     function updateFromRepoToCardGame() {
-        game.slots = [null, null, null]
+        battle.slots = [null, null, null]
         for (let entry of repo.workingDirectory.entries) {
             let content = ""
             if (entry.oid) {
@@ -183,7 +183,7 @@
             }
 
             if (["1", "2", "3"].includes(entry.name)) {
-                game.slots[parseInt(entry.name) - 1] = CreatureCard.parse(content)
+                battle.slots[parseInt(entry.name) - 1] = CreatureCard.parse(content)
             }
         }
 
@@ -201,7 +201,7 @@
             }
         }
 
-        game = game
+        battle = battle
     }
 </script>
 
@@ -218,7 +218,7 @@
             <Help {cleanCallback} />
         </div>-->
         <div id="cards">
-            <Cards on:drag={cardDrag} on:endTurn={endTurn} {game} {indexSlots} />
+            <Cards on:drag={cardDrag} on:endTurn={endTurn} {battle} {indexSlots} />
         </div>
     </div>
     <!--<div id="serial" bind:this={serialDiv} />-->

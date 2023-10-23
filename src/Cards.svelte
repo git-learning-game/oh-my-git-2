@@ -2,17 +2,17 @@
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher()
 
-    import {CardGame, Card, CreatureCard} from "./cards.ts"
+    import {Battle, Card, CreatureCard} from "./cards.ts"
     import CardSvelte from "./Card.svelte"
 
-    export let game: CardGame
+    export let battle: Battle
     export let indexSlots: (CreatureCard | null)[] = []
 
     function drop(e: DragEvent, slotIndex: number) {
         console.log("drop", slotIndex)
         e.preventDefault()
         const cardIndex = parseInt(e.dataTransfer?.getData("text/plain") ?? "")
-        if (cardIndex >= 0 && cardIndex < game.hand.length) {
+        if (cardIndex >= 0 && cardIndex < battle.hand.length) {
             dispatch("drag", {cardIndex, slotIndex})
         }
     }
@@ -23,29 +23,29 @@
 </script>
 
 <div id="wrapper">
-    {#if game}
+    {#if battle}
         <h2>Event log</h2>
 
         <div id="log">
             <ul>
-                {#each game.eventLog as event}
+                {#each [...battle.eventLog].reverse() as event}
                     <li>{event}</li>
                 {/each}
             </ul>
         </div>
 
-        <h2>Enemy cards (enemy health: {game.enemyHealth}) </h2>
+        <h2>Enemy cards (enemy health: {battle.enemyHealth}) </h2>
 
         <div class="cards">
-            {#each game.enemySlots as slot, index}
+            {#each battle.enemySlots as slot, index}
                 <CardSvelte card={slot} {index} on:dragover={e => e.preventDefault()} on:drop={e => drop(e, index)} />
             {/each}
         </div>
 
-        <h2>Working directory (your health: {game.health}, energy: {game.energy}/{game.maxEnergy})</h2>
+        <h2>Working directory (your health: {battle.health}, energy: {battle.energy}/{battle.maxEnergy})</h2>
 
         <div class="cards">
-            {#each game.slots as slot, index}
+            {#each battle.slots as slot, index}
                 <CardSvelte card={slot} {index} on:dragover={e => e.preventDefault()} on:drop={e => drop(e, index)} />
             {/each}
         </div>
@@ -61,7 +61,7 @@
         <h2>Hand</h2>
 
         <div class="cards">
-            {#each game.hand as card, index}
+            {#each battle.hand as card, index}
                 <CardSvelte {card} {index} />
             {/each}
         </div>
