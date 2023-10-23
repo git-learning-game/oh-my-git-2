@@ -9,6 +9,8 @@ export class Card {
 }
 
 export class CreatureCard extends Card {
+    effects: [Trigger, Effect][] = []
+
     constructor(
         name: string,
         energy: number,
@@ -37,6 +39,29 @@ export class CreatureCard extends Card {
 
         return new CreatureCard(name, energy, attack, health)
     }
+
+    effectDescription(): string {
+        let description = ""
+        for (let [trigger, effect] of this.effects) {
+            let newEffect = `${triggerDescriptions[trigger]}, ${effect.description}.`
+            description +=
+                newEffect.charAt(0).toUpperCase() + newEffect.slice(1)
+        }
+        return description
+    }
+
+    addEffect(trigger: Trigger, effect: Effect): CreatureCard {
+        this.effects.push([trigger, effect])
+        return this
+    }
+
+    triggerEffects(game: CardGame, trigger: Trigger, source: Source) {
+        for (let [t, effect] of this.effects) {
+            if (t === trigger) {
+                effect.apply(game, source)
+            }
+        }
+    }
 }
 
 export class CommandCard extends Card {
@@ -56,15 +81,147 @@ class Command {
     constructor(public template: string) {}
 }
 
-const creatureTemplates = [
+enum Trigger {
+    Played,
+}
+
+export const triggerDescriptions: Record<Trigger, string> = {
+    [Trigger.Played]: "when this card is played",
+}
+
+abstract class Effect {
+    constructor(public description: string) {}
+    abstract apply(game: CardGame, source: Source): void
+}
+
+class Source {}
+
+class CreatureSource extends Source {
+    constructor(
+        public player: boolean,
+        public slot: number,
+    ) {
+        super()
+    }
+}
+
+class DeleteRandomEnemyEffect extends Effect {
+    constructor() {
+        super("delete a random enemy")
+    }
+
+    apply(game: CardGame, source: Source) {
+        if (source instanceof CreatureSource) {
+            let targetSideCreatures = source.player
+                ? game.enemySlots
+                : game.slots
+
+            let slotsWithCreature = (targetSideCreatures as CreatureCard[])
+                .map((card, i) => [card, i])
+                .filter(([card, _]) => card != null)
+            if (slotsWithCreature.length > 0) {
+                let slotToDelete = Math.floor(
+                    Math.random() * slotsWithCreature.length,
+                )
+                let card = targetSideCreatures[slotToDelete]
+                targetSideCreatures[slotToDelete] = null
+                let sourceCreature = source.player
+                    ? game.slots[source.slot]
+                    : game.enemySlots[source.slot]
+                if (sourceCreature && card) {
+                    game.log(`${sourceCreature.name} killed ${card.name}.`)
+                } else {
+                    throw new Error(
+                        "Source or target of a random enemy deletion was null.",
+                    )
+                }
+            }
+        } else {
+            throw new Error(
+                "DeleteRandomEnemyEffect can only have a creature as a source.",
+            )
+        }
+    }
+}
+
+class DrawCardEffect extends Effect {
+    constructor(public count: number) {
+        super(`draw ${count} card${count > 1 ? "s" : ""}`)
+    }
+
+    apply(game: CardGame, source: Source) {
+        if (source instanceof CreatureSource) {
+            if (source.player) {
+                for (let i = 0; i < this.count; i++) {
+                    game.drawCard()
+                }
+            }
+        } else {
+            throw new Error(
+                "DrawCardEffect can only have a creature as a source.",
+            )
+        }
+    }
+}
+
+class GiveFriendsEffect extends Effect {
+    constructor(
+        public attack: number,
+        public health: number,
+    ) {
+        super(`give all friends +${attack}/${health}`)
+    }
+
+    apply(game: CardGame, source: Source) {
+        if (source instanceof CreatureSource) {
+            let targetSideCreatures = source.player
+                ? game.slots
+                : game.enemySlots
+            for (let i = 0; i < targetSideCreatures.length; i++) {
+                let card = targetSideCreatures[i]
+                if (card) {
+                    card.attack += this.attack
+                    card.health += this.health
+                    let sourceCreature = source.player
+                        ? game.slots[source.slot]
+                        : game.enemySlots[source.slot]
+                    if (sourceCreature) {
+                        game.log(
+                            `${sourceCreature.name} gave ${card.name} +${this.attack}/${this.health}.`,
+                        )
+                    } else {
+                        throw new Error(
+                            "Source of a GiveFriendsEffect was null.",
+                        )
+                    }
+                }
+            }
+        } else {
+            throw new Error(
+                "GiveFriendsEffect can only have a creature as a source.",
+            )
+        }
+    }
+}
+
+const creatureTemplates: CreatureCard[] = [
     new CreatureCard("Graph Gnome", 1, 1, 2),
-    new CreatureCard("Blob Eater", 2, 2, 2),
+    new CreatureCard("Blob Eater", 2, 2, 2).addEffect(
+        Trigger.Played,
+        new DeleteRandomEnemyEffect(),
+    ),
     new CreatureCard("Time Snail", 1, 1, 1),
     new CreatureCard("Clone Warrior", 4, 2, 5),
     new CreatureCard("Merge Monster", 4, 4, 4),
     new CreatureCard("Detached Head", 1, 0, 2),
-    new CreatureCard("Rubber Duck", 1, 1, 1),
-    new CreatureCard("Collab Centaur", 1, 1, 1),
+    new CreatureCard("Rubber Duck", 1, 1, 1).addEffect(
+        Trigger.Played,
+        new DrawCardEffect(1),
+    ),
+    new CreatureCard("Collab Centaur", 1, 1, 1).addEffect(
+        Trigger.Played,
+        new GiveFriendsEffect(1, 1),
+    ),
 ]
 
 const commandTemplates = [
@@ -110,7 +267,7 @@ function shuffle(array: any[]) {
 
 export class SideEffect {}
 
-export class FileChangeEffect extends SideEffect {
+export class FileChangeSideEffect extends SideEffect {
     constructor(
         public path: string,
         public content: string,
@@ -119,13 +276,13 @@ export class FileChangeEffect extends SideEffect {
     }
 }
 
-export class FileDeleteEffect extends SideEffect {
+export class FileDeleteSideEffect extends SideEffect {
     constructor(public path: string) {
         super()
     }
 }
 
-export class CommandEffect extends SideEffect {
+export class CommandSideEffect extends SideEffect {
     constructor(public command: string) {
         super()
     }
@@ -184,16 +341,22 @@ export class CardGame {
         let success = false
         let output = ""
         if (card instanceof CreatureCard) {
-            this.slots[target - 1] = cloneDeep(card)
+            let newCard = cloneDeep(card)
+            this.slots[target - 1] = newCard
             let fileContent = card.stringify()
             effects.push(
-                new FileChangeEffect(`/root/repo/${target}`, fileContent),
+                new FileChangeSideEffect(`/root/repo/${target}`, fileContent),
             )
             this.log(`Played ${card.name} to slot ${target}.`)
+            newCard.triggerEffects(
+                this,
+                Trigger.Played,
+                new CreatureSource(true, target - 1),
+            )
             success = true
         } else if (card instanceof CommandCard) {
             const command = card.command.template.replace("FILE", `${target}`)
-            effects.push(new CommandEffect(command))
+            effects.push(new CommandSideEffect(command))
             if (card.command.template.includes("FILE")) {
                 this.log(`Played ${card.name} to slot ${target}.`)
             } else {
@@ -229,12 +392,14 @@ export class CardGame {
                 )
                 if (playerCard.health <= 0) {
                     this.slots[i] = null
-                    effects.push(new FileDeleteEffect(`/root/repo/${i + 1}`))
+                    effects.push(
+                        new FileDeleteSideEffect(`/root/repo/${i + 1}`),
+                    )
                     this.log(`Your ${playerCard.name} died.`)
                 } else {
                     let fileContent = playerCard.stringify()
                     effects.push(
-                        new FileChangeEffect(
+                        new FileChangeSideEffect(
                             `/root/repo/${i + 1}`,
                             fileContent,
                         ),
@@ -264,6 +429,11 @@ export class CardGame {
         let randomEnemy = randomCard(creatureTemplates) as CreatureCard
         this.enemySlots[randomSlot] = randomEnemy
         this.log(`Enemy played ${randomEnemy.name} to slot ${randomSlot + 1}.`)
+        randomEnemy.triggerEffects(
+            this,
+            Trigger.Played,
+            new CreatureSource(false, randomSlot),
+        )
 
         this.drawCard()
         if (this.maxEnergy < 10) {

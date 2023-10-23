@@ -9,7 +9,7 @@
     import WebShell from "./web-shell.ts"
     import {Repository, GitBlob} from "./repository.ts"
 
-    import {CardGame, Card, CreatureCard, SideEffect, FileChangeEffect, FileDeleteEffect, CommandEffect} from "./cards.ts"
+    import {CardGame, Card, CreatureCard, SideEffect, FileChangeSideEffect, FileDeleteSideEffect, CommandSideEffect} from "./cards.ts"
 
     // Show a warning when the user tries to leave the page (for example, by pressing Ctrl-W...)
     //window.onbeforeunload = function (e) {
@@ -155,11 +155,11 @@
 
     async function realizeEffects(effects: SideEffect[]) {
         for (let effect of effects) {
-            if (effect instanceof FileChangeEffect) {
+            if (effect instanceof FileChangeSideEffect) {
                 await shell.putFile(effect.path, [effect.content])
-            } else if (effect instanceof FileDeleteEffect) {
+            } else if (effect instanceof FileDeleteSideEffect) {
                 await shell.run(`rm ${effect.path}`)
-            } else if (effect instanceof CommandEffect) {
+            } else if (effect instanceof CommandSideEffect) {
                 shell.type(effect.command + "\n")
                 updateACoupleOfTimes()
             }
