@@ -2,6 +2,7 @@
     import {Battle} from "./cards.ts"
     import CardSvelte from "./Card.svelte"
     import { createEventDispatcher } from 'svelte';
+    import { t } from 'svelte-i18n-lingui';
     const dispatch = createEventDispatcher()
 
     export let battle: Battle
@@ -29,7 +30,7 @@
         </div>
 
         <div class="button" on:click={endTurn}>
-            ✨ End turn
+            ✨ {$t`End turn`}
         </div>
     {/if}
 </div>

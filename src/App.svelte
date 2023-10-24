@@ -11,6 +11,10 @@
     import {Repository, GitBlob} from "./repository.ts"
 
     import {Battle, Card, CreatureCard, SideEffect, FileChangeSideEffect, FileDeleteSideEffect, CommandSideEffect} from "./cards.ts"
+    
+    import { locale } from 'svelte-i18n-lingui';
+
+	
 
     // Show a warning when the user tries to leave the page (for example, by pressing Ctrl-W...)
     //window.onbeforeunload = function (e) {
@@ -29,6 +33,13 @@
 
     let battle: Battle
     let indexSlots: (CreatureCard | null)[]
+    
+    setLocale('en')
+    
+    async function setLocale(lang) {
+		const { messages } = await import(`./locales/${lang}.ts`);
+		locale.set(lang, messages);
+	}
 
     async function runConfigureCommands() {
         await shell.putFile("~/.gitconfig", [

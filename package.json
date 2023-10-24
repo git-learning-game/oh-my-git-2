@@ -3,19 +3,25 @@
     "version": "0.1.0",
     "type": "module",
     "scripts": {
-        "dev": "vite",
+        "dev": "lingui compile --typescript; vite",
         "build": "vite build",
         "serve": "vite preview",
-        "test": "vitest --browser='chrome'"
+        "test": "vitest --browser='chrome'",
+        "extract": "lingui extract",
+        "compile": "lingui compile --typescript"
     },
     "dependencies": {
+        "@lingui/core": "^4.5.0",
+        "@sveltejs/kit": "^1.27.0",
         "async-mutex": "^0.4.0",
         "d3": "^7.8.5",
         "lodash": "^4.17.21",
+        "svelte-i18n-lingui": "^0.1.6",
         "v86": "^0.4.0",
         "yaml": "^2.3.3"
     },
     "devDependencies": {
+        "@lingui/cli": "^4.5.0",
         "@rollup/plugin-legacy": "^3.0.1",
         "@sveltejs/vite-plugin-svelte": "^2.4.6",
         "@tsconfig/svelte": "^5.0.2",
