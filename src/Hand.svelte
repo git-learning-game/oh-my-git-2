@@ -1,8 +1,8 @@
 <script lang="ts">
     import {Battle} from "./cards.ts"
     import CardSvelte from "./Card.svelte"
-    import { createEventDispatcher } from 'svelte';
-    import { t } from 'svelte-i18n-lingui';
+    import {createEventDispatcher} from "svelte"
+    import {t} from "svelte-i18n-lingui"
     const dispatch = createEventDispatcher()
 
     export let battle: Battle
@@ -24,9 +24,14 @@
     {#if battle}
         <h2>{$t`Health`}: {battle.health} – {$t`Energy`}: {energyString}</h2>
         <div class="cards">
-                {#each battle.hand as card, index}
-                    <CardSvelte {card} {index} hand={true} playable={card.energy <= battle.energy} />
-                {/each}
+            {#each battle.hand as card, index}
+                <CardSvelte
+                    {card}
+                    {index}
+                    hand={true}
+                    playable={card.energy <= battle.energy}
+                />
+            {/each}
         </div>
 
         <div class="button" on:click={endTurn}>

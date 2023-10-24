@@ -11,7 +11,15 @@
     import WebShell from "./web-shell.ts"
     import {Repository, GitBlob} from "./repository.ts"
 
-    import {Battle, Card, CreatureCard, SideEffect, FileChangeSideEffect, FileDeleteSideEffect, CommandSideEffect} from "./cards.ts"
+    import {
+        Battle,
+        Card,
+        CreatureCard,
+        SideEffect,
+        FileChangeSideEffect,
+        FileDeleteSideEffect,
+        CommandSideEffect,
+    } from "./cards.ts"
 
     // Show a warning when the user tries to leave the page (for example, by pressing Ctrl-W...)
     //window.onbeforeunload = function (e) {
@@ -30,8 +38,6 @@
 
     let battle: Battle
     let indexSlots: (CreatureCard | null)[]
-    
-    
 
     async function runConfigureCommands() {
         await shell.putFile("~/.gitconfig", [
@@ -97,13 +103,11 @@
     }
 
     onMount(() => {
-
         let screenDiv = terminal.getTerminalDiv()
         shell = new WebShell(screenDiv)
 
         battle = new Battle()
         ;(window as any)["battle"] = battle
-
         ;(window as any)["run"] = shell.run.bind(shell)
         ;(window as any)["shell"] = shell
 
@@ -127,7 +131,7 @@
             shell.type("cd repo\n")
             shell.type("clear\n")
             shell.type(
-                "# If you're not usig a QWERTY keyboard, you can set your keyboard layout using this command: loadkeys <de/fr/...>\n"
+                "# If you're not usig a QWERTY keyboard, you can set your keyboard layout using this command: loadkeys <de/fr/...>\n",
             )
 
             updateACoupleOfTimes()
@@ -202,7 +206,8 @@
             }
 
             if (["1", "2", "3"].includes(entry.name)) {
-                battle.slots[parseInt(entry.name) - 1] = CreatureCard.parse(content)
+                battle.slots[parseInt(entry.name) - 1] =
+                    CreatureCard.parse(content)
             }
         }
 
@@ -216,7 +221,8 @@
                 throw new Error("Requested OID is not a blob")
             }
             if (["1", "2", "3"].includes(entry.name)) {
-                indexSlots[parseInt(entry.name) - 1] = CreatureCard.parse(content)
+                indexSlots[parseInt(entry.name) - 1] =
+                    CreatureCard.parse(content)
             }
         }
 
@@ -225,7 +231,7 @@
 </script>
 
 <div id="container">
-    <LanguageSwitcher/>
+    <LanguageSwitcher />
     <div id="grid">
         <div id="graph">
             <Graph bind:this={graph} />
@@ -238,7 +244,12 @@
             <Help {cleanCallback} />
         </div>-->
         <div id="cards">
-            <Cards on:drag={cardDrag} on:endTurn={endTurn} {battle} {indexSlots} />
+            <Cards
+                on:drag={cardDrag}
+                on:endTurn={endTurn}
+                {battle}
+                {indexSlots}
+            />
         </div>
         <div id="hand">
             <Hand on:endTurn={endTurn} {battle} />

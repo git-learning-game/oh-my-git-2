@@ -12,7 +12,16 @@
     }
 </script>
 
-<div class="slot" draggable={playable} class:hand class:card class:playable on:dragstart={e => dragStart(e)} on:dragover on:drop>
+<div
+    class="slot"
+    draggable={playable}
+    class:hand
+    class:card
+    class:playable
+    on:dragstart={(e) => dragStart(e)}
+    on:dragover
+    on:drop
+>
     {#if card}
         <div class="card-header">
             <h3>({card.energy}) {card.name}</h3>
@@ -21,8 +30,8 @@
             <div class="card-body">
                 {card.effectDescription()}
             </div>
-            <div class="attack"> {card.attack} </div>
-            <div class="health"> {card.health} </div>
+            <div class="attack">{card.attack}</div>
+            <div class="health">{card.health}</div>
         {:else if card instanceof CommandCard}
             <div class="card-body">
                 <code>{card.command.template}</code>
@@ -50,7 +59,8 @@
         border: solid blue 5px;
         cursor: move;
     }
-    .attack, .health {
+    .attack,
+    .health {
         position: absolute;
         bottom: 0.5em;
         font-size: 150%;

@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { t } from 'svelte-i18n-lingui';
-    import { createEventDispatcher } from 'svelte';
+    import {t} from "svelte-i18n-lingui"
+    import {createEventDispatcher} from "svelte"
     const dispatch = createEventDispatcher()
 
     import {Battle, Card, CreatureCard} from "./cards.ts"
@@ -31,11 +31,16 @@
             </ul>
         </div>
 
-        <h2>{$t`Enemy cards`} ({$t`enemy health`}: {battle.enemyHealth}) </h2>
+        <h2>{$t`Enemy cards`} ({$t`enemy health`}: {battle.enemyHealth})</h2>
 
         <div class="cards">
             {#each battle.enemySlots as slot, index}
-                <CardSvelte card={slot} {index} on:dragover={e => e.preventDefault()} on:drop={e => drop(e, index)} />
+                <CardSvelte
+                    card={slot}
+                    {index}
+                    on:dragover={(e) => e.preventDefault()}
+                    on:drop={(e) => drop(e, index)}
+                />
             {/each}
         </div>
 
@@ -43,7 +48,12 @@
 
         <div class="cards">
             {#each battle.slots as slot, index}
-                <CardSvelte card={slot} {index} on:dragover={e => e.preventDefault()} on:drop={e => drop(e, index)} />
+                <CardSvelte
+                    card={slot}
+                    {index}
+                    on:dragover={(e) => e.preventDefault()}
+                    on:drop={(e) => drop(e, index)}
+                />
             {/each}
         </div>
 
@@ -51,7 +61,12 @@
 
         <div class="cards">
             {#each indexSlots as slot, index}
-                <CardSvelte card={slot} {index} on:dragover={e => e.preventDefault()} on:drop={e => drop(e, index)} />
+                <CardSvelte
+                    card={slot}
+                    {index}
+                    on:dragover={(e) => e.preventDefault()}
+                    on:drop={(e) => drop(e, index)}
+                />
             {/each}
         </div>
     {/if}
@@ -69,5 +84,4 @@
         display: flex;
         flex-wrap: wrap;
     }
-
 </style>

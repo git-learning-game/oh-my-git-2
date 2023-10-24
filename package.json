@@ -16,6 +16,7 @@
         "async-mutex": "^0.4.0",
         "d3": "^7.8.5",
         "lodash": "^4.17.21",
+        "prettier-plugin-svelte": "^3.0.3",
         "svelte-i18n-lingui": "^0.1.6",
         "v86": "^0.4.0",
         "yaml": "^2.3.3"
