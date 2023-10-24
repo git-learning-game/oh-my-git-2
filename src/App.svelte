@@ -6,13 +6,14 @@
     import Help from "./Help.svelte"
     import Cards from "./Cards.svelte"
     import Hand from "./Hand.svelte"
+    import LanguageSwitcher from "./LanguageSwitcher.svelte"
 
     import WebShell from "./web-shell.ts"
     import {Repository, GitBlob} from "./repository.ts"
 
     import {Battle, Card, CreatureCard, SideEffect, FileChangeSideEffect, FileDeleteSideEffect, CommandSideEffect} from "./cards.ts"
     
-    import { locale } from 'svelte-i18n-lingui';
+    
 
 	
 
@@ -34,12 +35,7 @@
     let battle: Battle
     let indexSlots: (CreatureCard | null)[]
     
-    setLocale('en')
     
-    async function setLocale(lang) {
-		const { messages } = await import(`./locales/${lang}.ts`);
-		locale.set(lang, messages);
-	}
 
     async function runConfigureCommands() {
         await shell.putFile("~/.gitconfig", [
@@ -233,6 +229,7 @@
 </script>
 
 <div id="container">
+    <LanguageSwitcher/>
     <div id="grid">
         <div id="graph">
             <Graph bind:this={graph} />

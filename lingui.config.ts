@@ -1,7 +1,8 @@
 import {jstsExtractor, svelteExtractor} from "svelte-i18n-lingui/extractor"
+import languages from "./languages.ts"
 
 export default {
-    locales: ["en", "de"],
+    locales: languages,
     sourceLocale: "en",
     catalogs: [
         {
