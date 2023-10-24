@@ -5,6 +5,7 @@
     import Graph from "./Graph.svelte"
     import Help from "./Help.svelte"
     import Cards from "./Cards.svelte"
+    import Hand from "./Hand.svelte"
 
     import WebShell from "./web-shell.ts"
     import {Repository, GitBlob} from "./repository.ts"
@@ -79,7 +80,7 @@
             objectsDiv.innerText = JSON.stringify(displayed, null, 2)
         }
 
-        updateFromRepoToCardGame()
+        syncDiskToGame()
 
         graph.update()
         graph.setRefreshing(false)
@@ -145,21 +146,26 @@
         console.log("drag", e.detail)
         const file = e.detail.slotIndex + 1
         let effects = await battle.playCardFromHand(e.detail.cardIndex, file)
+        await syncGameToDisk()
         await realizeEffects(effects)
     }
 
     async function endTurn() {
         let effects = battle.endTurn()
+        await syncGameToDisk()
         await realizeEffects(effects)
     }
 
     async function realizeEffects(effects: SideEffect[]) {
         for (let effect of effects) {
+            /* (syncGameToDisk takes care of this now)
             if (effect instanceof FileChangeSideEffect) {
                 await shell.putFile(effect.path, [effect.content])
             } else if (effect instanceof FileDeleteSideEffect) {
                 await shell.run(`rm ${effect.path}`)
-            } else if (effect instanceof CommandSideEffect) {
+            } else 
+            */
+            if (effect instanceof CommandSideEffect) {
                 shell.type(effect.command + "\n")
                 updateACoupleOfTimes()
             }
@@ -167,7 +173,17 @@
         battle = battle
     }
 
-    function updateFromRepoToCardGame() {
+    async function syncGameToDisk() {
+        for (let [index, card] of battle.slots.entries()) {
+            if (card) {
+                await shell.putFile((index + 1).toString(), [card.stringify()])
+            } else {
+                await shell.run(`rm -f ${index + 1}`)
+            }
+        }
+    }
+
+    function syncDiskToGame() {
         battle.slots = [null, null, null]
         for (let entry of repo.workingDirectory.entries) {
             let content = ""
@@ -220,6 +236,9 @@
         <div id="cards">
             <Cards on:drag={cardDrag} on:endTurn={endTurn} {battle} {indexSlots} />
         </div>
+        <div id="hand">
+            <Hand on:endTurn={endTurn} {battle} />
+        </div>
     </div>
     <!--<div id="serial" bind:this={serialDiv} />-->
 </div>
@@ -245,7 +264,8 @@
         display: grid;
         grid-template-areas:
             "graph cards"
-            "screen cards";
+            "screen cards"
+            "hand hand";
         grid-template-columns: 1fr var(--term-width);
         grid-template-rows: 1fr var(--term-height);
     }
@@ -261,6 +281,10 @@
     #graph {
         grid-area: graph;
         background: peachpuff;
+    }
+
+    #hand {
+        grid-area: hand;
     }
 
     #cards {

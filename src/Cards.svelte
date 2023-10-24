@@ -16,10 +16,6 @@
             dispatch("drag", {cardIndex, slotIndex})
         }
     }
-
-    function endTurn() {
-        dispatch("endTurn")
-    }
 </script>
 
 <div id="wrapper">
@@ -42,7 +38,7 @@
             {/each}
         </div>
 
-        <h2>Working directory (your health: {battle.health}, energy: {battle.energy}/{battle.maxEnergy})</h2>
+        <h2>Working directory</h2>
 
         <div class="cards">
             {#each battle.slots as slot, index}
@@ -56,18 +52,6 @@
             {#each indexSlots as slot, index}
                 <CardSvelte card={slot} {index} on:dragover={e => e.preventDefault()} on:drop={e => drop(e, index)} />
             {/each}
-        </div>
-
-        <h2>Hand</h2>
-
-        <div class="cards">
-            {#each battle.hand as card, index}
-                <CardSvelte {card} {index} hand={true} />
-            {/each}
-        </div>
-
-        <div class="button" on:click={endTurn}>
-            ✨ End turn
         </div>
     {/if}
 </div>
@@ -83,22 +67,6 @@
     .cards {
         display: flex;
         flex-wrap: wrap;
-    }
-    .button {
-        padding: 0.5em;
-        border-radius: 0.5em;
-        background-color: #eee;
-        color: black;
-        display: inline-block;
-        margin-top: 1em;
-    }
-    .button:hover {
-        cursor: pointer;
-        box-shadow: 0 1px 0.2em rgba(0, 0, 0, 0.2);
-    }
-    .button:active {
-        background-color: #ddd;
-        box-shadow: 0 0 0.2em rgba(0, 0, 0, 0.2);
     }
 
 </style>

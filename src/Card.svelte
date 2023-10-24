@@ -3,6 +3,7 @@
 
     export let card: Card | null
     export let index: number
+    export let playable = false
     export let hand = false
 
     function dragStart(e: DragEvent) {
@@ -11,7 +12,7 @@
     }
 </script>
 
-<div class="card" draggable={hand} class:hand on:dragstart={e => dragStart(e)} on:dragover on:drop>
+<div class="slot" draggable={playable} class:hand class:card class:playable on:dragstart={e => dragStart(e)} on:dragover on:drop>
     {#if card}
         <div class="card-header">
             <h3>({card.energy}) {card.name}</h3>
@@ -27,23 +28,26 @@
                 <code>{card.command.template}</code>
             </div>
         {/if}
-    {:else}
-        –
     {/if}
 </div>
 
 <style>
-    .card {
+    .slot {
         width: 10em;
         height: 10em;
-        background: white;
+        background: #aaa;
         border-radius: 1em;
-        display: inline-block;
         margin: 1em;
         padding: 0.5em;
-        position: relative;
+        display: inline-block;
     }
-    .card.hand {
+    .card {
+        background: white;
+        position: relative;
+        user-select: none;
+    }
+    .playable {
+        border: solid blue 5px;
         cursor: move;
     }
     .attack, .health {
