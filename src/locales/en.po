@@ -13,6 +13,18 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: src/cards.ts:210
+msgid "Blob Eater"
+msgstr "Blob Eater"
+
 #: src/Hand.svelte:29
 msgid "End turn"
 msgstr "End turn"
+
+#: src/cards.ts:209
+msgid "Graph Gnome"
+msgstr "Graph Gnome"
+
+#: src/cards.ts:5
+#~ msgid "test"
+#~ msgstr "test"

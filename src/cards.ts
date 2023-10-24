@@ -1,5 +1,6 @@
 import {cloneDeep} from "lodash"
 import * as YAML from "yaml"
+import {gt} from "svelte-i18n-lingui"
 
 export class Card {
     constructor(
@@ -204,8 +205,8 @@ class GiveFriendsEffect extends Effect {
 }
 
 const creatureTemplates: CreatureCard[] = [
-    new CreatureCard("Graph Gnome", 1, 1, 2),
-    new CreatureCard("Blob Eater", 2, 2, 2).addEffect(
+    new CreatureCard(gt({message: "Graph Gnome"}), 1, 1, 2),
+    new CreatureCard(gt({message: "Blob Eater"}), 2, 2, 2).addEffect(
         Trigger.Played,
         new DeleteRandomEnemyEffect(),
     ),
