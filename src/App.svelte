@@ -41,7 +41,7 @@
 
     let adventure: Adventure
     let indexSlots: (CreatureCard | null)[]
-    
+
     adventure = new Adventure()
 
     async function runConfigureCommands() {
@@ -108,8 +108,6 @@
     }
 
     onMount(() => {
-        
-        
         let screenDiv = terminal.getTerminalDiv()
         shell = new WebShell(screenDiv)
 
@@ -154,7 +152,10 @@
     async function cardDrag(e) {
         console.log("drag", e.detail)
         const file = e.detail.slotIndex + 1
-        let effects = await adventure.state.playCardFromHand(e.detail.cardIndex, file)
+        let effects = await adventure.state.playCardFromHand(
+            e.detail.cardIndex,
+            file,
+        )
         await syncGameToDisk()
         await realizeEffects(effects)
     }
@@ -164,8 +165,8 @@
         await syncGameToDisk()
         await realizeEffects(effects)
     }
-    
-    function decisionMade(event){
+
+    function decisionMade(event) {
         console.log(adventure)
         adventure.state.choose(event.detail)
         adventure = adventure
@@ -189,10 +190,12 @@
     }
 
     async function syncGameToDisk() {
-        if(adventure.state instanceof Battle){
+        if (adventure.state instanceof Battle) {
             for (let [index, card] of adventure.state.slots.entries()) {
                 if (card) {
-                    await shell.putFile((index + 1).toString(), [card.stringify()])
+                    await shell.putFile((index + 1).toString(), [
+                        card.stringify(),
+                    ])
                 } else {
                     await shell.run(`rm -f ${index + 1}`)
                 }
@@ -242,34 +245,37 @@
 
 <div id="container">
     <LanguageSwitcher />
-    {#if adventure?.state instanceof Battle }
-    <div id="grid">
-        <div id="graph">
-            <Graph bind:this={graph} />
-        </div>
-        <!--<div id="objects" bind:this={objectsDiv} />-->
-        <div id="screen">
-            <Terminal bind:this={terminal} note={terminalNote} />
-        </div>
-        <!--<div id="help">
+    {#if adventure?.state instanceof Battle}
+        <div id="grid">
+            <div id="graph">
+                <Graph bind:this={graph} />
+            </div>
+            <!--<div id="objects" bind:this={objectsDiv} />-->
+            <div id="screen">
+                <Terminal bind:this={terminal} note={terminalNote} />
+            </div>
+            <!--<div id="help">
             <Help {cleanCallback} />
         </div>-->
-        <div id="cards">
-            <Cards
-                on:drag={cardDrag}
-                on:endTurn={endTurn}
-                battle={adventure.state}
-                {indexSlots}
+            <div id="cards">
+                <Cards
+                    on:drag={cardDrag}
+                    on:endTurn={endTurn}
+                    battle={adventure.state}
+                    {indexSlots}
+                />
+            </div>
+            <div id="hand">
+                <Hand on:endTurn={endTurn} battle={adventure.state} />
+            </div>
+        </div>
+    {:else if adventure?.state instanceof Decision}
+        <div>
+            <DecisionSvelte
+                choices={adventure.state.choices}
+                on:choice={decisionMade}
             />
         </div>
-        <div id="hand">
-            <Hand on:endTurn={endTurn} battle={adventure.state} />
-        </div>
-    </div>
-    {:else if adventure?.state instanceof Decision }
-    <div>
-        <DecisionSvelte choices={adventure.state.choices} on:choice={ decisionMade } />
-    </div>
     {/if}
     <!--<div id="serial" bind:this={serialDiv} />-->
 </div>

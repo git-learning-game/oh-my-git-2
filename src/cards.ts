@@ -238,8 +238,16 @@ function commandTemplates(): Record<string, CommandCard> {
         add: new CommandCard(gt`Add`, 1, new Command("git add FILE")),
         addAll: new CommandCard(gt`Add all`, 2, new Command("git add .")),
         remove: new CommandCard(gt`Remove`, 0, new Command("rm FILE")),
-        restore: new CommandCard(gt`Restore`, 2, new Command("git restore FILE")),
-        commit: new CommandCard(gt`Commit`, 2, new Command("git commit -m 'Commit'")),
+        restore: new CommandCard(
+            gt`Restore`,
+            2,
+            new Command("git restore FILE"),
+        ),
+        commit: new CommandCard(
+            gt`Commit`,
+            2,
+            new Command("git commit -m 'Commit'"),
+        ),
         commitAll: new CommandCard(
             gt`Commit all`,
             3,
@@ -266,7 +274,10 @@ function commandTemplates(): Record<string, CommandCard> {
 }
 
 function allCardTemplates(): Card[] {
-    return [...Object.values(creatureTemplates()), ...Object.values(commandTemplates())]
+    return [
+        ...Object.values(creatureTemplates()),
+        ...Object.values(commandTemplates()),
+    ]
 }
 
 function randomPick<T>(array: T[], clone = false): T {
@@ -309,10 +320,10 @@ export class CommandSideEffect extends SideEffect {
     }
 }
 
-abstract class Enemy {
+class Enemy {
     constructor(public battle: Battle) {}
 
-    abstract makeMove(): void
+    makeMove(): void {}
 
     freeSlots(): number[] {
         return this.battle.enemySlots
@@ -362,7 +373,7 @@ class RandomEnemy extends Enemy {
         if (this.freeSlots().length === 0) {
             return
         }
-        let randomCard = randomPick(Object.values(creatureTemplates()), true)   
+        let randomCard = randomPick(Object.values(creatureTemplates()), true)
         let randomSlot = randomPick(this.freeSlots())
         this.battle.playCardAsEnemy(randomCard, randomSlot)
     }
@@ -375,57 +386,103 @@ export class Adventure {
     deck: Card[] = []
     //battle: Battle
     state: Battle | Decision | null
-    
-    constructor(){
-        let creaturecards = ["timeSnail", "timeSnail", "timeSnail", "timeSnail", "timeSnail", "timeSnail"]
+
+    path: Event[]
+
+    constructor() {
+        let creaturecards = [
+            "timeSnail",
+            "timeSnail",
+            "timeSnail",
+            "timeSnail",
+            "timeSnail",
+            "timeSnail",
+        ]
         let commandcards = ["add", "add", "restore", "restore"]
-        this.deck = [...creaturecards.map(name => cloneDeep(creatureTemplates()[name])), ...commandcards.map(name => cloneDeep(commandTemplates()[name]))]
+        this.deck = [
+            ...creaturecards.map((name) =>
+                cloneDeep(creatureTemplates()[name]),
+            ),
+            ...commandcards.map((name) => cloneDeep(commandTemplates()[name])),
+        ]
         this.state = null
-        
+
+        this.path = [
+            new BattleEvent(SnailEnemy),
+            new DecisionEvent(),
+            new BattleEvent(RandomEnemy),
+            new DecisionEvent(),
+            new BattleEvent(OPEnemy),
+        ]
+
         //this.battle = new Battle(this.deck)
-        this.startNewBattle()
+        this.enterNextEvent()
     }
-    
-    startNewBattle(){
-        this.state = new Battle(this.deck, (won) => {
-            if(won){
-                this.startNewDecision()
-            }else{
-                alert("GAME OVER")
-            }
-            
-        })
+
+    enterNextEvent() {
+        let nextEvent = this.path.shift()
+        if (nextEvent instanceof BattleEvent) {
+            this.state = new Battle(this.deck, nextEvent.enemy, (won) => {
+                if (won) {
+                    this.enterNextEvent()
+                } else {
+                    alert("GAME OVER")
+                }
+            })
+        } else if (nextEvent instanceof DecisionEvent) {
+            this.startNewDecision()
+        } else {
+            throw new Error(`Unknown event type: ${nextEvent}`)
+        }
     }
-    
-    startNewDecision(){
-        this.state = new Decision([randomPick(allCardTemplates(), true), randomPick(allCardTemplates(), true)], (card) => {
-            this.deck.push(card)
-            this.startNewBattle()
-        })
+
+    startNewDecision() {
+        this.state = new Decision(
+            [
+                randomPick(allCardTemplates(), true),
+                randomPick(allCardTemplates(), true),
+            ],
+            (card) => {
+                this.deck.push(card)
+                this.enterNextEvent()
+            },
+        )
     }
 }
 
-export class Decision{
-    
-    constructor(public choices: Card[], public onChoice: (a: Card) => void){
-        
-    }
-    
-    choose(card: Card){
+export class Decision {
+    constructor(
+        public choices: Card[],
+        public onChoice: (a: Card) => void,
+    ) {}
+
+    choose(card: Card) {
         this.onChoice(card)
     }
-    
+}
+
+class Event {}
+
+class BattleEvent extends Event {
+    constructor(public enemy: typeof Enemy) {
+        super()
+    }
+}
+
+class DecisionEvent extends Event {
+    constructor() {
+        super()
+    }
 }
 
 export class Battle {
     eventLog: string[] = []
 
-    health = 2
+    health = 10
     energy = 1
     maxEnergy = 1
 
-    enemyHealth = 2
-    enemy: Enemy
+    enemyHealth = 10
 
     drawPile: Card[] = []
     hand: Card[] = []
@@ -434,7 +491,13 @@ export class Battle {
     slots: (CreatureCard | null)[] = [null, null, null]
     enemySlots: (CreatureCard | null)[] = [null, null, null]
 
-    constructor(deck: Card[], public onBattleFinished: (won: boolean) => void) {
+    enemy: Enemy
+
+    constructor(
+        deck: Card[],
+        enemyType: typeof Enemy,
+        public onBattleFinished: (won: boolean) => void,
+    ) {
         //for (let i = 0; i < deckSize; i++) {
         //    this.drawPile.push(randomPick(templates, true))
         //}
@@ -447,7 +510,7 @@ export class Battle {
             this.drawCard()
         }
 
-        this.enemy = new (randomPick(possibleEnemies))(this)
+        this.enemy = new enemyType(this)
     }
 
     log(event: string) {
@@ -557,7 +620,7 @@ export class Battle {
                 this.log(
                     `${playerCard.name} dealt ${playerCard.attack} damage to the enemy player.`,
                 )
-                if(this.enemyHealth < 1){
+                if (this.enemyHealth < 1) {
                     this.onBattleFinished(true)
                 }
             } else if (enemyCard) {
@@ -566,7 +629,7 @@ export class Battle {
                 this.log(
                     `Enemy ${enemyCard.name} dealt ${enemyCard.attack} damage to you.`,
                 )
-                if(this.health < 1){
+                if (this.health < 1) {
                     this.onBattleFinished(false)
                 }
             }

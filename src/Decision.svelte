@@ -1,22 +1,35 @@
 <script>
-	import CardSvelte from "./Card.svelte"
-	import {createEventDispatcher} from "svelte"
+    import CardSvelte from "./Card.svelte"
+    import {createEventDispatcher} from "svelte"
     const dispatch = createEventDispatcher()
-    
-	export let choices
+
+    export let choices
 </script>
 
 <div id="decision-container">
-	{#each choices as card}
-		<div class="choice" on:click={ () => dispatch("choice", card) }>
-			<CardSvelte {card}/>
-		</div>
-	{/each}
+    <h1>Pick a card!</h1>
+    <div id="cards">
+        {#each choices as card}
+            <div class="choice" on:click={() => dispatch("choice", card)}>
+                <CardSvelte {card} />
+            </div>
+        {/each}
+    </div>
 </div>
 
 <style>
-	#decision-container{
-		display: flex;
-		justify-content: space-around;
-	}
+    #decision-container {
+        background: #1a1a1a;
+        height: 100vh;
+        padding: 1em;
+    }
+    h1 {
+        color: white;
+        text-align: center;
+        font-size: 300%;
+    }
+    #cards {
+        display: flex;
+        justify-content: space-around;
+    }
 </style>
