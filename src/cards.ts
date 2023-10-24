@@ -373,26 +373,58 @@ const possibleEnemies = [RandomEnemy, OPEnemy]
 //I'm going on an adventure!
 export class Adventure {
     deck: Card[] = []
-    battle: Battle
+    //battle: Battle
+    state: Battle | Decision | null
     
     constructor(){
         let creaturecards = ["timeSnail", "timeSnail", "timeSnail", "timeSnail", "timeSnail", "timeSnail"]
         let commandcards = ["add", "add", "restore", "restore"]
         this.deck = [...creaturecards.map(name => cloneDeep(creatureTemplates()[name])), ...commandcards.map(name => cloneDeep(commandTemplates()[name]))]
+        this.state = null
         
-        this.battle = new Battle(this.deck)
+        //this.battle = new Battle(this.deck)
+        this.startNewBattle()
+    }
+    
+    startNewBattle(){
+        this.state = new Battle(this.deck, (won) => {
+            if(won){
+                this.startNewDecision()
+            }else{
+                alert("GAME OVER")
+            }
+            
+        })
+    }
+    
+    startNewDecision(){
+        this.state = new Decision([randomPick(allCardTemplates(), true), randomPick(allCardTemplates(), true)], (card) => {
+            this.deck.push(card)
+            this.startNewBattle()
+        })
     }
 }
 
+export class Decision{
+    
+    constructor(public choices: Card[], public onChoice: (a: Card) => void){
+        
+    }
+    
+    choose(card: Card){
+        this.onChoice(card)
+    }
+    
+}
 
 export class Battle {
     eventLog: string[] = []
 
-    health = 20
+    health = 2
     energy = 1
     maxEnergy = 1
 
-    enemyHealth = 20
+    enemyHealth = 2
     enemy: Enemy
 
     drawPile: Card[] = []
@@ -402,7 +434,7 @@ export class Battle {
     slots: (CreatureCard | null)[] = [null, null, null]
     enemySlots: (CreatureCard | null)[] = [null, null, null]
 
-    constructor(deck: Card[]) {
+    constructor(deck: Card[], public onBattleFinished: (won: boolean) => void) {
         //for (let i = 0; i < deckSize; i++) {
         //    this.drawPile.push(randomPick(templates, true))
         //}
@@ -525,12 +557,18 @@ export class Battle {
                 this.log(
                     `${playerCard.name} dealt ${playerCard.attack} damage to the enemy player.`,
                 )
+                if(this.enemyHealth < 1){
+                    this.onBattleFinished(true)
+                }
             } else if (enemyCard) {
                 // Only the enemy has a card in this slot. It attacks the player.
                 this.health -= enemyCard.attack
                 this.log(
                     `Enemy ${enemyCard.name} dealt ${enemyCard.attack} damage to you.`,
                 )
+                if(this.health < 1){
+                    this.onBattleFinished(false)
+                }
             }
         }
 

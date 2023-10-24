@@ -7,6 +7,7 @@
     import Help from "./Help.svelte"
     import Cards from "./Cards.svelte"
     import Hand from "./Hand.svelte"
+    import DecisionSvelte from "./Decision.svelte"
 
     import WebShell from "./web-shell.ts"
     import {Repository, GitBlob} from "./repository.ts"
@@ -14,6 +15,7 @@
     import {
         Battle,
         Adventure,
+        Decision,
         Card,
         CreatureCard,
         SideEffect,
@@ -38,8 +40,9 @@
     let terminalNote = ""
 
     let adventure: Adventure
-    let battle: Battle
     let indexSlots: (CreatureCard | null)[]
+    
+    adventure = new Adventure()
 
     async function runConfigureCommands() {
         await shell.putFile("~/.gitconfig", [
@@ -105,11 +108,10 @@
     }
 
     onMount(() => {
+        
+        
         let screenDiv = terminal.getTerminalDiv()
         shell = new WebShell(screenDiv)
-
-        adventure = new Adventure()
-        battle = adventure.battle
 
         repo = new Repository("/root/repo", shell)
         graph.setRepo(repo)
@@ -152,15 +154,21 @@
     async function cardDrag(e) {
         console.log("drag", e.detail)
         const file = e.detail.slotIndex + 1
-        let effects = await battle.playCardFromHand(e.detail.cardIndex, file)
+        let effects = await adventure.state.playCardFromHand(e.detail.cardIndex, file)
         await syncGameToDisk()
         await realizeEffects(effects)
     }
 
     async function endTurn() {
-        let effects = battle.endTurn()
+        let effects = adventure.state.endTurn()
         await syncGameToDisk()
         await realizeEffects(effects)
+    }
+    
+    function decisionMade(event){
+        console.log(adventure)
+        adventure.state.choose(event.detail)
+        adventure = adventure
     }
 
     async function realizeEffects(effects: SideEffect[]) {
@@ -177,21 +185,23 @@
                 updateACoupleOfTimes()
             }
         }
-        battle = battle
+        adventure = adventure
     }
 
     async function syncGameToDisk() {
-        for (let [index, card] of battle.slots.entries()) {
-            if (card) {
-                await shell.putFile((index + 1).toString(), [card.stringify()])
-            } else {
-                await shell.run(`rm -f ${index + 1}`)
+        if(adventure.state instanceof Battle){
+            for (let [index, card] of adventure.state.slots.entries()) {
+                if (card) {
+                    await shell.putFile((index + 1).toString(), [card.stringify()])
+                } else {
+                    await shell.run(`rm -f ${index + 1}`)
+                }
             }
         }
     }
 
     function syncDiskToGame() {
-        battle.slots = [null, null, null]
+        adventure.state.slots = [null, null, null]
         for (let entry of repo.workingDirectory.entries) {
             let content = ""
             if (entry.oid) {
@@ -206,7 +216,7 @@
             }
 
             if (["1", "2", "3"].includes(entry.name)) {
-                battle.slots[parseInt(entry.name) - 1] =
+                adventure.state.slots[parseInt(entry.name) - 1] =
                     CreatureCard.parse(content)
             }
         }
@@ -226,12 +236,13 @@
             }
         }
 
-        battle = battle
+        adventure = adventure
     }
 </script>
 
 <div id="container">
     <LanguageSwitcher />
+    {#if adventure?.state instanceof Battle }
     <div id="grid">
         <div id="graph">
             <Graph bind:this={graph} />
@@ -247,14 +258,19 @@
             <Cards
                 on:drag={cardDrag}
                 on:endTurn={endTurn}
-                {battle}
+                battle={adventure.state}
                 {indexSlots}
             />
         </div>
         <div id="hand">
-            <Hand on:endTurn={endTurn} {battle} />
+            <Hand on:endTurn={endTurn} battle={adventure.state} />
         </div>
     </div>
+    {:else if adventure?.state instanceof Decision }
+    <div>
+        <DecisionSvelte choices={adventure.state.choices} on:choice={ decisionMade } />
+    </div>
+    {/if}
     <!--<div id="serial" bind:this={serialDiv} />-->
 </div>
 
