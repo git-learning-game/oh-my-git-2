@@ -62,7 +62,7 @@
 
         <div class="cards">
             {#each battle.hand as card, index}
-                <CardSvelte {card} {index} />
+                <CardSvelte {card} {index} hand={true} />
             {/each}
         </div>
 

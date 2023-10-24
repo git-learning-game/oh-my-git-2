@@ -118,16 +118,15 @@ class DeleteRandomEnemyEffect extends Effect {
 
             let slotsWithCreature = (targetSideCreatures as CreatureCard[])
                 .map((card, i) => [card, i])
-                .filter(([card, _]) => card != null)
+                .filter((card) => card[0] !== null)
             if (slotsWithCreature.length > 0) {
-                let slotToDelete = Math.floor(
-                    Math.random() * slotsWithCreature.length,
-                )
+                let slotToDelete = randomPick(slotsWithCreature)[1] as number
                 let card = targetSideCreatures[slotToDelete]
                 targetSideCreatures[slotToDelete] = null
                 let sourceCreature = source.player
                     ? battle.slots[source.slot]
                     : battle.enemySlots[source.slot]
+                console.log({sourceCreature, card})
                 if (sourceCreature && card) {
                     battle.log(`${sourceCreature.name} killed ${card.name}.`)
                 } else {
@@ -252,9 +251,13 @@ const commandTemplates = [
 
 const templates = [...creatureTemplates, ...commandTemplates]
 
-function randomCard(array: Card[]): Card {
-    const card = array[Math.floor(Math.random() * array.length)]
-    return cloneDeep(card)
+function randomPick<T>(array: T[], clone = false): T {
+    const thing = array[Math.floor(Math.random() * array.length)]
+    if (clone) {
+        return cloneDeep(thing)
+    } else {
+        return thing
+    }
 }
 
 // https://stackoverflow.com/a/12646864/248734
@@ -288,11 +291,66 @@ export class CommandSideEffect extends SideEffect {
     }
 }
 
-class Enemy {}
+abstract class Enemy {
+    constructor(public battle: Battle) {}
+
+    abstract makeMove(): void
+
+    freeSlots(): number[] {
+        return this.battle.enemySlots
+            .map((card, i) => [card, i])
+            .filter((card) => card[0] === null)
+            .map((card) => card[1]) as number[]
+    }
+}
 
 class AlwaysPassingEnemy extends Enemy {
-    makeMove(battle: Battle) {}
+    makeMove() {
+        // pass
+    }
 }
+
+class SnailEnemy extends Enemy {
+    makeMove() {
+        if (this.freeSlots().length === 0) {
+            return
+        }
+        let randomSlot = randomPick(this.freeSlots())
+        this.battle.playCardAsEnemy(
+            new CreatureCard("Time Snail", 1, 1, 1),
+            randomSlot,
+        )
+    }
+}
+
+class OPEnemy extends Enemy {
+    makeMove() {
+        if (this.freeSlots().length === 0) {
+            return
+        }
+        let randomSlot = randomPick(this.freeSlots())
+        let card: CreatureCard
+        if (Math.random() < 0.5) {
+            card = randomPick(creatureTemplates, true)
+        } else {
+            card = new CreatureCard("Merge Monster", 4, 4, 4)
+        }
+        this.battle.playCardAsEnemy(card, randomSlot)
+    }
+}
+
+class RandomEnemy extends Enemy {
+    makeMove() {
+        if (this.freeSlots().length === 0) {
+            return
+        }
+        let randomCard = randomPick(creatureTemplates, true)
+        let randomSlot = randomPick(this.freeSlots())
+        this.battle.playCardAsEnemy(randomCard, randomSlot)
+    }
+}
+
+const possibleEnemies = [RandomEnemy, OPEnemy]
 
 export class Adventure {}
 
@@ -304,6 +362,7 @@ export class Battle {
     maxEnergy = 1
 
     enemyHealth = 20
+    enemy: Enemy
 
     drawPile: Card[] = []
     hand: Card[] = []
@@ -314,7 +373,7 @@ export class Battle {
 
     constructor() {
         //for (let i = 0; i < deckSize; i++) {
-        //    this.drawPile.push(randomCard(templates))
+        //    this.drawPile.push(randomPick(templates, true))
         //}
         for (let template of templates) {
             this.drawPile.push(cloneDeep(template))
@@ -324,6 +383,8 @@ export class Battle {
         for (let i = 0; i < handSize; i++) {
             this.drawCard()
         }
+
+        this.enemy = new (randomPick(possibleEnemies))(this)
     }
 
     log(event: string) {
@@ -380,6 +441,16 @@ export class Battle {
         return effects
     }
 
+    playCardAsEnemy(card: CreatureCard, slot: number) {
+        this.enemySlots[slot] = card
+        this.log(`Enemy played ${card.name} to slot ${slot + 1}.`)
+        card.triggerEffects(
+            this,
+            Trigger.Played,
+            new CreatureSource(false, slot),
+        )
+    }
+
     endTurn() {
         this.log("--- You ended your turn ---")
         let effects = []
@@ -432,16 +503,8 @@ export class Battle {
             }
         }
 
-        // Add a random enemy.
-        let randomSlot = Math.floor(Math.random() * this.enemySlots.length)
-        let randomEnemy = randomCard(creatureTemplates) as CreatureCard
-        this.enemySlots[randomSlot] = randomEnemy
-        this.log(`Enemy played ${randomEnemy.name} to slot ${randomSlot + 1}.`)
-        randomEnemy.triggerEffects(
-            this,
-            Trigger.Played,
-            new CreatureSource(false, randomSlot),
-        )
+        // Let the enemy act.
+        this.enemy.makeMove()
 
         this.drawCard()
         if (this.maxEnergy < 10) {

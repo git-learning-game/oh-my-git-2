@@ -3,6 +3,7 @@
 
     export let card: Card | null
     export let index: number
+    export let hand = false
 
     function dragStart(e: DragEvent) {
         e.dataTransfer?.setData("text/plain", index.toString())
@@ -10,7 +11,7 @@
     }
 </script>
 
-<div class="card" draggable="true" on:dragstart={e => dragStart(e)} on:dragover on:drop>
+<div class="card" draggable={hand} class:hand on:dragstart={e => dragStart(e)} on:dragover on:drop>
     {#if card}
         <div class="card-header">
             <h3>({card.energy}) {card.name}</h3>
@@ -41,6 +42,8 @@
         margin: 1em;
         padding: 0.5em;
         position: relative;
+    }
+    .card.hand {
         cursor: move;
     }
     .attack, .health {
