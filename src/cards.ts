@@ -210,42 +210,42 @@ class GiveFriendsEffect extends Effect {
 }
 
 console.log("Cards are now being defined.")
-function creatureTemplates(): CreatureCard[] {
-    return [
-        new CreatureCard(gt`Graph Gnome`, 1, 1, 2),
-        new CreatureCard(gt`Blob Eater`, 2, 2, 2).addEffect(
+function creatureTemplates(): Record<string, CreatureCard> {
+    return {
+        graphGnome: new CreatureCard(gt`Graph Gnome`, 1, 1, 2),
+        blobEater: new CreatureCard(gt`Blob Eater`, 2, 2, 2).addEffect(
             Trigger.Played,
             new DeleteRandomEnemyEffect(),
         ),
-        new CreatureCard(gt`Time Snail`, 1, 1, 1),
-        new CreatureCard(gt`Clone Warrior`, 4, 2, 5),
-        new CreatureCard(gt`Merge Monster`, 4, 4, 4),
-        new CreatureCard(gt`Detached Head`, 1, 0, 2),
-        new CreatureCard(gt`Rubber Duck`, 1, 1, 1).addEffect(
+        timeSnail: new CreatureCard(gt`Time Snail`, 1, 1, 1),
+        cloneWarrior: new CreatureCard(gt`Clone Warrior`, 4, 2, 5),
+        mergeMoster: new CreatureCard(gt`Merge Monster`, 4, 4, 4),
+        detachedHead: new CreatureCard(gt`Detached Head`, 1, 0, 2),
+        rubberDuck: new CreatureCard(gt`Rubber Duck`, 1, 1, 1).addEffect(
             Trigger.Played,
             new DrawCardEffect(1),
         ),
-        new CreatureCard(gt`Collab Centaur`, 1, 1, 1).addEffect(
+        collabCentaur: new CreatureCard(gt`Collab Centaur`, 1, 1, 1).addEffect(
             Trigger.Played,
             new GiveFriendsEffect(1, 1),
         ),
-    ]
+    }
 }
 
-function commandTemplates(): CommandCard[] {
-    return [
+function commandTemplates(): Record<string, CommandCard> {
+    return {
         //new CommandCard(gt`Init`, 0, new Command("git init")),
-        new CommandCard(gt`Add`, 1, new Command("git add FILE")),
-        new CommandCard(gt`Add all`, 2, new Command("git add .")),
-        new CommandCard(gt`Remove`, 0, new Command("rm FILE")),
-        new CommandCard(gt`Restore`, 2, new Command("git restore FILE")),
-        new CommandCard(gt`Commit`, 2, new Command("git commit -m 'Commit'")),
-        new CommandCard(
+        add: new CommandCard(gt`Add`, 1, new Command("git add FILE")),
+        addAll: new CommandCard(gt`Add all`, 2, new Command("git add .")),
+        remove: new CommandCard(gt`Remove`, 0, new Command("rm FILE")),
+        restore: new CommandCard(gt`Restore`, 2, new Command("git restore FILE")),
+        commit: new CommandCard(gt`Commit`, 2, new Command("git commit -m 'Commit'")),
+        commitAll: new CommandCard(
             gt`Commit all`,
             3,
             new Command("git add .; git commit -m 'Commit'"),
         ),
-        new CommandCard(
+        makeCopies: new CommandCard(
             gt`Make copies`,
             3,
             new Command("cp FILE tmp; cp tmp 1; cp tmp 2; cp tmp 3; rm tmp"),
@@ -262,11 +262,11 @@ function commandTemplates(): CommandCard[] {
     restore -s
     restore
     */
-    ]
+    }
 }
 
 function allCardTemplates(): Card[] {
-    return [...creatureTemplates(), ...commandTemplates()]
+    return [...Object.values(creatureTemplates()), ...Object.values(commandTemplates())]
 }
 
 function randomPick<T>(array: T[], clone = false): T {
@@ -349,7 +349,7 @@ class OPEnemy extends Enemy {
         let randomSlot = randomPick(this.freeSlots())
         let card: CreatureCard
         if (Math.random() < 0.5) {
-            card = randomPick(creatureTemplates(), true)
+            card = randomPick(Object.values(creatureTemplates()), true)
         } else {
             card = new CreatureCard("Merge Monster", 4, 4, 4)
         }
@@ -362,7 +362,7 @@ class RandomEnemy extends Enemy {
         if (this.freeSlots().length === 0) {
             return
         }
-        let randomCard = randomPick(creatureTemplates(), true)
+        let randomCard = randomPick(Object.values(creatureTemplates()), true)   
         let randomSlot = randomPick(this.freeSlots())
         this.battle.playCardAsEnemy(randomCard, randomSlot)
     }
@@ -370,7 +370,20 @@ class RandomEnemy extends Enemy {
 
 const possibleEnemies = [RandomEnemy, OPEnemy]
 
-export class Adventure {}
+//I'm going on an adventure!
+export class Adventure {
+    deck: Card[] = []
+    battle: Battle
+    
+    constructor(){
+        let creaturecards = ["timeSnail", "timeSnail", "timeSnail", "timeSnail", "timeSnail", "timeSnail"]
+        let commandcards = ["add", "add", "restore", "restore"]
+        this.deck = [...creaturecards.map(name => cloneDeep(creatureTemplates()[name])), ...commandcards.map(name => cloneDeep(commandTemplates()[name]))]
+        
+        this.battle = new Battle(this.deck)
+    }
+}
+
 
 export class Battle {
     eventLog: string[] = []
@@ -389,12 +402,12 @@ export class Battle {
     slots: (CreatureCard | null)[] = [null, null, null]
     enemySlots: (CreatureCard | null)[] = [null, null, null]
 
-    constructor() {
+    constructor(deck: Card[]) {
         //for (let i = 0; i < deckSize; i++) {
         //    this.drawPile.push(randomPick(templates, true))
         //}
-        for (let template of allCardTemplates()) {
-            this.drawPile.push(cloneDeep(template))
+        for (let card of deck) {
+            this.drawPile.push(card)
         }
         shuffle(this.drawPile)
         const handSize = 5

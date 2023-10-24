@@ -13,6 +13,7 @@
 
     import {
         Battle,
+        Adventure,
         Card,
         CreatureCard,
         SideEffect,
@@ -36,6 +37,7 @@
     let terminal: Terminal
     let terminalNote = ""
 
+    let adventure: Adventure
     let battle: Battle
     let indexSlots: (CreatureCard | null)[]
 
@@ -106,10 +108,8 @@
         let screenDiv = terminal.getTerminalDiv()
         shell = new WebShell(screenDiv)
 
-        battle = new Battle()
-        ;(window as any)["battle"] = battle
-        ;(window as any)["run"] = shell.run.bind(shell)
-        ;(window as any)["shell"] = shell
+        adventure = new Adventure()
+        battle = adventure.battle
 
         repo = new Repository("/root/repo", shell)
         graph.setRepo(repo)
