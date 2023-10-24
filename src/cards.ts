@@ -235,7 +235,11 @@ const commandTemplates = [
         3,
         new Command("git add .; git commit -m 'Commit'"),
     ),
-    new CommandCard("Make copies", 3, new Command("cp FILE 1 2 3")),
+    new CommandCard(
+        "Make copies",
+        3,
+        new Command("cp FILE tmp; cp tmp 1; cp tmp 2; cp tmp 3; rm tmp"),
+    ),
     //new CommandCard("Stash", 3, new Command("git stash")),
     //new CommandCard("Pop stash", 2, new Command("git stash pop")),
     //new CommandCard("Branch", 1, new Command("git branch FILE")), // TODO: Allow branch targets
