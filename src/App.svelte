@@ -1,21 +1,17 @@
 <script lang="ts">
     import {onMount} from "svelte"
 
+    import LanguageSwitcher from "./LanguageSwitcher.svelte"
     import Terminal from "./Terminal.svelte"
     import Graph from "./Graph.svelte"
     import Help from "./Help.svelte"
     import Cards from "./Cards.svelte"
     import Hand from "./Hand.svelte"
-    import LanguageSwitcher from "./LanguageSwitcher.svelte"
 
     import WebShell from "./web-shell.ts"
     import {Repository, GitBlob} from "./repository.ts"
 
     import {Battle, Card, CreatureCard, SideEffect, FileChangeSideEffect, FileDeleteSideEffect, CommandSideEffect} from "./cards.ts"
-    
-    
-
-	
 
     // Show a warning when the user tries to leave the page (for example, by pressing Ctrl-W...)
     //window.onbeforeunload = function (e) {

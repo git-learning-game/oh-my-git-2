@@ -3,13 +3,13 @@
 	import { locale } from 'svelte-i18n-lingui';
 	import languages from "../languages.ts"
 
-	let selected = 'en' 
+	let selected = 'de'
 	$: setLocale(selected)
     
     async function setLocale(lang) {
 		const { messages } = await import(`./locales/${lang}.ts`);
 		locale.set(lang, messages);
-		console.log(locale)
+		console.log("Language is being set to " + lang)
 	}
 	
 </script>

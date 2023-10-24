@@ -13,18 +13,114 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/cards.ts:210
+#: src/cards.ts:47
+msgid "{0}, {1}."
+msgstr "{0}, {1}."
+
+#: src/cards.ts:150
+msgid "{num, plural, one {draw a card} other {draw # cards}}"
+msgstr "{num, plural, one {draw a card} other {draw # cards}}"
+
+#: src/cards.ts:235
+msgid "Add"
+msgstr "Add"
+
+#: src/cards.ts:236
+msgid "Add all"
+msgstr "Add all"
+
+#: src/cards.ts:215
 msgid "Blob Eater"
 msgstr "Blob Eater"
+
+#: src/cards.ts:220
+msgid "Clone Warrior"
+msgstr "Clone Warrior"
+
+#: src/cards.ts:227
+msgid "Collab Centaur"
+msgstr "Collab Centaur"
+
+#: src/cards.ts:239
+msgid "Commit"
+msgstr "Commit"
+
+#: src/cards.ts:241
+msgid "Commit all"
+msgstr "Commit all"
+
+#: src/cards.ts:112
+msgid "delete a random enemy"
+msgstr "delete a random enemy"
+
+#: src/cards.ts:222
+msgid "Detached Head"
+msgstr "Detached Head"
 
 #: src/Hand.svelte:29
 msgid "End turn"
 msgstr "End turn"
 
-#: src/cards.ts:209
+#: src/Cards.svelte:31
+msgid "Enemy cards"
+msgstr "Enemy cards"
+
+#: src/Cards.svelte:31
+msgid "enemy health"
+msgstr "enemy health"
+
+#: src/Hand.svelte:21
+msgid "Energy"
+msgstr "Energy"
+
+#: src/Cards.svelte:21
+msgid "Event log"
+msgstr "Event log"
+
+#: src/cards.ts:177
+msgid "give all friends +{0}/{1}"
+msgstr "give all friends +{0}/{1}"
+
+#: src/cards.ts:214
 msgid "Graph Gnome"
 msgstr "Graph Gnome"
 
-#: src/cards.ts:5
-#~ msgid "test"
-#~ msgstr "test"
+#: src/Hand.svelte:21
+msgid "Health"
+msgstr "Health"
+
+#: src/Cards.svelte:47
+msgid "Index"
+msgstr "Index"
+
+#: src/cards.ts:246
+msgid "Make copies"
+msgstr "Make copies"
+
+#: src/cards.ts:221
+msgid "Merge Monster"
+msgstr "Merge Monster"
+
+#: src/cards.ts:237
+msgid "Remove"
+msgstr "Remove"
+
+#: src/cards.ts:238
+msgid "Restore"
+msgstr "Restore"
+
+#: src/cards.ts:223
+msgid "Rubber Duck"
+msgstr "Rubber Duck"
+
+#: src/cards.ts:219
+msgid "Time Snail"
+msgstr "Time Snail"
+
+#: src/cards.ts:91
+msgid "when this card is played"
+msgstr "when this card is played"
+
+#: src/Cards.svelte:39
+msgid "Working directory"
+msgstr "Working directory"

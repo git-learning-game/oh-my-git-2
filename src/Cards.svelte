@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { t } from 'svelte-i18n-lingui';
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher()
 
@@ -20,7 +21,7 @@
 
 <div id="wrapper">
     {#if battle}
-        <h2>Event log</h2>
+        <h2>{$t`Event log`}</h2>
 
         <div id="log">
             <ul>
@@ -30,7 +31,7 @@
             </ul>
         </div>
 
-        <h2>Enemy cards (enemy health: {battle.enemyHealth}) </h2>
+        <h2>{$t`Enemy cards`} ({$t`enemy health`}: {battle.enemyHealth}) </h2>
 
         <div class="cards">
             {#each battle.enemySlots as slot, index}
@@ -38,7 +39,7 @@
             {/each}
         </div>
 
-        <h2>Working directory</h2>
+        <h2>{$t`Working directory`}</h2>
 
         <div class="cards">
             {#each battle.slots as slot, index}
@@ -46,7 +47,7 @@
             {/each}
         </div>
 
-        <h2>Index</h2>
+        <h2>{$t`Index`}</h2>
 
         <div class="cards">
             {#each indexSlots as slot, index}

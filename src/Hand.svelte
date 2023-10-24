@@ -22,7 +22,7 @@
 
 <div id="wrapper">
     {#if battle}
-        <h2>Health: {battle.health} – Energy: {energyString}</h2>
+        <h2>{$t`Health`}: {battle.health} – {$t`Energy`}: {energyString}</h2>
         <div class="cards">
                 {#each battle.hand as card, index}
                     <CardSvelte {card} {index} hand={true} playable={card.energy <= battle.energy} />

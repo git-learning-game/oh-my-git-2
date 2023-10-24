@@ -13,18 +13,114 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/cards.ts:210
+#: src/cards.ts:47
+msgid "{0}, {1}."
+msgstr ""
+
+#: src/cards.ts:150
+msgid "{num, plural, one {draw a card} other {draw # cards}}"
+msgstr ""
+
+#: src/cards.ts:235
+msgid "Add"
+msgstr "Hinzufügen"
+
+#: src/cards.ts:236
+msgid "Add all"
+msgstr "Alle hinzufügen"
+
+#: src/cards.ts:215
 msgid "Blob Eater"
 msgstr "Blobfresser"
+
+#: src/cards.ts:220
+msgid "Clone Warrior"
+msgstr "Klonkrieger"
+
+#: src/cards.ts:227
+msgid "Collab Centaur"
+msgstr "Zusammenarbeitszentaur"
+
+#: src/cards.ts:239
+msgid "Commit"
+msgstr "Committen"
+
+#: src/cards.ts:241
+msgid "Commit all"
+msgstr "Alles committen"
+
+#: src/cards.ts:112
+msgid "delete a random enemy"
+msgstr ""
+
+#: src/cards.ts:222
+msgid "Detached Head"
+msgstr "Abgetrennter Kopf"
 
 #: src/Hand.svelte:29
 msgid "End turn"
 msgstr "Zug beenden"
 
-#: src/cards.ts:209
+#: src/Cards.svelte:31
+msgid "Enemy cards"
+msgstr "Gegnerische Karten"
+
+#: src/Cards.svelte:31
+msgid "enemy health"
+msgstr "Gesundheit des Gegners"
+
+#: src/Hand.svelte:21
+msgid "Energy"
+msgstr "Energie"
+
+#: src/Cards.svelte:21
+msgid "Event log"
+msgstr "Ereignisprotokoll"
+
+#: src/cards.ts:177
+msgid "give all friends +{0}/{1}"
+msgstr ""
+
+#: src/cards.ts:214
 msgid "Graph Gnome"
 msgstr "Graphgnom"
 
-#: src/cards.ts:5
-#~ msgid "test"
-#~ msgstr ""
+#: src/Hand.svelte:21
+msgid "Health"
+msgstr "Gesundheit"
+
+#: src/Cards.svelte:47
+msgid "Index"
+msgstr "Index"
+
+#: src/cards.ts:246
+msgid "Make copies"
+msgstr "Kopien erstellen"
+
+#: src/cards.ts:221
+msgid "Merge Monster"
+msgstr "Merge-Monster"
+
+#: src/cards.ts:237
+msgid "Remove"
+msgstr "Entfernen"
+
+#: src/cards.ts:238
+msgid "Restore"
+msgstr "Wiederherstellen"
+
+#: src/cards.ts:223
+msgid "Rubber Duck"
+msgstr "Gummiente"
+
+#: src/cards.ts:219
+msgid "Time Snail"
+msgstr "Zeitschnecke"
+
+#: src/cards.ts:91
+msgid "when this card is played"
+msgstr ""
+
+#: src/Cards.svelte:39
+msgid "Working directory"
+msgstr "Arbeitsverzeichnis"
