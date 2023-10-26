@@ -23,6 +23,7 @@
     on:dragstart={(e) => dragStart(e)}
     on:dragover
     on:drop
+    on:click
 >
     {#if card}
         <div class="card-header">

@@ -14,6 +14,9 @@
         CreatureCard,
         SideEffect,
         CommandSideEffect,
+        SyncGameToDiskSideEffect,
+        PlayerTurnState,
+        RequirePlaceholderState,
     } from "./cards.ts"
 
     export let battle: Battle
@@ -25,12 +28,25 @@
 
     let indexSlots: (CreatureCard | null)[]
 
+    let stateMessage
+
+    $: {
+        if (battle.state instanceof PlayerTurnState) {
+            stateMessage = "Your turn"
+        } else if (battle.state instanceof RequirePlaceholderState) {
+            stateMessage = "Requiring a placeholder"
+        } else {
+            stateMessage = "Unknown state :("
+        }
+    }
+
     onMount(async () => {
         shell.setScreen(terminal.getTerminalDiv())
         await shell.enterNewGitRepo()
         repo = new Repository("/root/repo", shell)
         graph.setRepo(repo)
         await update()
+        battle.onSideEffect(realizeEffect)
     })
 
     async function update() {
@@ -49,31 +65,30 @@
 
     async function cardDrag(e) {
         console.log("drag", e.detail)
-        const file = e.detail.slotIndex + 1
-        let effects = await battle.playCardFromHand(e.detail.cardIndex, file)
-        await syncGameToDisk()
-        await realizeEffects(effects)
+        const slot = e.detail.slotIndex + 1
+        await battle.playCardFromHand(e.detail.cardIndex)
+        if (battle.state instanceof RequirePlaceholderState) {
+            battle.state.placeholder.resolve(slot)
+            battle = battle
+        }
+        //await realizeEffects(effects)
     }
 
     async function endTurn() {
-        let effects = battle.endTurn()
+        await battle.endTurn()
         await syncGameToDisk()
-        await realizeEffects(effects)
+        //await realizeEffects(effects)
+        battle = battle
     }
 
-    async function realizeEffects(effects: SideEffect[]) {
-        for (let effect of effects) {
-            /* (syncGameToDisk takes care of this now)
-            if (effect instanceof FileChangeSideEffect) {
-                await shell.putFile(effect.path, [effect.content])
-            } else if (effect instanceof FileDeleteSideEffect) {
-                await shell.run(`rm ${effect.path}`)
-            } else 
-            */
-            if (effect instanceof CommandSideEffect) {
-                shell.type(effect.command + "\n")
-                updateACoupleOfTimes()
-            }
+    async function realizeEffect(effect: SideEffect) {
+        if (effect instanceof CommandSideEffect) {
+            shell.type(effect.command + "\n")
+            updateACoupleOfTimes()
+        } else if (effect instanceof SyncGameToDiskSideEffect) {
+            await syncGameToDisk()
+        } else {
+            throw new Error("Unknown sideeffect type")
         }
         battle = battle
     }
@@ -126,6 +141,21 @@
 
         battle = battle
     }
+
+    function playCard(e) {
+        console.log(e)
+        battle.playCardFromHand(e.detail.index)
+        battle = battle
+    }
+
+    function clickSlot(e) {
+        console.log(e)
+        if (battle.state instanceof RequirePlaceholderState) {
+            battle.state.placeholder.resolve(e.detail.index + 1)
+            battle = battle
+        }
+        battle = battle
+    }
 </script>
 
 <div id="grid">
@@ -136,10 +166,17 @@
         <Terminal bind:this={terminal} />
     </div>
     <div id="cards">
-        <Cards on:drag={cardDrag} on:endTurn={endTurn} {battle} {indexSlots} />
+        <h1>{stateMessage}</h1>
+        <Cards
+            on:clickSlot={clickSlot}
+            on:drag={cardDrag}
+            on:endTurn={endTurn}
+            {battle}
+            {indexSlots}
+        />
     </div>
     <div id="hand">
-        <Hand on:endTurn={endTurn} {battle} />
+        <Hand on:endTurn={endTurn} {battle} on:playCard={playCard} />
     </div>
 </div>
 

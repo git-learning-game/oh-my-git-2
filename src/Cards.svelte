@@ -17,6 +17,10 @@
             dispatch("drag", {cardIndex, slotIndex})
         }
     }
+
+    function clickSlot(e, index) {
+        dispatch("clickSlot", {index})
+    }
 </script>
 
 <div id="wrapper">
@@ -53,6 +57,7 @@
                     {index}
                     on:dragover={(e) => e.preventDefault()}
                     on:drop={(e) => drop(e, index)}
+                    on:click={(e) => clickSlot(e, index)}
                 />
             {/each}
         </div>

@@ -30,6 +30,10 @@
                     {index}
                     hand={true}
                     playable={card.energy <= battle.energy}
+                    on:click={() => {
+                        console.log("click :)")
+                        dispatch("playCard", {index})
+                    }}
                 />
             {/each}
         </div>

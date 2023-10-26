@@ -79,11 +79,75 @@ export class CommandCard extends Card {
     }
 }
 
+class Placeholder {
+    constructor(
+        public onResolveCallback: (
+            placeholder: Placeholder,
+            value: string,
+        ) => void,
+    ) {}
+
+    resolve(value: string) {
+        console.log(this)
+        this.onResolveCallback(this, value)
+    }
+}
+
+class FreeStringPlaceholder extends Placeholder {}
+
+class SlotPlaceholder extends Placeholder {}
+
+class RefPlaceholder extends Placeholder {}
+
+const placeholderTypes: Record<string, typeof Placeholder> = {
+    STRING: FreeStringPlaceholder,
+    REF: RefPlaceholder,
+    SLOT: SlotPlaceholder,
+}
+
 class Command {
-    // Template can contain the following placeholders:
-    // FILE - a file name
-    // REF - a Git ref
-    constructor(public template: string) {}
+    placeholders: Placeholder[]
+    onResolveCallback: (command: Command) => void = () => {
+        console.log("default callback")
+    }
+
+    constructor(public template: string) {
+        console.log(`Creating command from template: ${template}`)
+        this.placeholders = []
+        // convert each FILE or REF or STRING into a placeholder
+        template.split(" ").forEach((word) => {
+            if (Object.keys(placeholderTypes).includes(word)) {
+                this.placeholders.push(
+                    new placeholderTypes[word](this.fulfill.bind(this)),
+                )
+            }
+        })
+    }
+
+    fulfill(placeholder: Placeholder, value: string) {
+        console.log(`Fulfilling placeholder ${placeholder} with ${value}`)
+        console.log(placeholder)
+        // TODO: Make more elegant
+        if (placeholder instanceof FreeStringPlaceholder) {
+            this.template = this.template.replace("STRING", value)
+        } else if (placeholder instanceof RefPlaceholder) {
+            this.template = this.template.replace("REF", value)
+        } else if (placeholder instanceof SlotPlaceholder) {
+            this.template = this.template.replace("SLOT", value)
+        } else {
+            throw new Error(`Unknown placeholder type: ${placeholder}`)
+        }
+        // Remove placeholder, as it is now resolved.
+        this.placeholders = this.placeholders.splice(1)
+
+        console.log(this.placeholders)
+        if (this.placeholders.length === 0) {
+            console.log(
+                `All placeholders resolved, resolving command: ${this.template}`,
+            )
+            this.onResolveCallback(this)
+        }
+    }
 }
 
 enum Trigger {
@@ -224,7 +288,7 @@ enum CardID {
     Restore,
     Commit,
     CommitAll,
-    MakeCopies,
+    Copy,
 }
 
 function allCards(): Record<CardID, Card> {
@@ -251,17 +315,17 @@ function allCards(): Record<CardID, Card> {
             1,
         ).addEffect(Trigger.Played, new GiveFriendsEffect(1, 1)),
         //new CommandCard(gt`Init`, 0, new Command("git init")),
-        [CardID.Add]: new CommandCard(gt`Add`, 1, new Command("git add FILE")),
+        [CardID.Add]: new CommandCard(gt`Add`, 1, new Command("git add SLOT")),
         [CardID.AddAll]: new CommandCard(
             gt`Add all`,
             2,
             new Command("git add ."),
         ),
-        [CardID.Remove]: new CommandCard(gt`Remove`, 0, new Command("rm FILE")),
+        [CardID.Remove]: new CommandCard(gt`Remove`, 0, new Command("rm SLOT")),
         [CardID.Restore]: new CommandCard(
             gt`Restore`,
             2,
-            new Command("git restore FILE"),
+            new Command("git restore SLOT"),
         ),
         [CardID.Commit]: new CommandCard(
             gt`Commit`,
@@ -273,16 +337,16 @@ function allCards(): Record<CardID, Card> {
             3,
             new Command("git add .; git commit -m 'Commit'"),
         ),
-        [CardID.MakeCopies]: new CommandCard(
+        [CardID.Copy]: new CommandCard(
             gt`Make copies`,
             3,
-            new Command("cp FILE tmp; cp tmp 1; cp tmp 2; cp tmp 3; rm tmp"),
+            new Command("cp SLOT SLOT"),
         ),
         //new CommandCard(gt`Stash`, 3, new Command("git stash")),
         //new CommandCard(gt`Pop stash`, 2, new Command("git stash pop")),
-        //new CommandCard(gt`Branch`, 1, new Command("git branch FILE")), // TODO: Allow branch targets
-        //new CommandCard(gt`Switch`, 1, new Command("git switch -f FILE")), // TODO: Allow branch targets
-        //new CommandCard(gt`Merge`, 2, new Command("git merge FILE")), // TODO: Allow branch targets
+        //new CommandCard(gt`Branch`, 1, new Command("git branch SLOT")), // TODO: Allow branch targets
+        //new CommandCard(gt`Switch`, 1, new Command("git switch -f SLOT")), // TODO: Allow branch targets
+        //new CommandCard(gt`Merge`, 2, new Command("git merge SLOT")), // TODO: Allow branch targets
 
         /* TODO:
     cp
@@ -342,26 +406,13 @@ function shuffle(array: any[]) {
 
 export class SideEffect {}
 
-export class FileChangeSideEffect extends SideEffect {
-    constructor(
-        public path: string,
-        public content: string,
-    ) {
-        super()
-    }
-}
-
-export class FileDeleteSideEffect extends SideEffect {
-    constructor(public path: string) {
-        super()
-    }
-}
-
 export class CommandSideEffect extends SideEffect {
     constructor(public command: string) {
         super()
     }
 }
+
+export class SyncGameToDiskSideEffect extends SideEffect {}
 
 class Enemy {
     constructor(public battle: Battle) {}
@@ -475,15 +526,13 @@ export class Adventure {
     constructor(public onNextEvent: (e: Battle | Decision | null) => void) {
         let cards = [
             CardID.TimeSnail,
-            CardID.TimeSnail,
-            CardID.GraphGnome,
             CardID.GraphGnome,
             CardID.DetachedHead,
-            CardID.DetachedHead,
-            CardID.Add,
             CardID.Add,
             CardID.Restore,
-            CardID.Restore,
+            CardID.CommitAll,
+            CardID.Copy,
+            CardID.Copy,
         ]
         this.deck = cards.map((id) => buildCard(id))
         //let deckSize = 10
@@ -494,7 +543,7 @@ export class Adventure {
         this.state = null
 
         this.path = [
-            //new BattleEvent(SnailEnemy),
+            new BattleEvent(SnailEnemy),
             new DecisionEvent(),
             new BattleEvent(BluePrintEnemy),
             new DecisionEvent(),
@@ -566,7 +615,20 @@ class DecisionEvent extends Event {
     }
 }
 
+export class BattleState {}
+
+export class PlayerTurnState extends BattleState {}
+
+export class RequirePlaceholderState extends BattleState {
+    constructor(public placeholder: Placeholder) {
+        super()
+    }
+}
+
 export class Battle {
+    state: BattleState
+    onSideeffectCallback: (sideEffect: SideEffect) => void = () => {}
+
     eventLog: string[] = []
 
     health = 10
@@ -602,60 +664,77 @@ export class Battle {
         }
 
         this.enemy = new enemyType(this)
+
+        this.state = new PlayerTurnState()
     }
 
     log(event: string) {
         this.eventLog.push(event)
     }
 
-    async playCardFromHand(i: number, target: number): Promise<SideEffect[]> {
-        let effects = []
+    onSideEffect(callback: (sideEffect: SideEffect) => void) {
+        this.onSideeffectCallback = callback
+    }
 
+    sideeffect(sideEffect: SideEffect) {
+        this.onSideeffectCallback(sideEffect)
+    }
+
+    async playCardFromHand(i: number) {
         if (i < 0 || i >= this.hand.length) {
             throw new Error(`Invalid hand index: ${i}`)
         }
 
-        const card = this.hand[i]
+        const card = cloneDeep(this.hand[i])
 
         if (card.energy > this.energy) {
             this.log(`Not enough energy to play ${card.name}.`)
-            return []
-        } else {
-            this.energy -= card.energy
+            return
         }
 
-        let success = false
-        let output = ""
         if (card instanceof CreatureCard) {
-            let newCard = cloneDeep(card)
-            this.slots[target - 1] = newCard
-            let fileContent = card.stringify()
-            effects.push(
-                new FileChangeSideEffect(`/root/repo/${target}`, fileContent),
-            )
-            this.log(`Played ${card.name} to slot ${target}.`)
-            newCard.triggerEffects(
-                this,
-                Trigger.Played,
-                new CreatureSource(true, target - 1),
-            )
-            success = true
+            let placeholder = new SlotPlaceholder((_, slotString) => {
+                let slot = parseInt(slotString)
+                this.energy -= card.energy
+                let newCard = cloneDeep(card)
+                this.slots[slot - 1] = newCard
+                this.log(`Played ${card.name} to slot ${slot}.`)
+                newCard.triggerEffects(
+                    this,
+                    Trigger.Played,
+                    new CreatureSource(true, slot - 1),
+                )
+                this.discardHandCard(i)
+                this.state = new PlayerTurnState()
+                this.sideeffect(new SyncGameToDiskSideEffect())
+            })
+            this.state = new RequirePlaceholderState(placeholder)
         } else if (card instanceof CommandCard) {
-            const command = card.command.template.replace("FILE", `${target}`)
-            effects.push(new CommandSideEffect(command))
-            if (card.command.template.includes("FILE")) {
-                this.log(`Played ${card.name} to slot ${target}.`)
-            } else {
-                this.log(`Played ${card.name}.`)
+            let command = new Command(card.command.template)
+            command.onResolveCallback = (command) => {
+                console.log("subtracting energy")
+                this.energy -= card.energy
+                this.sideeffect(new CommandSideEffect(command.template))
+                this.discardHandCard(i)
+                this.state = new PlayerTurnState()
             }
-            success = true
+
+            if (command.placeholders.length == 1) {
+                console.log("1 placeholder")
+                this.state = new RequirePlaceholderState(
+                    command.placeholders[0],
+                )
+                //command.placeholders[0].resolve("2")
+            } else if (command.placeholders.length == 0) {
+                command.onResolveCallback(command)
+            } else {
+                throw new Error(
+                    "Can't yet deal with more than one placeholders.",
+                )
+            }
         } else {
             throw new Error(`Unknown card type: ${card}`)
         }
-        if (success) {
-            this.discardHandCard(i)
-        }
-        return effects
     }
 
     playCardAsEnemy(cardID: CardID, slot: number) {
@@ -674,7 +753,6 @@ export class Battle {
 
     endTurn() {
         this.log("--- You ended your turn ---")
-        let effects = []
         // Fight! Let creatures take damage. If there is no defense, damage goes to players.
         for (let i = 0; i < this.slots.length; i++) {
             const playerCard = this.slots[i]
@@ -692,18 +770,9 @@ export class Battle {
                 )
                 if (playerCard.health <= 0) {
                     this.slots[i] = null
-                    effects.push(
-                        new FileDeleteSideEffect(`/root/repo/${i + 1}`),
-                    )
                     this.log(`Your ${playerCard.name} died.`)
                 } else {
                     let fileContent = playerCard.stringify()
-                    effects.push(
-                        new FileChangeSideEffect(
-                            `/root/repo/${i + 1}`,
-                            fileContent,
-                        ),
-                    )
                 }
                 if (enemyCard.health <= 0) {
                     this.enemySlots[i] = null
@@ -738,8 +807,6 @@ export class Battle {
             this.maxEnergy += 1
         }
         this.energy = this.maxEnergy
-
-        return effects
     }
 
     drawCard() {
