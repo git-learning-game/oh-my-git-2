@@ -3,13 +3,14 @@
     import {createEventDispatcher} from "svelte"
     const dispatch = createEventDispatcher()
     import {Card} from "./cards"
+    import {t} from "svelte-i18n-lingui"
 
     export let choices: Card[]
     export let deck: Card[]
 </script>
 
 <div id="decision-container">
-    <h1>Pick a card!</h1>
+    <h1>{$t`Pick a card!`}</h1>
     <div class="cards">
         {#each choices as card}
             <div class="choice" on:click={() => dispatch("choice", card)}>
@@ -17,7 +18,7 @@
             </div>
         {/each}
     </div>
-    <h2>Your current deck</h2>
+    <h2>{$t`Your current deck`}</h2>
 
     <div class="cards">
         {#each deck as card}

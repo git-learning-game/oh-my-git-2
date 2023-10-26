@@ -13,51 +13,47 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/cards.ts:47
-msgid "{0}, {1}."
-msgstr ""
-
 #: src/cards.ts:150
 msgid "{num, plural, one {draw a card} other {draw # cards}}"
-msgstr ""
+msgstr "{num, plural, one {ziehe eine Karte} other {ziehe # Karten}}"
 
-#: src/cards.ts:235
+#: src/cards.ts:254
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: src/cards.ts:236
+#: src/cards.ts:256
 msgid "Add all"
 msgstr "Alle hinzufügen"
 
-#: src/cards.ts:215
+#: src/cards.ts:233
 msgid "Blob Eater"
 msgstr "Blobfresser"
 
-#: src/cards.ts:220
+#: src/cards.ts:238
 msgid "Clone Warrior"
 msgstr "Klonkrieger"
 
-#: src/cards.ts:227
+#: src/cards.ts:248
 msgid "Collab Centaur"
 msgstr "Zusammenarbeitszentaur"
 
-#: src/cards.ts:239
+#: src/cards.ts:267
 msgid "Commit"
 msgstr "Committen"
 
-#: src/cards.ts:241
+#: src/cards.ts:272
 msgid "Commit all"
 msgstr "Alles committen"
 
-#: src/cards.ts:112
+#: src/cards.ts:111
 msgid "delete a random enemy"
-msgstr ""
+msgstr "lösche einen zufälligen Gegner"
 
-#: src/cards.ts:222
+#: src/cards.ts:240
 msgid "Detached Head"
 msgstr "Abgetrennter Kopf"
 
-#: src/Hand.svelte:29
+#: src/Hand.svelte:34
 msgid "End turn"
 msgstr "Zug beenden"
 
@@ -79,9 +75,9 @@ msgstr "Ereignisprotokoll"
 
 #: src/cards.ts:177
 msgid "give all friends +{0}/{1}"
-msgstr ""
+msgstr "gib allen Freunden +{0}/{1}"
 
-#: src/cards.ts:214
+#: src/cards.ts:232
 msgid "Graph Gnome"
 msgstr "Graphgnom"
 
@@ -89,38 +85,46 @@ msgstr "Graphgnom"
 msgid "Health"
 msgstr "Gesundheit"
 
-#: src/Cards.svelte:47
+#: src/Cards.svelte:57
 msgid "Index"
 msgstr "Index"
 
-#: src/cards.ts:246
+#: src/cards.ts:277
 msgid "Make copies"
 msgstr "Kopien erstellen"
 
-#: src/cards.ts:221
+#: src/cards.ts:239
 msgid "Merge Monster"
 msgstr "Merge-Monster"
 
-#: src/cards.ts:237
+#: src/Decision.svelte:11
+msgid "Pick a card!"
+msgstr "Wähle eine Karte!"
+
+#: src/cards.ts:260
 msgid "Remove"
 msgstr "Entfernen"
 
-#: src/cards.ts:238
+#: src/cards.ts:262
 msgid "Restore"
 msgstr "Wiederherstellen"
 
-#: src/cards.ts:223
+#: src/cards.ts:242
 msgid "Rubber Duck"
 msgstr "Gummiente"
 
-#: src/cards.ts:219
+#: src/cards.ts:237
 msgid "Time Snail"
 msgstr "Zeitschnecke"
 
-#: src/cards.ts:91
+#: src/cards.ts:90
 msgid "when this card is played"
-msgstr ""
+msgstr "wenn diese Karte gespielt wird"
 
-#: src/Cards.svelte:39
+#: src/Cards.svelte:44
 msgid "Working directory"
 msgstr "Arbeitsverzeichnis"
+
+#: src/Decision.svelte:19
+msgid "Your current deck"
+msgstr "Dein aktuelles Deck"

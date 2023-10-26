@@ -42,6 +42,10 @@ export class CreatureCard extends Card {
     }
 
     effectDescription(): string {
+        const triggerDescriptions: Record<Trigger, string> = {
+            [Trigger.Played]: gt`when this card is played`,
+        }
+
         let description = ""
         for (let [trigger, effect] of this.effects) {
             let newEffect = `${triggerDescriptions[trigger]}, ${effect.description}.`
@@ -84,10 +88,6 @@ class Command {
 
 enum Trigger {
     Played,
-}
-
-export const triggerDescriptions: Record<Trigger, string> = {
-    [Trigger.Played]: gt`when this card is played`,
 }
 
 abstract class Effect {
