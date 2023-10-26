@@ -620,8 +620,16 @@ export class BattleState {}
 export class PlayerTurnState extends BattleState {}
 
 export class RequirePlaceholderState extends BattleState {
-    constructor(public placeholder: Placeholder) {
+    constructor(public placeholders: Placeholder[]) {
         super()
+    }
+
+    currentPlaceholder(): Placeholder {
+        return this.placeholders[0]
+    }
+
+    resolveNext(value: string) {
+        this.currentPlaceholder().resolve(value)
     }
 }
 
@@ -708,7 +716,7 @@ export class Battle {
                 this.state = new PlayerTurnState()
                 this.sideeffect(new SyncGameToDiskSideEffect())
             })
-            this.state = new RequirePlaceholderState(placeholder)
+            this.state = new RequirePlaceholderState([placeholder])
         } else if (card instanceof CommandCard) {
             let command = new Command(card.command.template)
             command.onResolveCallback = (command) => {
@@ -719,18 +727,10 @@ export class Battle {
                 this.state = new PlayerTurnState()
             }
 
-            if (command.placeholders.length == 1) {
-                console.log("1 placeholder")
-                this.state = new RequirePlaceholderState(
-                    command.placeholders[0],
-                )
-                //command.placeholders[0].resolve("2")
-            } else if (command.placeholders.length == 0) {
+            if (command.placeholders.length == 0) {
                 command.onResolveCallback(command)
             } else {
-                throw new Error(
-                    "Can't yet deal with more than one placeholders.",
-                )
+                this.state = new RequirePlaceholderState(command.placeholders)
             }
         } else {
             throw new Error(`Unknown card type: ${card}`)

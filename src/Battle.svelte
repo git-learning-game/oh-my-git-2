@@ -34,7 +34,11 @@
         if (battle.state instanceof PlayerTurnState) {
             stateMessage = "Your turn"
         } else if (battle.state instanceof RequirePlaceholderState) {
-            stateMessage = "Requiring a placeholder"
+            if (battle.state.placeholders.length == 1) {
+                stateMessage = "Select target"
+            } else {
+                stateMessage = `Select ${battle.state.placeholders.length} targets`
+            }
         } else {
             stateMessage = "Unknown state :("
         }
@@ -68,7 +72,7 @@
         const slot = e.detail.slotIndex + 1
         await battle.playCardFromHand(e.detail.cardIndex)
         if (battle.state instanceof RequirePlaceholderState) {
-            battle.state.placeholder.resolve(slot)
+            battle.state.resolveNext(slot)
             battle = battle
         }
         //await realizeEffects(effects)
@@ -151,7 +155,7 @@
     function clickSlot(e) {
         console.log(e)
         if (battle.state instanceof RequirePlaceholderState) {
-            battle.state.placeholder.resolve(e.detail.index + 1)
+            battle.state.resolveNext(e.detail.index + 1)
             battle = battle
         }
         battle = battle
