@@ -1,6 +1,8 @@
 <script lang="ts">
     import {Repository} from "./repository.ts"
     import {Graph} from "./graph.ts"
+    import {createEventDispatcher} from "svelte"
+    const dispatch = createEventDispatcher()
 
     let repo: Repository
 
@@ -11,6 +13,9 @@
     export const setRepo = (newRepo: Repository) => {
         repo = newRepo
         graph = new Graph(repo, graphDiv)
+        graph.onClickNode = (node) => {
+            dispatch("clickNode", {node})
+        }
     }
 
     export const update = () => {

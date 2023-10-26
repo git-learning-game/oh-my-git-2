@@ -24,6 +24,8 @@ export class Graph {
     nodeGroup: d3.Selection<any, any, any, any>
     linkGroup: d3.Selection<any, any, any, any>
 
+    onClickNode = (_node: string) => {}
+
     constructor(repo: Repository, div: HTMLDivElement) {
         this.repo = repo
         this.div = div
@@ -292,6 +294,11 @@ export class Graph {
                         d3.select(this)
                             .select(".tooltip")
                             .style("visibility", "hidden")
+                    })
+
+                    g.on("click", (_, d) => {
+                        console.log("ref click")
+                        this.onClickNode(d.id())
                     })
 
                     g.append("text")

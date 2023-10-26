@@ -289,6 +289,9 @@ enum CardID {
     Commit,
     CommitAll,
     Copy,
+    Branch,
+    Switch,
+    Checkout,
 }
 
 function allCards(): Record<CardID, Card> {
@@ -338,18 +341,30 @@ function allCards(): Record<CardID, Card> {
             new Command("git add .; git commit -m 'Commit'"),
         ),
         [CardID.Copy]: new CommandCard(
-            gt`Make copies`,
+            gt`Copy`,
             3,
             new Command("cp SLOT SLOT"),
         ),
         //new CommandCard(gt`Stash`, 3, new Command("git stash")),
         //new CommandCard(gt`Pop stash`, 2, new Command("git stash pop")),
-        //new CommandCard(gt`Branch`, 1, new Command("git branch SLOT")), // TODO: Allow branch targets
-        //new CommandCard(gt`Switch`, 1, new Command("git switch -f SLOT")), // TODO: Allow branch targets
+        [CardID.Branch]: new CommandCard(
+            gt`Branch`,
+            1,
+            new Command("git branch dev"),
+        ),
+        [CardID.Switch]: new CommandCard(
+            gt`Switch`,
+            1,
+            new Command("git switch -f REF"),
+        ),
+        [CardID.Checkout]: new CommandCard(
+            gt`Checkout`,
+            1,
+            new Command("git checkout REF"),
+        ),
         //new CommandCard(gt`Merge`, 2, new Command("git merge SLOT")), // TODO: Allow branch targets
 
         /* TODO:
-    cp
     mv
     restore -s
     restore
@@ -526,13 +541,10 @@ export class Adventure {
     constructor(public onNextEvent: (e: Battle | Decision | null) => void) {
         let cards = [
             CardID.TimeSnail,
-            CardID.GraphGnome,
-            CardID.DetachedHead,
-            CardID.Add,
-            CardID.Restore,
+            CardID.TimeSnail,
+            CardID.Branch,
+            CardID.Checkout,
             CardID.CommitAll,
-            CardID.Copy,
-            CardID.Copy,
         ]
         this.deck = cards.map((id) => buildCard(id))
         //let deckSize = 10
@@ -640,7 +652,7 @@ export class Battle {
     eventLog: string[] = []
 
     health = 10
-    energy = 1
+    energy = 100
     maxEnergy = 1
 
     enemyHealth = 10

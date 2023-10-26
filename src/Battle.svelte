@@ -160,11 +160,35 @@
         }
         battle = battle
     }
+
+    function clickNode(e) {
+        console.log(e)
+        if (battle.state instanceof RequirePlaceholderState) {
+            battle.state.resolveNext(e.detail.node)
+            battle = battle
+        }
+        battle = battle
+    }
+
+    async function dragToNode(e) {
+        console.log("drag", e.detail)
+        const node = e.detail.node
+        await battle.playCardFromHand(e.detail.cardIndex)
+        if (battle.state instanceof RequirePlaceholderState) {
+            battle.state.resolveNext(ref)
+            battle = battle
+        }
+        //await realizeEffects(effects)
+    }
 </script>
 
 <div id="grid">
     <div id="graph">
-        <Graph bind:this={graph} />
+        <Graph
+            bind:this={graph}
+            on:clickNode={clickNode}
+            on:dragToNode={dragToNode}
+        />
     </div>
     <div id="screen">
         <Terminal bind:this={terminal} />
