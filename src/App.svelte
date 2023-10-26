@@ -15,9 +15,10 @@
         ;(window as any)["shell"] = shell
 
         shell.boot().then(() => {
-            adventure = new Adventure(() => {
+            adventure = new Adventure((a) => {
                 // The next event was entered!
                 adventure = adventure
+                console.log("The next event was entered:", a)
             })
         })
     })
@@ -40,6 +41,7 @@
         {:else if adventure.state instanceof Decision}
             <DecisionSvelte
                 choices={adventure.state.choices}
+                deck={adventure.deck}
                 on:choice={decisionMade}
             />
         {/if}

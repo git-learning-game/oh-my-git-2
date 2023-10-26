@@ -209,51 +209,71 @@ class GiveFriendsEffect extends Effect {
     }
 }
 
-console.log("Cards are now being defined.")
-function creatureTemplates(): Record<string, CreatureCard> {
+enum CardID {
+    GraphGnome,
+    BlobEater,
+    TimeSnail,
+    CloneWarrior,
+    MergeMonster,
+    DetachedHead,
+    RubberDuck,
+    CollabCentaur,
+    Add,
+    AddAll,
+    Remove,
+    Restore,
+    Commit,
+    CommitAll,
+    MakeCopies,
+}
+
+function allCards(): Record<CardID, Card> {
     return {
-        graphGnome: new CreatureCard(gt`Graph Gnome`, 1, 1, 2),
-        blobEater: new CreatureCard(gt`Blob Eater`, 2, 2, 2).addEffect(
+        [CardID.GraphGnome]: new CreatureCard(gt`Graph Gnome`, 2, 1, 2),
+        [CardID.BlobEater]: new CreatureCard(gt`Blob Eater`, 3, 2, 2).addEffect(
             Trigger.Played,
             new DeleteRandomEnemyEffect(),
         ),
-        timeSnail: new CreatureCard(gt`Time Snail`, 1, 1, 1),
-        cloneWarrior: new CreatureCard(gt`Clone Warrior`, 4, 2, 5),
-        mergeMoster: new CreatureCard(gt`Merge Monster`, 4, 4, 4),
-        detachedHead: new CreatureCard(gt`Detached Head`, 1, 0, 2),
-        rubberDuck: new CreatureCard(gt`Rubber Duck`, 1, 1, 1).addEffect(
-            Trigger.Played,
-            new DrawCardEffect(1),
-        ),
-        collabCentaur: new CreatureCard(gt`Collab Centaur`, 1, 1, 1).addEffect(
-            Trigger.Played,
-            new GiveFriendsEffect(1, 1),
-        ),
-    }
-}
-
-function commandTemplates(): Record<string, CommandCard> {
-    return {
+        [CardID.TimeSnail]: new CreatureCard(gt`Time Snail`, 1, 1, 1),
+        [CardID.CloneWarrior]: new CreatureCard(gt`Clone Warrior`, 4, 2, 5),
+        [CardID.MergeMonster]: new CreatureCard(gt`Merge Monster`, 4, 4, 4),
+        [CardID.DetachedHead]: new CreatureCard(gt`Detached Head`, 0, 0, 2),
+        [CardID.RubberDuck]: new CreatureCard(
+            gt`Rubber Duck`,
+            1,
+            1,
+            1,
+        ).addEffect(Trigger.Played, new DrawCardEffect(1)),
+        [CardID.CollabCentaur]: new CreatureCard(
+            gt`Collab Centaur`,
+            1,
+            1,
+            1,
+        ).addEffect(Trigger.Played, new GiveFriendsEffect(1, 1)),
         //new CommandCard(gt`Init`, 0, new Command("git init")),
-        add: new CommandCard(gt`Add`, 1, new Command("git add FILE")),
-        addAll: new CommandCard(gt`Add all`, 2, new Command("git add .")),
-        remove: new CommandCard(gt`Remove`, 0, new Command("rm FILE")),
-        restore: new CommandCard(
+        [CardID.Add]: new CommandCard(gt`Add`, 1, new Command("git add FILE")),
+        [CardID.AddAll]: new CommandCard(
+            gt`Add all`,
+            2,
+            new Command("git add ."),
+        ),
+        [CardID.Remove]: new CommandCard(gt`Remove`, 0, new Command("rm FILE")),
+        [CardID.Restore]: new CommandCard(
             gt`Restore`,
             2,
             new Command("git restore FILE"),
         ),
-        commit: new CommandCard(
+        [CardID.Commit]: new CommandCard(
             gt`Commit`,
             2,
             new Command("git commit -m 'Commit'"),
         ),
-        commitAll: new CommandCard(
+        [CardID.CommitAll]: new CommandCard(
             gt`Commit all`,
             3,
             new Command("git add .; git commit -m 'Commit'"),
         ),
-        makeCopies: new CommandCard(
+        [CardID.MakeCopies]: new CommandCard(
             gt`Make copies`,
             3,
             new Command("cp FILE tmp; cp tmp 1; cp tmp 2; cp tmp 3; rm tmp"),
@@ -273,11 +293,34 @@ function commandTemplates(): Record<string, CommandCard> {
     }
 }
 
-function allCardTemplates(): Card[] {
-    return [
-        ...Object.values(creatureTemplates()),
-        ...Object.values(commandTemplates()),
+function randomCardID(): CardID {
+    // TODO: Make more typesafe?
+    const enumValues = Object.values(allCards())
+    const index = Math.floor(Math.random() * enumValues.length)
+    return index
+}
+
+function randomCreatureCardID(): CardID {
+    // TODO: Make more elegant...
+    let options = [
+        CardID.GraphGnome,
+        CardID.BlobEater,
+        CardID.TimeSnail,
+        CardID.CloneWarrior,
+        CardID.MergeMonster,
+        CardID.DetachedHead,
+        CardID.RubberDuck,
+        CardID.CollabCentaur,
     ]
+    return randomPick(options)
+}
+
+function randomCard(): Card {
+    return buildCard(randomCardID())
+}
+
+function buildCard(id: CardID): Card {
+    return cloneDeep(allCards()[id])
 }
 
 function randomPick<T>(array: T[], clone = false): T {
@@ -345,10 +388,45 @@ class SnailEnemy extends Enemy {
             return
         }
         let randomSlot = randomPick(this.freeSlots())
-        this.battle.playCardAsEnemy(
-            new CreatureCard("Time Snail", 1, 1, 1),
-            randomSlot,
-        )
+        this.battle.playCardAsEnemy(CardID.TimeSnail, randomSlot)
+    }
+}
+
+let blueprints: CardID[][][] = [
+    [[CardID.TimeSnail], [], [CardID.TimeSnail], []],
+    [[CardID.TimeSnail], [], [CardID.GraphGnome], [], [CardID.MergeMonster]],
+    [[CardID.TimeSnail], [CardID.TimeSnail], [], [CardID.BlobEater]],
+    [[CardID.CloneWarrior], [], [], [], [CardID.MergeMonster]],
+    [[CardID.DetachedHead], [], [], [], [CardID.MergeMonster]],
+]
+
+class BluePrintEnemy extends Enemy {
+    turn = -1
+    blueprint = randomPick(blueprints, true)
+
+    makeMove() {
+        if (this.freeSlots().length === 0) {
+            return
+        }
+        let randomSlot = randomPick(this.freeSlots())
+
+        this.turn += 1
+
+        let nextCard: CardID
+        if (this.blueprint.length > this.turn) {
+            let nextCardOptions = this.blueprint[this.turn]
+            if (nextCardOptions.length === 0) {
+                return
+            }
+            nextCard = randomPick(nextCardOptions)
+        } else {
+            let nextCardOptions = randomPick(this.blueprint)
+            if (nextCardOptions.length === 0) {
+                return
+            }
+            nextCard = randomPick(nextCardOptions)
+        }
+        this.battle.playCardAsEnemy(nextCard, randomSlot)
     }
 }
 
@@ -358,28 +436,33 @@ class OPEnemy extends Enemy {
             return
         }
         let randomSlot = randomPick(this.freeSlots())
-        let card: CreatureCard
+        let card: CardID
         if (Math.random() < 0.5) {
-            card = randomPick(Object.values(creatureTemplates()), true)
+            card = randomCreatureCardID()
         } else {
-            card = new CreatureCard("Merge Monster", 4, 4, 4)
+            card = CardID.MergeMonster
         }
         this.battle.playCardAsEnemy(card, randomSlot)
     }
 }
 
 class RandomEnemy extends Enemy {
+    turn = -1
     makeMove() {
+        this.turn += 1
+
+        if (this.turn % 2 == 1) {
+            return
+        }
+
         if (this.freeSlots().length === 0) {
             return
         }
-        let randomCard = randomPick(Object.values(creatureTemplates()), true)
+        let randomCard = randomCreatureCardID()
         let randomSlot = randomPick(this.freeSlots())
         this.battle.playCardAsEnemy(randomCard, randomSlot)
     }
 }
-
-const possibleEnemies = [RandomEnemy, OPEnemy]
 
 //I'm going on an adventure!
 export class Adventure {
@@ -389,26 +472,35 @@ export class Adventure {
 
     path: Event[]
 
-    constructor(public onNextEvent: () => void) {
-        let creaturecards = [
-            "timeSnail",
-            "timeSnail",
-            "timeSnail",
-            "timeSnail",
-            "timeSnail",
-            "timeSnail",
+    constructor(public onNextEvent: (e: Battle | Decision | null) => void) {
+        let cards = [
+            CardID.TimeSnail,
+            CardID.TimeSnail,
+            CardID.GraphGnome,
+            CardID.GraphGnome,
+            CardID.DetachedHead,
+            CardID.DetachedHead,
+            CardID.Add,
+            CardID.Add,
+            CardID.Restore,
+            CardID.Restore,
         ]
-        let commandcards = ["add", "add", "restore", "restore"]
-        this.deck = [
-            ...creaturecards.map((name) =>
-                cloneDeep(creatureTemplates()[name]),
-            ),
-            ...commandcards.map((name) => cloneDeep(commandTemplates()[name])),
-        ]
+        this.deck = cards.map((id) => buildCard(id))
+        //let deckSize = 10
+        //for (let i = 0; i < deckSize; i++) {
+        //    this.deck.push(randomCard())
+        //}
+
         this.state = null
 
         this.path = [
-            new BattleEvent(SnailEnemy),
+            //new BattleEvent(SnailEnemy),
+            new DecisionEvent(),
+            new BattleEvent(BluePrintEnemy),
+            new DecisionEvent(),
+            new BattleEvent(BluePrintEnemy),
+            new DecisionEvent(),
+            new BattleEvent(RandomEnemy),
             new DecisionEvent(),
             new BattleEvent(RandomEnemy),
             new DecisionEvent(),
@@ -420,6 +512,10 @@ export class Adventure {
     }
 
     enterNextEvent() {
+        if (this.path.length === 0) {
+            alert("You are a beautiful aweome person and you win!")
+            return
+        }
         let nextEvent = this.path.shift()
         if (nextEvent instanceof BattleEvent) {
             this.state = new Battle(this.deck, nextEvent.enemy, (won) => {
@@ -434,20 +530,14 @@ export class Adventure {
         } else {
             throw new Error(`Unknown event type: ${nextEvent}`)
         }
-        this.onNextEvent()
+        this.onNextEvent(this.state)
     }
 
     startNewDecision() {
-        this.state = new Decision(
-            [
-                randomPick(allCardTemplates(), true),
-                randomPick(allCardTemplates(), true),
-            ],
-            (card) => {
-                this.deck.push(card)
-                this.enterNextEvent()
-            },
-        )
+        this.state = new Decision([randomCard(), randomCard()], (card) => {
+            this.deck.push(card)
+            this.enterNextEvent()
+        })
     }
 }
 
@@ -568,7 +658,11 @@ export class Battle {
         return effects
     }
 
-    playCardAsEnemy(card: CreatureCard, slot: number) {
+    playCardAsEnemy(cardID: CardID, slot: number) {
+        let card = buildCard(cardID)
+        if (!(card instanceof CreatureCard)) {
+            throw new Error(`Card ${cardID} is not a creature card.`)
+        }
         this.enemySlots[slot] = card
         this.log(`Enemy played ${card.name} to slot ${slot + 1}.`)
         card.triggerEffects(
