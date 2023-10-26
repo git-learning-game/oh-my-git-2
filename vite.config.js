@@ -7,6 +7,7 @@ export default defineConfig({
     plugins: [
         legacy({
             "./public/v86/libv86.js": "V86Starter",
+            "./public/v86/screen.js": "ScreenAdapter",
         }),
         checker({typescript: true}),
         svelte(),

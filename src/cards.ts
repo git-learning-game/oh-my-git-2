@@ -389,7 +389,7 @@ export class Adventure {
 
     path: Event[]
 
-    constructor() {
+    constructor(public onNextEvent: () => void) {
         let creaturecards = [
             "timeSnail",
             "timeSnail",
@@ -434,6 +434,7 @@ export class Adventure {
         } else {
             throw new Error(`Unknown event type: ${nextEvent}`)
         }
+        this.onNextEvent()
     }
 
     startNewDecision() {

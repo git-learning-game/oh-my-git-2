@@ -4,6 +4,7 @@
     export let card: Card | null
     export let index: number
     export let playable = false
+    export let clickable = false
     export let hand = false
 
     function dragStart(e: DragEvent) {
@@ -18,6 +19,7 @@
     class:hand
     class:card
     class:playable
+    class:clickable
     on:dragstart={(e) => dragStart(e)}
     on:dragover
     on:drop
@@ -58,6 +60,9 @@
     .playable {
         border: solid blue 5px;
         cursor: move;
+    }
+    .clickable {
+        cursor: pointer;
     }
     .attack,
     .health {

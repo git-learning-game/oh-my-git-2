@@ -1,5 +1,7 @@
 // @ts-ignore
 import V86Starter from "../public/v86/libv86.js"
+// @ts-ignore
+import ScreenAdapter from "../public/v86/screen.js"
 
 import {Mutex} from "async-mutex"
 
@@ -31,20 +33,8 @@ class WebShell {
         this.mutex2 = new Mutex()
 
         if (screen) {
-            let screenDiv = screen
-            screenDiv.style.whiteSpace = "pre"
-            screenDiv.style.fontFamily = "Iosevka"
-            screenDiv.style.fontSize = "18px"
-            screenDiv.style.lineHeight = "20px"
-
-            let innerDiv = document.createElement("div")
-            let canvas = document.createElement("canvas")
-            canvas.style.display = "none"
-
-            screenDiv.appendChild(innerDiv)
-            screenDiv.appendChild(canvas)
-
-            this.config["screen_container"] = screenDiv
+            this.prepareScreen(screen)
+            this.config["screen_container"] = screen
         }
 
         if (typeof serial !== "undefined") {
@@ -56,6 +46,26 @@ class WebShell {
                 url: "./v86/booted-state.bin.zst",
             }
         }
+    }
+
+    setScreen(div: HTMLDivElement) {
+        this.prepareScreen(div)
+        this.emulator.screen_adapter = new ScreenAdapter(div, this.emulator.bus)
+        this.type("clear\n")
+    }
+
+    private prepareScreen(screenDiv: HTMLDivElement) {
+        screenDiv.style.whiteSpace = "pre"
+        screenDiv.style.fontFamily = "Iosevka"
+        screenDiv.style.fontSize = "18px"
+        screenDiv.style.lineHeight = "20px"
+
+        let innerDiv = document.createElement("div")
+        let canvas = document.createElement("canvas")
+        canvas.style.display = "none"
+
+        screenDiv.appendChild(innerDiv)
+        screenDiv.appendChild(canvas)
     }
 
     private appendToSerialDiv(text: string) {

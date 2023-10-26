@@ -11,7 +11,7 @@
     <div id="cards">
         {#each choices as card}
             <div class="choice" on:click={() => dispatch("choice", card)}>
-                <CardSvelte {card} />
+                <CardSvelte {card} clickable={true} />
             </div>
         {/each}
     </div>
