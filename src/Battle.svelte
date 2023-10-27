@@ -1,5 +1,6 @@
 <script lang="ts">
     import {onMount} from "svelte"
+    import {t} from "svelte-i18n-lingui"
 
     import Terminal from "./Terminal.svelte"
     import Graph from "./Graph.svelte"
@@ -32,15 +33,15 @@
 
     $: {
         if (battle.state instanceof PlayerTurnState) {
-            stateMessage = "Your turn"
+            stateMessage = $t`Your turn`
         } else if (battle.state instanceof RequirePlaceholderState) {
             if (battle.state.placeholders.length == 1) {
-                stateMessage = "Select target"
+                stateMessage = $t`Select target`
             } else {
-                stateMessage = `Select ${battle.state.placeholders.length} targets`
+                stateMessage = $t`Select ${battle.state.placeholders.length} targets`
             }
         } else {
-            stateMessage = "Unknown state :("
+            stateMessage = $t`Unknown state :(`
         }
     }
 

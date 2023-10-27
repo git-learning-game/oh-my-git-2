@@ -708,7 +708,7 @@ export class Battle {
         const card = cloneDeep(this.hand[i])
 
         if (card.energy > this.energy) {
-            this.log(`Not enough energy to play ${card.name}.`)
+            this.log(gt`Not enough energy to play ${card.name}.`)
             return
         }
 
@@ -718,7 +718,7 @@ export class Battle {
                 this.energy -= card.energy
                 let newCard = cloneDeep(card)
                 this.slots[slot - 1] = newCard
-                this.log(`Played ${card.name} to slot ${slot}.`)
+                this.log(gt`Played ${card.name} to slot ${slotString}.`)
                 newCard.triggerEffects(
                     this,
                     Trigger.Played,
@@ -755,7 +755,9 @@ export class Battle {
             throw new Error(`Card ${cardID} is not a creature card.`)
         }
         this.enemySlots[slot] = card
-        this.log(`Enemy played ${card.name} to slot ${slot + 1}.`)
+        this.log(
+            gt`Enemy played ${card.name} to slot ${(slot + 1).toString()}.`,
+        )
         card.triggerEffects(
             this,
             Trigger.Played,
@@ -764,7 +766,7 @@ export class Battle {
     }
 
     endTurn() {
-        this.log("--- You ended your turn ---")
+        this.log("--- " + gt`You ended your turn` + " ---")
         // Fight! Let creatures take damage. If there is no defense, damage goes to players.
         for (let i = 0; i < this.slots.length; i++) {
             const playerCard = this.slots[i]
@@ -773,28 +775,38 @@ export class Battle {
                 // Both players have a card in this slot. They fight!
                 playerCard.health -= enemyCard.attack
                 this.log(
-                    `Enemy ${enemyCard.name} dealt ${enemyCard.attack} damage to ${playerCard.name}.`,
+                    gt`Enemy ${
+                        enemyCard.name
+                    } dealt ${enemyCard.attack.toString()} damage to ${
+                        playerCard.name
+                    }.`,
                 )
 
                 enemyCard.health -= playerCard.attack
                 this.log(
-                    `Your ${playerCard.name} dealt ${playerCard.attack} damage to ${enemyCard.name}.`,
+                    gt`Your ${
+                        playerCard.name
+                    } dealt ${playerCard.attack.toString()} damage to ${
+                        enemyCard.name
+                    }.`,
                 )
                 if (playerCard.health <= 0) {
                     this.slots[i] = null
-                    this.log(`Your ${playerCard.name} died.`)
+                    this.log(gt`Your ${playerCard.name} died.`)
                 } else {
                     let fileContent = playerCard.stringify()
                 }
                 if (enemyCard.health <= 0) {
                     this.enemySlots[i] = null
-                    this.log(`Enemy ${enemyCard.name} died.`)
+                    this.log(gt`Enemy ${enemyCard.name} died.`)
                 }
             } else if (playerCard) {
                 // Only the player has a card in this slot. It attacks the enemy player.
                 this.enemyHealth -= playerCard.attack
                 this.log(
-                    `${playerCard.name} dealt ${playerCard.attack} damage to the enemy player.`,
+                    gt`${
+                        playerCard.name
+                    } dealt ${playerCard.attack.toString()} damage to the enemy player.`,
                 )
                 if (this.enemyHealth < 1) {
                     this.onBattleFinished(true)
@@ -803,7 +815,9 @@ export class Battle {
                 // Only the enemy has a card in this slot. It attacks the player.
                 this.health -= enemyCard.attack
                 this.log(
-                    `Enemy ${enemyCard.name} dealt ${enemyCard.attack} damage to you.`,
+                    gt`Enemy ${
+                        enemyCard.name
+                    } dealt ${enemyCard.attack.toString()} damage to you.`,
                 )
                 if (this.health < 1) {
                     this.onBattleFinished(false)
@@ -826,12 +840,12 @@ export class Battle {
             this.drawPile = this.discardPile
             shuffle(this.drawPile)
             this.discardPile = []
-            this.log(`Shuffled discard pile into draw pile.`)
+            this.log(gt`Shuffled discard pile into draw pile.`)
         }
         const card = this.drawPile.pop()
         if (card) {
             this.hand.push(card)
-            this.log(`You drew ${card.name}.`)
+            this.log(gt`You drew ${card.name}.`)
         }
     }
 
