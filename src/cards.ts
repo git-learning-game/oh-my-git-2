@@ -286,12 +286,19 @@ enum CardID {
     AddAll,
     Remove,
     Restore,
+    RestoreS,
+    RestoreStaged,
+    RestoreStagedS,
     Commit,
     CommitAll,
     Copy,
+    Move,
     Branch,
     Switch,
     Checkout,
+    Stash,
+    StashPop,
+    Merge,
 }
 
 function allCards(): Record<CardID, Card> {
@@ -330,6 +337,21 @@ function allCards(): Record<CardID, Card> {
             2,
             new Command("git restore SLOT"),
         ),
+        [CardID.RestoreS]: new CommandCard(
+            gt`Restore`,
+            2,
+            new Command("git restore -s REF SLOT"),
+        ),
+        [CardID.RestoreStaged]: new CommandCard(
+            gt`Restore staged`,
+            2,
+            new Command("git restore --staged SLOT"),
+        ),
+        [CardID.RestoreStagedS]: new CommandCard(
+            gt`Restore staged`,
+            2,
+            new Command("git restore --staged -s REF SLOT"),
+        ),
         [CardID.Commit]: new CommandCard(
             gt`Commit`,
             2,
@@ -345,8 +367,17 @@ function allCards(): Record<CardID, Card> {
             3,
             new Command("cp SLOT SLOT"),
         ),
-        //new CommandCard(gt`Stash`, 3, new Command("git stash")),
-        //new CommandCard(gt`Pop stash`, 2, new Command("git stash pop")),
+        [CardID.Move]: new CommandCard(
+            gt`Move`,
+            3,
+            new Command("mv SLOT SLOT"),
+        ),
+        [CardID.Stash]: new CommandCard(gt`Stash`, 3, new Command("git stash")),
+        [CardID.StashPop]: new CommandCard(
+            gt`Pop stash`,
+            2,
+            new Command("git stash pop"),
+        ),
         [CardID.Branch]: new CommandCard(
             gt`Branch`,
             1,
@@ -362,13 +393,11 @@ function allCards(): Record<CardID, Card> {
             1,
             new Command("git checkout REF"),
         ),
-        //new CommandCard(gt`Merge`, 2, new Command("git merge SLOT")), // TODO: Allow branch targets
-
-        /* TODO:
-    mv
-    restore -s
-    restore
-    */
+        [CardID.Merge]: new CommandCard(
+            gt`Merge`,
+            2,
+            new Command("git merge REF"),
+        ), // TODO: Allow branch targets
     }
 }
 
@@ -546,11 +575,17 @@ export class Adventure {
             CardID.Checkout,
             CardID.CommitAll,
         ]
-        this.deck = cards.map((id) => buildCard(id))
+
+        //this.deck = cards.map((id) => buildCard(id))
+
         //let deckSize = 10
         //for (let i = 0; i < deckSize; i++) {
         //    this.deck.push(randomCard())
         //}
+
+        for (let card of Object.values(allCards())) {
+            this.deck.push(cloneDeep(card))
+        }
 
         this.state = null
 
@@ -662,6 +697,8 @@ export class Battle {
     discardPile: Card[] = []
 
     slots: (CreatureCard | null)[] = [null, null, null]
+
+    enemyUpcomingSlots: (CreatureCard | null)[] = [null, null, null]
     enemySlots: (CreatureCard | null)[] = [null, null, null]
 
     enemy: Enemy
@@ -684,6 +721,7 @@ export class Battle {
         }
 
         this.enemy = new enemyType(this)
+        this.enemy.makeMove()
 
         this.state = new PlayerTurnState()
     }
@@ -754,14 +792,9 @@ export class Battle {
         if (!(card instanceof CreatureCard)) {
             throw new Error(`Card ${cardID} is not a creature card.`)
         }
-        this.enemySlots[slot] = card
+        this.enemyUpcomingSlots[slot] = card
         this.log(
-            gt`Enemy played ${card.name} to slot ${(slot + 1).toString()}.`,
-        )
-        card.triggerEffects(
-            this,
-            Trigger.Played,
-            new CreatureSource(false, slot),
+            gt`Enemy announced ${card.name} at slot ${(slot + 1).toString()}.`,
         )
     }
 
@@ -822,6 +855,23 @@ export class Battle {
                 if (this.health < 1) {
                     this.onBattleFinished(false)
                 }
+            }
+        }
+
+        // Move enemy cards forward.
+        for (let i = 0; i < this.enemySlots.length; i++) {
+            let upcomingCard = this.enemyUpcomingSlots[i]
+            let card = this.enemySlots[i]
+
+            if (upcomingCard !== null && card === null) {
+                this.enemySlots[i] = this.enemyUpcomingSlots[i]
+                this.enemyUpcomingSlots[i] = null
+
+                upcomingCard.triggerEffects(
+                    this,
+                    Trigger.Played,
+                    new CreatureSource(false, i),
+                )
             }
         }
 

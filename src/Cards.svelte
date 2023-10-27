@@ -35,16 +35,19 @@
             </ul>
         </div>
 
+        <h2>{$t`Upcoming enemy cards`}</h2>
+
+        <div class="cards">
+            {#each battle.enemyUpcomingSlots as slot, index}
+                <CardSvelte card={slot} />
+            {/each}
+        </div>
+
         <h2>{$t`Enemy cards`} ({$t`enemy health`}: {battle.enemyHealth})</h2>
 
         <div class="cards">
             {#each battle.enemySlots as slot, index}
-                <CardSvelte
-                    card={slot}
-                    {index}
-                    on:dragover={(e) => e.preventDefault()}
-                    on:drop={(e) => drop(e, index)}
-                />
+                <CardSvelte card={slot} />
             {/each}
         </div>
 
