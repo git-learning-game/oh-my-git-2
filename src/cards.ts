@@ -93,11 +93,11 @@ class Placeholder {
     }
 }
 
-class FreeStringPlaceholder extends Placeholder {}
+export class FreeStringPlaceholder extends Placeholder {}
 
-class SlotPlaceholder extends Placeholder {}
+export class SlotPlaceholder extends Placeholder {}
 
-class RefPlaceholder extends Placeholder {}
+export class RefPlaceholder extends Placeholder {}
 
 const placeholderTypes: Record<string, typeof Placeholder> = {
     STRING: FreeStringPlaceholder,
@@ -381,7 +381,7 @@ function allCards(): Record<CardID, Card> {
         [CardID.Branch]: new CommandCard(
             gt`Branch`,
             1,
-            new Command("git branch dev"),
+            new Command("git branch STRING"),
         ),
         [CardID.Switch]: new CommandCard(
             gt`Switch`,
@@ -687,7 +687,7 @@ export class Battle {
     eventLog: string[] = []
 
     health = 10
-    energy = 100
+    energy = 1
     maxEnergy = 1
 
     enemyHealth = 10

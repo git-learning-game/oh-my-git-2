@@ -18,6 +18,9 @@
         SyncGameToDiskSideEffect,
         PlayerTurnState,
         RequirePlaceholderState,
+        FreeStringPlaceholder,
+        RefPlaceholder,
+        SlotPlaceholder,
     } from "./cards.ts"
 
     export let battle: Battle
@@ -29,16 +32,22 @@
 
     let indexSlots: (CreatureCard | null)[]
 
-    let stateMessage
+    let stateMessage: string
+    let inputText: string
 
     $: {
         if (battle.state instanceof PlayerTurnState) {
             stateMessage = $t`Your turn`
         } else if (battle.state instanceof RequirePlaceholderState) {
-            if (battle.state.placeholders.length == 1) {
-                stateMessage = $t`Select target`
+            let currentPlaceholder = battle.state.currentPlaceholder()
+            if (currentPlaceholder instanceof SlotPlaceholder) {
+                stateMessage = $t`Select slot`
+            } else if (currentPlaceholder instanceof RefPlaceholder) {
+                stateMessage = $t`Select ref`
+            } else if (currentPlaceholder instanceof FreeStringPlaceholder) {
+                stateMessage = $t`Enter text: `
             } else {
-                stateMessage = $t`Select ${battle.state.placeholders.length} targets`
+                stateMessage = $t`Unknown placeholder`
             }
         } else {
             stateMessage = $t`Unknown state :(`
@@ -181,6 +190,16 @@
         }
         //await realizeEffects(effects)
     }
+
+    function inputKeydown(e) {
+        if (e.key === "Enter") {
+            if (battle.state instanceof RequirePlaceholderState) {
+                battle.state.resolveNext(inputText)
+                battle = battle
+                inputText = ""
+            }
+        }
+    }
 </script>
 
 <div id="grid">
@@ -195,7 +214,16 @@
         <Terminal bind:this={terminal} />
     </div>
     <div id="cards">
-        <h1>{stateMessage}</h1>
+        <h1>
+            {stateMessage}
+            {#if battle.state instanceof RequirePlaceholderState && battle.state.currentPlaceholder() instanceof FreeStringPlaceholder}
+                <input
+                    type="text"
+                    bind:value={inputText}
+                    on:keydown={inputKeydown}
+                />
+            {/if}
+        </h1>
         <Cards
             on:clickSlot={clickSlot}
             on:drag={cardDrag}
