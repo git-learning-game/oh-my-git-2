@@ -60,6 +60,7 @@
         repo = new Repository("/root/repo", shell)
         await update()
         battle.onSideEffect(realizeEffect)
+        battle.onHiddenCommand(runCommand)
 
         window.addEventListener("keydown", (e) => {
             if (e.key == "Enter") {
@@ -112,6 +113,13 @@
         battle = battle
     }
 
+    async function runCommand(command: string): Promise<string> {
+        console.log(`Running command: ${command}`)
+        let output = await shell.run(command)
+        console.log(`Command output: ${output}`)
+        return output
+    }
+
     async function syncGameToDisk() {
         for (let [index, card] of battle.slots.entries()) {
             if (card) {
@@ -161,9 +169,9 @@
         battle = battle
     }
 
-    function playCard(e) {
+    async function playCard(e) {
         console.log(e)
-        battle.playCardFromHand(e.detail.index)
+        await battle.playCardFromHand(e.detail.index)
         battle = battle
     }
 

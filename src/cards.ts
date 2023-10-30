@@ -146,10 +146,8 @@ class Command {
     }
 
     constructor(public template: string) {
-        console.log(`Creating command from template: ${template}`)
         this.placeholders = []
         let regex = new RegExp(Object.keys(placeholderTypes).join("|"), "g")
-        console.log(regex)
         template.match(regex)?.forEach((word) => {
             if (Object.keys(placeholderTypes).includes(word)) {
                 this.placeholders.push(
@@ -203,7 +201,45 @@ class CardSource {
 abstract class Effect {
     constructor() {}
     abstract getDescription(): string
-    abstract apply(battle: Battle, source: CardSource): void
+    abstract apply(battle: Battle, source: CardSource): Promise<void>
+
+    async eval(value: NumericValue, battle: Battle): Promise<number> {
+        if (typeof value === "number") {
+            return value
+        } else {
+            let result = await value.eval(battle)
+            console.log(`Evaluated ${value} to ${result}`)
+            return result
+        }
+    }
+
+    describeAmount(value: NumericValue, unit: string): string {
+        if (typeof value === "number") {
+            return `${value.toString()} ${unit}`
+        } else {
+            return gt`a number of ${unit} equal to ${value.getDescription()}`
+        }
+    }
+}
+
+class HealPlayerEffect extends Effect {
+    constructor(public amount: NumericValue) {
+        super()
+    }
+
+    getDescription(): string {
+        return gt`heal yourself for ${this.describeAmount(
+            this.amount,
+            "points",
+        )}`
+    }
+
+    async apply(battle: Battle, _source: CardSource) {
+        let amount = await this.eval(this.amount, battle)
+        console.log(`Healing player for ${amount}`)
+        battle.health += amount
+        battle.log(gt`Healed yourself for ${amount.toString()} points.`)
+    }
 }
 
 class CommandEffect extends Effect {
@@ -215,7 +251,7 @@ class CommandEffect extends Effect {
         return gt`run "${this.command.template}"`
     }
 
-    apply(battle: Battle, _source: CardSource) {
+    async apply(battle: Battle, _source: CardSource) {
         battle.runCommand(this.command)
     }
 }
@@ -229,7 +265,7 @@ class AddCardToHandEffect extends Effect {
         return gt`add a ${allCards()[this.cardID].getName()} to your hand`
     }
 
-    apply(battle: Battle, source: CardSource) {
+    async apply(battle: Battle, source: CardSource) {
         if (source.player) {
             battle.hand.push(buildCard(this.cardID))
             battle.log(
@@ -248,7 +284,7 @@ class DeleteRandomEnemyEffect extends Effect {
         return gt`delete a random enemy`
     }
 
-    apply(battle: Battle, source: CardSource) {
+    async apply(battle: Battle, source: CardSource) {
         let targetSideCreatures = source.player
             ? battle.enemySlots
             : battle.slots
@@ -275,7 +311,7 @@ class DrawCardEffect extends Effect {
         })
     }
 
-    apply(battle: Battle, source: CardSource) {
+    async apply(battle: Battle, source: CardSource) {
         if (source.player) {
             for (let i = 0; i < this.count; i++) {
                 battle.drawCard()
@@ -296,7 +332,7 @@ class GiveFriendsEffect extends Effect {
         return gt`give all friends +${this.attack.toString()}/${this.health.toString()}`
     }
 
-    apply(battle: Battle, source: CardSource) {
+    async apply(battle: Battle, source: CardSource) {
         let targetSideCreatures = source.player
             ? battle.slots
             : battle.enemySlots
@@ -314,6 +350,31 @@ class GiveFriendsEffect extends Effect {
         }
     }
 }
+
+class DynamicNumericValue {
+    constructor(public type: DynamicValueType) {}
+
+    async eval(battle: Battle): Promise<number> {
+        return await battle.evaluateDynamicValue(this.type)
+    }
+
+    getDescription(): string {
+        let descriptions = {
+            [DynamicValueType.TagCount]: gt`the number of tags in your repository`,
+            [DynamicValueType.CommitCount]: gt`the number of commits in your repository`,
+            [DynamicValueType.BranchLength]: gt`the length of the current branch`,
+        }
+        return descriptions[this.type]
+    }
+}
+
+enum DynamicValueType {
+    TagCount,
+    CommitCount,
+    BranchLength,
+}
+
+type NumericValue = number | DynamicNumericValue
 
 enum CardID {
     GraphGnome = "GraphGnome",
@@ -345,6 +406,7 @@ enum CardID {
     Merge = "Merge",
     HealthPotion = "HealthPotion",
     DrawCard = "DrawCard",
+    Bandaid = "Bandaid",
 }
 
 function allCards(): Record<CardID, Card> {
@@ -538,7 +600,14 @@ function allCards(): Record<CardID, Card> {
             1,
             new DrawCardEffect(2),
         ),
-        // Card ideas: restore all
+        [CardID.Bandaid]: new EffectCard(
+            CardID.Bandaid,
+            gt`Bandaid`,
+            2,
+            new HealPlayerEffect(
+                new DynamicNumericValue(DynamicValueType.TagCount),
+            ),
+        ),
     }
 }
 
@@ -710,14 +779,9 @@ export class Adventure {
         let cards = [
             CardID.TimeSnail,
             CardID.DetachedHead,
-            CardID.BlobEater,
-            CardID.TagTroll,
             CardID.Add,
-            CardID.Add,
-            CardID.Add,
-            CardID.AddAll,
             CardID.Restore,
-            CardID.RestoreAll,
+            CardID.Bandaid,
         ]
 
         this.deck = cards.map((id) => buildCard(id))
@@ -830,6 +894,7 @@ export class RequirePlaceholderState extends BattleState {
 export class Battle {
     state: BattleState
     onSideeffectCallback: (sideEffect: SideEffect) => void = () => {}
+    onHiddenCommandCallback: undefined | ((command: string) => Promise<string>)
 
     eventLog: string[] = []
 
@@ -881,6 +946,28 @@ export class Battle {
         this.onSideeffectCallback = callback
     }
 
+    onHiddenCommand(callback: (command: string) => Promise<string>) {
+        this.onHiddenCommandCallback = callback
+    }
+
+    async evaluateDynamicValue(value: DynamicValueType): Promise<number> {
+        let commands = {
+            [DynamicValueType.TagCount]: "git tag | wc -l",
+            [DynamicValueType.CommitCount]: "git rev-list --all --count",
+            [DynamicValueType.BranchLength]: "git rev-list HEAD --count",
+        }
+        let output = await this.runHiddenCommand(commands[value])
+        return parseInt(output)
+    }
+
+    async runHiddenCommand(command: string): Promise<string> {
+        if (this.onHiddenCommandCallback) {
+            return await this.onHiddenCommandCallback(command)
+        } else {
+            throw new Error(`No hidden command callback set to run ${command}`)
+        }
+    }
+
     sideeffect(sideEffect: SideEffect) {
         this.onSideeffectCallback(sideEffect)
     }
@@ -923,7 +1010,7 @@ export class Battle {
         } else if (card instanceof EffectCard) {
             this.energy -= card.energy
             this.log(`Played ${card.getName()}.`)
-            card.effect.apply(this, new CardSource(true, card))
+            await card.effect.apply(this, new CardSource(true, card))
             this.discardHandCard(i)
         } else {
             throw new Error(`Unknown card type: ${card}`)
