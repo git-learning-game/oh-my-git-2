@@ -48,8 +48,6 @@
         width: 100%;
         height: 100%;
         position: relative;
-    }
-    #graph svg {
         font-family: Iosevka;
     }
     #refreshing {

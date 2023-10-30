@@ -13,7 +13,19 @@
     <h1>{$t`Pick a card!`}</h1>
     <div class="cards">
         {#each choices as card}
-            <div class="choice" on:click={() => dispatch("choice", card)}>
+            <div
+                class="choice"
+                on:click={() => dispatch("choice", card)}
+                on:keydown={(e) => {
+                    if (e.key === "Enter") {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        e.target?.dispatchEvent(new MouseEvent("click"))
+                    }
+                }}
+                tabindex="0"
+                role="button"
+            >
                 <CardSvelte {card} clickable={true} />
             </div>
         {/each}

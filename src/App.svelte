@@ -23,7 +23,7 @@
         })
     })
 
-    function decisionMade(event) {
+    function decisionMade(event: CustomEvent) {
         if (adventure.state instanceof Decision) {
             adventure.state.choose(event.detail)
             adventure = adventure

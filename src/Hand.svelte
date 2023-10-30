@@ -42,7 +42,17 @@
             {/each}
         </div>
 
-        <div class="button" on:click={endTurn}>
+        <div
+            class="button"
+            on:click={endTurn}
+            on:keydown={(e) => {
+                if (e.key === "Enter") {
+                    endTurn()
+                }
+            }}
+            role="button"
+            tabindex="0"
+        >
             ✨ {$t`Commit!`}
         </div>
     {/if}

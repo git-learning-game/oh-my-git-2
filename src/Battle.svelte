@@ -83,7 +83,7 @@
         }, 500)
     }
 
-    async function cardDrag(e) {
+    async function cardDrag(e: CustomEvent) {
         console.log("drag", e.detail)
         const slot = e.detail.slotIndex + 1
         await battle.playCardFromHand(e.detail.cardIndex)
@@ -95,7 +95,7 @@
     }
 
     async function endTurn() {
-        await battle.endTurn()
+        battle.endTurn()
         await syncGameToDisk()
         //await realizeEffects(effects)
         battle = battle
@@ -169,14 +169,12 @@
         battle = battle
     }
 
-    async function playCard(e) {
-        console.log(e)
+    async function playCard(e: CustomEvent) {
         await battle.playCardFromHand(e.detail.index)
         battle = battle
     }
 
-    function clickSlot(e) {
-        console.log(e)
+    function clickSlot(e: CustomEvent) {
         if (battle.state instanceof RequirePlaceholderState) {
             battle.state.resolveNext(e.detail.index + 1)
             battle = battle
@@ -184,8 +182,7 @@
         battle = battle
     }
 
-    function clickNode(e) {
-        console.log(e)
+    function clickNode(e: CustomEvent) {
         if (battle.state instanceof RequirePlaceholderState) {
             battle.state.resolveNext(e.detail.node)
             battle = battle
@@ -193,18 +190,18 @@
         battle = battle
     }
 
-    async function dragToNode(e) {
+    async function dragToNode(e: CustomEvent) {
         console.log("drag", e.detail)
         const node = e.detail.node
         await battle.playCardFromHand(e.detail.cardIndex)
         if (battle.state instanceof RequirePlaceholderState) {
-            battle.state.resolveNext(ref)
+            battle.state.resolveNext(node)
             battle = battle
         }
         //await realizeEffects(effects)
     }
 
-    function inputKeydown(e) {
+    function inputKeydown(e: KeyboardEvent) {
         if (e.key === "Enter") {
             if (battle.state instanceof RequirePlaceholderState) {
                 battle.state.resolveNext(inputText)

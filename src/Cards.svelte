@@ -18,7 +18,7 @@
         }
     }
 
-    function clickSlot(e, index) {
+    function clickSlot(_: MouseEvent, index: number) {
         dispatch("clickSlot", {index})
     }
 </script>
@@ -38,7 +38,7 @@
         <h2>{$t`Upcoming enemy cards`}</h2>
 
         <div class="cards">
-            {#each battle.enemyUpcomingSlots as slot, index}
+            {#each battle.enemyUpcomingSlots as slot}
                 <CardSvelte card={slot} />
             {/each}
         </div>
@@ -46,7 +46,7 @@
         <h2>{$t`Enemy cards`} ({$t`enemy health`}: {battle.enemyHealth})</h2>
 
         <div class="cards">
-            {#each battle.enemySlots as slot, index}
+            {#each battle.enemySlots as slot}
                 <CardSvelte card={slot} />
             {/each}
         </div>

@@ -5,7 +5,7 @@
     let selected = "de"
     $: setLocale(selected)
 
-    async function setLocale(lang) {
+    async function setLocale(lang: string) {
         const {messages} = await import(`./locales/${lang}.ts`)
         locale.set(lang, messages)
         console.log("Language is being set to " + lang)

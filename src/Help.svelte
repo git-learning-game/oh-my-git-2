@@ -28,7 +28,7 @@
     <hr />
 
     <h2>
-        <img src="/images/file.png" />Uncommitted file
+        <img src="/images/file.png" alt="File icon" />Uncommitted file
         <span>Before it becomes a blob</span>
     </h2>
 
@@ -37,7 +37,7 @@
     </ul>
 
     <h2>
-        <img src="/images/blob.png" />Blob
+        <img src="/images/blob.png" alt="Blob icon" />Blob
         <span>A piece of content</span>
     </h2>
 
@@ -49,7 +49,7 @@
     </ul>
 
     <h2>
-        <img src="/images/wd.png" />Working directory
+        <img src="/images/wd.png" alt="Directory icon" />Working directory
         <span>What you see in your project</span>
     </h2>
 
@@ -66,7 +66,7 @@
     </ul>
 
     <h2>
-        <img src="/images/index.png" />Index
+        <img src="/images/index.png" alt="Scroll icon" />Index
         <span>A template for building a tree</span>
     </h2>
 
@@ -90,7 +90,7 @@
     </ul>
 
     <h2>
-        <img src="/images/tree.png" />Tree
+        <img src="/images/tree.png" alt="Tree icon" />Tree
         <span>A collection of blobs or other trees</span>
     </h2>
 
@@ -99,7 +99,7 @@
     </ul>
 
     <h2>
-        <img src="/images/commit.png" />Commit
+        <img src="/images/commit.png" alt="Commit icon" />Commit
         <span>Adds info to a tree, can have parents </span>
     </h2>
 
@@ -133,7 +133,7 @@
     </ul>-->
 
     <h2>
-        <img src="/images/ref.png" />Ref
+        <img src="/images/ref.png" alt="Label icon" />Ref
         <span>Flexible pointers</span>
     </h2>
 
@@ -159,7 +159,17 @@
     <li><input type="checkbox"/> Create a </li>
     </ul>
     -->
-    <div id="clean" on:click={() => cleanCallback()}>
+    <div
+        id="clean"
+        on:click={() => cleanCallback()}
+        on:keydown={(e) => {
+            if (e.key === "Enter") {
+                cleanCallback()
+            }
+        }}
+        role="button"
+        tabindex="0"
+    >
         ✨ Start with empty repo
     </div>
 </div>

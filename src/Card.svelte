@@ -3,21 +3,19 @@
     import {t} from "svelte-i18n-lingui"
 
     export let card: Card | null
-    export let index: number
+    export let index: number | null = null
     export let playable = false
     export let clickable = false
     export let hand = false
 
     // When language is switched, re-render card.
-    $: {
-        if ($t) {
-            card = card
-        }
-    }
+    $: $t, (card = card)
 
     function dragStart(e: DragEvent) {
-        e.dataTransfer?.setData("text/plain", index.toString())
-        console.log("drag", index)
+        if (index) {
+            e.dataTransfer?.setData("text/plain", index.toString())
+            console.log("drag", index)
+        }
     }
 </script>
 
@@ -32,6 +30,15 @@
     on:dragover
     on:drop
     on:click
+    on:keydown={(e) => {
+        if (e.key === "Enter") {
+            e.preventDefault()
+            e.stopPropagation()
+            e.target?.dispatchEvent(new MouseEvent("click"))
+        }
+    }}
+    role="button"
+    tabindex="0"
 >
     {#if card}
         <div class="card-header">
