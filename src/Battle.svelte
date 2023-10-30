@@ -256,7 +256,7 @@
         grid-template-areas:
             "graph cards"
             "screen cards"
-            "hand hand";
+            "hand cards";
         grid-template-columns: 1fr var(--term-width);
         grid-template-rows: 1fr var(--term-height);
     }
@@ -273,6 +273,7 @@
 
     #hand {
         grid-area: hand;
+        overflow: auto;
     }
 
     #cards {

@@ -22,7 +22,11 @@
 
 <div id="wrapper">
     {#if battle}
-        <h2>{$t`Health`}: {battle.health} – {$t`Energy`}: {energyString}</h2>
+        <h2>
+            {$t`Health`}: {battle.health} – {$t`Energy`}: {energyString} – {$t`Draw pile`}:
+            {battle.drawPile.length} – {$t`Discard pile`}: {battle.discardPile
+                .length}
+        </h2>
         <div class="cards">
             {#each battle.hand as card, index}
                 <CardSvelte

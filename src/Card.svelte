@@ -58,7 +58,7 @@
 <style>
     .slot {
         width: 10em;
-        height: 10em;
+        height: 13em;
         background: #aaa;
         border-radius: 1em;
         margin: 1em;
