@@ -199,17 +199,7 @@ class CommandEffect extends Effect {
     }
 
     apply(battle: Battle, _source: CardSource) {
-        this.command.onResolveCallback = (command) => {
-            battle.sideeffect(new CommandSideEffect(command.template))
-            battle.state = new PlayerTurnState()
-        }
-        if (this.command.placeholders.length === 0) {
-            this.command.onResolveCallback(this.command)
-        } else {
-            battle.state = new RequirePlaceholderState(
-                this.command.placeholders,
-            )
-        }
+        battle.runCommand(this.command)
     }
 }
 
@@ -252,10 +242,6 @@ class DeleteRandomEnemyEffect extends Effect {
         if (slotsWithCreature.length > 0) {
             let slotToDelete = randomPick(slotsWithCreature)[1] as number
             battle.kill(source.player, slotToDelete, source)
-        } else {
-            throw new Error(
-                "DeleteRandomEnemyEffect can only have a creature as a source.",
-            )
         }
     }
 }
@@ -326,6 +312,7 @@ enum CardID {
     AddAll,
     Remove,
     Restore,
+    RestoreAll,
     RestoreS,
     RestoreStaged,
     RestoreStagedS,
@@ -350,11 +337,13 @@ function allCards(): Record<CardID, Card> {
             Trigger.Played,
             new DeleteRandomEnemyEffect(),
         ),
-        [CardID.TimeSnail]: new CreatureCard(gt`Time Snail`, 1, 1, 1).addEffect(
-            Trigger.Dies,
-            new AddCardToHandEffect(CardID.TimeSnail),
-        ),
-        [CardID.CloneWarrior]: new CreatureCard(gt`Clone Warrior`, 4, 2, 5),
+        [CardID.TimeSnail]: new CreatureCard(gt`Time Snail`, 1, 1, 1),
+        [CardID.CloneWarrior]: new CreatureCard(
+            gt`Clone Warrior`,
+            4,
+            2,
+            5,
+        ).addEffect(Trigger.Dies, new AddCardToHandEffect(CardID.TimeSnail)),
         [CardID.MergeMonster]: new CreatureCard(gt`Merge Monster`, 4, 4, 4),
         [CardID.DetachedHead]: new CreatureCard(gt`Detached Head`, 0, 0, 2),
         [CardID.RubberDuck]: new CreatureCard(
@@ -385,6 +374,11 @@ function allCards(): Record<CardID, Card> {
             gt`Restore`,
             2,
             new Command("git restore SLOT"),
+        ),
+        [CardID.RestoreAll]: new CommandCard(
+            gt`Restore All`,
+            3,
+            new Command("git restore ."),
         ),
         [CardID.RestoreS]: new CommandCard(
             gt`Restore`,
@@ -459,6 +453,7 @@ function allCards(): Record<CardID, Card> {
             1,
             new DrawCardEffect(2),
         ),
+        // Card ideas: restore all
     }
 }
 
@@ -631,10 +626,15 @@ export class Adventure {
     constructor(public onNextEvent: (e: Battle | Decision | null) => void) {
         let cards = [
             CardID.TimeSnail,
-            CardID.TimeSnail,
-            CardID.HealthPotion,
-            CardID.DrawCard,
+            CardID.DetachedHead,
+            CardID.BlobEater,
             CardID.TagTroll,
+            CardID.Add,
+            CardID.Add,
+            CardID.Add,
+            CardID.AddAll,
+            CardID.Restore,
+            CardID.RestoreAll,
         ]
 
         this.deck = cards.map((id) => buildCard(id))
@@ -651,7 +651,7 @@ export class Adventure {
         this.state = null
 
         this.path = [
-            new BattleEvent(SnailEnemy),
+            //new BattleEvent(SnailEnemy),
             new DecisionEvent(),
             new BattleEvent(BluePrintEnemy),
             new DecisionEvent(),
@@ -691,10 +691,13 @@ export class Adventure {
     }
 
     startNewDecision() {
-        this.state = new Decision([randomCard(), randomCard()], (card) => {
-            this.deck.push(card)
-            this.enterNextEvent()
-        })
+        this.state = new Decision(
+            [randomCard(), randomCard(), randomCard()],
+            (card) => {
+                this.deck.push(card)
+                this.enterNextEvent()
+            },
+        )
     }
 }
 
@@ -830,19 +833,10 @@ export class Battle {
             this.state = new RequirePlaceholderState([placeholder])
         } else if (card instanceof CommandCard) {
             let command = new Command(card.command.template)
-            command.onResolveCallback = (command) => {
+            this.runCommand(command, () => {
                 this.log(`Played ${card.name}.`)
-                this.energy -= card.energy
-                this.sideeffect(new CommandSideEffect(command.template))
                 this.discardHandCard(i)
-                this.state = new PlayerTurnState()
-            }
-
-            if (command.placeholders.length == 0) {
-                command.onResolveCallback(command)
-            } else {
-                this.state = new RequirePlaceholderState(command.placeholders)
-            }
+            })
         } else if (card instanceof EffectCard) {
             this.energy -= card.energy
             this.log(`Played ${card.name}.`)
@@ -864,9 +858,25 @@ export class Battle {
         )
     }
 
-    endTurn() {
-        this.log("--- " + gt`You ended your turn` + " ---")
-        // Fight! Let creatures take damage. If there is no defense, damage goes to players.
+    runCommand(command: Command, onResolveCallback: () => void = () => {}) {
+        command.onResolveCallback = () => {
+            this.sideeffect(new CommandSideEffect(command.template))
+            onResolveCallback()
+            this.state = new PlayerTurnState()
+        }
+        if (command.placeholders.length === 0) {
+            command.onResolveCallback(command)
+        } else {
+            this.state = new RequirePlaceholderState(command.placeholders)
+        }
+    }
+
+    autoCommit() {
+        this.log(gt`Automatically creating a commit.`)
+        this.runCommand(new Command("git commit -m'Automatic commit'"))
+    }
+
+    fight() {
         for (let i = 0; i < this.slots.length; i++) {
             const playerCard = this.slots[i]
             const enemyCard = this.enemySlots[i]
@@ -919,8 +929,9 @@ export class Battle {
                 }
             }
         }
+    }
 
-        // Move enemy cards forward.
+    moveEnemyForward() {
         for (let i = 0; i < this.enemySlots.length; i++) {
             let upcomingCard = this.enemyUpcomingSlots[i]
             let card = this.enemySlots[i]
@@ -936,11 +947,21 @@ export class Battle {
                 )
             }
         }
+    }
 
-        // Let the enemy act.
+    endTurn() {
+        this.log("--- " + gt`You ended your turn` + " ---")
+
+        this.autoCommit()
+
+        this.fight()
+
+        this.moveEnemyForward()
+
         this.enemy.makeMove()
 
         this.drawCard()
+
         if (this.maxEnergy < 5) {
             this.maxEnergy += 1
         }

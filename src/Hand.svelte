@@ -39,7 +39,7 @@
         </div>
 
         <div class="button" on:click={endTurn}>
-            ✨ {$t`End turn`}
+            ✨ {$t`Commit!`}
         </div>
     {/if}
 </div>
