@@ -2,8 +2,8 @@
     import {Card, CreatureCard, CommandCard, EffectCard} from "./cards.ts"
     import {t} from "svelte-i18n-lingui"
 
-    export let card: Card | null
-    export let index: number | null = null
+    export let card: Card | null = null
+    export let index: number
     export let playable = false
     export let clickable = false
     export let hand = false
@@ -12,7 +12,7 @@
     $: $t, (card = card)
 
     function dragStart(e: DragEvent) {
-        if (index) {
+        if (index != null) {
             e.dataTransfer?.setData("text/plain", index.toString())
             console.log("drag", index)
         }
@@ -74,6 +74,7 @@
     }
     .card {
         background: white;
+        color: black;
         position: relative;
         user-select: none;
     }

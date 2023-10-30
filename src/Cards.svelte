@@ -13,6 +13,7 @@
         console.log("drop", slotIndex)
         e.preventDefault()
         const cardIndex = parseInt(e.dataTransfer?.getData("text/plain") ?? "")
+        console.log(`from ${cardIndex} to ${slotIndex}`)
         if (cardIndex >= 0 && cardIndex < battle.hand.length) {
             dispatch("drag", {cardIndex, slotIndex})
         }
@@ -43,26 +44,32 @@
             {/each}
         </div>
 
-        <h2>{$t`Enemy cards`} ({$t`enemy health`}: {battle.enemyHealth})</h2>
+        <div id="arena">
+            <h2>
+                {$t`Enemy cards`} ({$t`enemy health`}: {battle.enemyHealth})
+            </h2>
 
-        <div class="cards">
-            {#each battle.enemySlots as slot}
-                <CardSvelte card={slot} />
-            {/each}
-        </div>
+            <div class="cards">
+                {#each battle.enemySlots as slot}
+                    <CardSvelte card={slot} />
+                {/each}
+            </div>
 
-        <h2>{$t`Working directory`}</h2>
+            <div id="separator">⚡</div>
 
-        <div class="cards">
-            {#each battle.slots as slot, index}
-                <CardSvelte
-                    card={slot}
-                    {index}
-                    on:dragover={(e) => e.preventDefault()}
-                    on:drop={(e) => drop(e, index)}
-                    on:click={(e) => clickSlot(e, index)}
-                />
-            {/each}
+            <h2>{$t`Working directory`}</h2>
+
+            <div class="cards">
+                {#each battle.slots as slot, index}
+                    <CardSvelte
+                        card={slot}
+                        {index}
+                        on:dragover={(e) => e.preventDefault()}
+                        on:drop={(e) => drop(e, index)}
+                        on:click={(e) => clickSlot(e, index)}
+                    />
+                {/each}
+            </div>
         </div>
 
         <h2>{$t`Index`}</h2>
@@ -91,5 +98,36 @@
     .cards {
         display: flex;
         flex-wrap: wrap;
+    }
+    #arena {
+        background: #225cba;
+        padding: 0.5em;
+        border-radius: 2em;
+        color: white;
+        display: inline-block;
+    }
+    h2 {
+        margin-left: 1em;
+    }
+    #separator {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        font-size: 150%;
+    }
+
+    #separator::before,
+    #separator::after {
+        content: "";
+        flex: 1;
+        border-bottom: 3px solid white;
+    }
+
+    #separator:not(:empty)::before {
+        margin-right: 0.25em;
+    }
+
+    #separator:not(:empty)::after {
+        margin-left: 0.25em;
     }
 </style>
