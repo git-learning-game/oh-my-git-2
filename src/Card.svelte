@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {Card, CreatureCard, CommandCard} from "./cards.ts"
+    import {Card, CreatureCard, CommandCard, EffectCard} from "./cards.ts"
 
     export let card: Card | null
     export let index: number
@@ -38,6 +38,10 @@
         {:else if card instanceof CommandCard}
             <div class="card-body">
                 <code>{card.command.template}</code>
+            </div>
+        {:else if card instanceof EffectCard}
+            <div class="card-body">
+                {card.effectDescription()}
             </div>
         {/if}
     {/if}

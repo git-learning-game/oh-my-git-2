@@ -60,7 +60,7 @@ export class CreatureCard extends Card {
         return this
     }
 
-    triggerEffects(battle: Battle, trigger: Trigger, source: Source) {
+    triggerEffects(battle: Battle, trigger: Trigger, source: CardSource) {
         for (let [t, effect] of this.effects) {
             if (t === trigger) {
                 effect.apply(battle, source)
@@ -76,6 +76,20 @@ export class CommandCard extends Card {
         public command: Command,
     ) {
         super(name, energy)
+    }
+}
+
+export class EffectCard extends Card {
+    constructor(
+        name: string,
+        energy: number,
+        public effect: Effect,
+    ) {
+        super(name, energy)
+    }
+    effectDescription(): string {
+        let description = this.effect.description
+        return description.charAt(0).toUpperCase() + description.slice(1) + "."
     }
 }
 
@@ -114,8 +128,9 @@ class Command {
     constructor(public template: string) {
         console.log(`Creating command from template: ${template}`)
         this.placeholders = []
-        // convert each FILE or REF or STRING into a placeholder
-        template.split(" ").forEach((word) => {
+        let regex = new RegExp(Object.keys(placeholderTypes).join("|"), "g")
+        console.log(regex)
+        template.match(regex)?.forEach((word) => {
             if (Object.keys(placeholderTypes).includes(word)) {
                 this.placeholders.push(
                     new placeholderTypes[word](this.fulfill.bind(this)),
@@ -156,17 +171,16 @@ enum Trigger {
 
 abstract class Effect {
     constructor(public description: string) {}
-    abstract apply(battle: Battle, source: Source): void
+    abstract apply(battle: Battle, source: CardSource): void
 }
 
-class Source {}
-
-class CreatureSource extends Source {
+class CardSource {
     constructor(
         public player: boolean,
-        public slot: number,
-    ) {
-        super()
+        public card: Card,
+    ) {}
+    sourceDescription(): string {
+        return this.card.name
     }
 }
 
@@ -175,30 +189,24 @@ class DeleteRandomEnemyEffect extends Effect {
         super(gt`delete a random enemy`)
     }
 
-    apply(battle: Battle, source: Source) {
-        if (source instanceof CreatureSource) {
-            let targetSideCreatures = source.player
-                ? battle.enemySlots
-                : battle.slots
+    apply(battle: Battle, source: CardSource) {
+        let targetSideCreatures = source.player
+            ? battle.enemySlots
+            : battle.slots
 
-            let slotsWithCreature = (targetSideCreatures as CreatureCard[])
-                .map((card, i) => [card, i])
-                .filter((card) => card[0] !== null)
-            if (slotsWithCreature.length > 0) {
-                let slotToDelete = randomPick(slotsWithCreature)[1] as number
-                let card = targetSideCreatures[slotToDelete]
-                targetSideCreatures[slotToDelete] = null
-                let sourceCreature = source.player
-                    ? battle.slots[source.slot]
-                    : battle.enemySlots[source.slot]
-                console.log({sourceCreature, card})
-                if (sourceCreature && card) {
-                    battle.log(`${sourceCreature.name} killed ${card.name}.`)
-                } else {
-                    throw new Error(
-                        "Source or target of a random enemy deletion was null.",
-                    )
-                }
+        let slotsWithCreature = (targetSideCreatures as CreatureCard[])
+            .map((card, i) => [card, i])
+            .filter((card) => card[0] !== null)
+        if (slotsWithCreature.length > 0) {
+            let slotToDelete = randomPick(slotsWithCreature)[1] as number
+            let card = targetSideCreatures[slotToDelete]
+            targetSideCreatures[slotToDelete] = null
+            if (card) {
+                battle.log(`${source.sourceDescription()} killed ${card.name}.`)
+            } else {
+                throw new Error(
+                    "Source or target of a random enemy deletion was null.",
+                )
             }
         } else {
             throw new Error(
@@ -218,17 +226,11 @@ class DrawCardEffect extends Effect {
         )
     }
 
-    apply(battle: Battle, source: Source) {
-        if (source instanceof CreatureSource) {
-            if (source.player) {
-                for (let i = 0; i < this.count; i++) {
-                    battle.drawCard()
-                }
+    apply(battle: Battle, source: CardSource) {
+        if (source.player) {
+            for (let i = 0; i < this.count; i++) {
+                battle.drawCard()
             }
-        } else {
-            throw new Error(
-                "DrawCardEffect can only have a creature as a source.",
-            )
         }
     }
 }
@@ -241,34 +243,21 @@ class GiveFriendsEffect extends Effect {
         super(gt`give all friends +${attack.toString()}/${health.toString()}`)
     }
 
-    apply(battle: Battle, source: Source) {
-        if (source instanceof CreatureSource) {
-            let targetSideCreatures = source.player
-                ? battle.slots
-                : battle.enemySlots
-            for (let i = 0; i < targetSideCreatures.length; i++) {
-                let card = targetSideCreatures[i]
-                if (card) {
-                    card.attack += this.attack
-                    card.health += this.health
-                    let sourceCreature = source.player
-                        ? battle.slots[source.slot]
-                        : battle.enemySlots[source.slot]
-                    if (sourceCreature) {
-                        battle.log(
-                            `${sourceCreature.name} gave ${card.name} +${this.attack}/${this.health}.`,
-                        )
-                    } else {
-                        throw new Error(
-                            "Source of a GiveFriendsEffect was null.",
-                        )
-                    }
-                }
+    apply(battle: Battle, source: CardSource) {
+        let targetSideCreatures = source.player
+            ? battle.slots
+            : battle.enemySlots
+        for (let i = 0; i < targetSideCreatures.length; i++) {
+            let card = targetSideCreatures[i]
+            if (card) {
+                card.attack += this.attack
+                card.health += this.health
+                battle.log(
+                    `${source.sourceDescription()} gave ${card.name} +${
+                        this.attack
+                    }/${this.health}.`,
+                )
             }
-        } else {
-            throw new Error(
-                "GiveFriendsEffect can only have a creature as a source.",
-            )
         }
     }
 }
@@ -299,6 +288,8 @@ enum CardID {
     Stash,
     StashPop,
     Merge,
+    HealthPotion,
+    DrawCard,
 }
 
 function allCards(): Record<CardID, Card> {
@@ -397,7 +388,19 @@ function allCards(): Record<CardID, Card> {
             gt`Merge`,
             2,
             new Command("git merge REF"),
-        ), // TODO: Allow branch targets
+        ),
+        [CardID.HealthPotion]: new CommandCard(
+            gt`Health potion`,
+            1,
+            new Command(
+                `slot=SLOT; health=$(cat $slot | grep health | cut -d':' -f2); health=$((health+2)); sed -i "s/health: .*/health: $health/" $slot`,
+            ),
+        ),
+        [CardID.DrawCard]: new EffectCard(
+            gt`Library`,
+            1,
+            new DrawCardEffect(2),
+        ),
     }
 }
 
@@ -571,21 +574,26 @@ export class Adventure {
         let cards = [
             CardID.TimeSnail,
             CardID.TimeSnail,
-            CardID.Branch,
-            CardID.Checkout,
-            CardID.CommitAll,
+            CardID.TimeSnail,
+            CardID.HealthPotion,
+            CardID.DrawCard,
+            CardID.DrawCard,
+            CardID.DrawCard,
+            CardID.DrawCard,
+            CardID.DrawCard,
+            CardID.DrawCard,
         ]
 
-        //this.deck = cards.map((id) => buildCard(id))
+        this.deck = cards.map((id) => buildCard(id))
 
         //let deckSize = 10
         //for (let i = 0; i < deckSize; i++) {
         //    this.deck.push(randomCard())
         //}
 
-        for (let card of Object.values(allCards())) {
-            this.deck.push(cloneDeep(card))
-        }
+        //for (let card of Object.values(allCards())) {
+        //    this.deck.push(cloneDeep(card))
+        //}
 
         this.state = null
 
@@ -760,7 +768,7 @@ export class Battle {
                 newCard.triggerEffects(
                     this,
                     Trigger.Played,
-                    new CreatureSource(true, slot - 1),
+                    new CardSource(true, this.slots[slot - 1] as CreatureCard),
                 )
                 this.discardHandCard(i)
                 this.state = new PlayerTurnState()
@@ -770,7 +778,7 @@ export class Battle {
         } else if (card instanceof CommandCard) {
             let command = new Command(card.command.template)
             command.onResolveCallback = (command) => {
-                console.log("subtracting energy")
+                this.log(`Played ${card.name}.`)
                 this.energy -= card.energy
                 this.sideeffect(new CommandSideEffect(command.template))
                 this.discardHandCard(i)
@@ -782,6 +790,11 @@ export class Battle {
             } else {
                 this.state = new RequirePlaceholderState(command.placeholders)
             }
+        } else if (card instanceof EffectCard) {
+            this.energy -= card.energy
+            this.log(`Played ${card.name}.`)
+            card.effect.apply(this, new CardSource(true, card))
+            this.discardHandCard(i)
         } else {
             throw new Error(`Unknown card type: ${card}`)
         }
@@ -870,7 +883,7 @@ export class Battle {
                 upcomingCard.triggerEffects(
                     this,
                     Trigger.Played,
-                    new CreatureSource(false, i),
+                    new CardSource(false, upcomingCard),
                 )
             }
         }
