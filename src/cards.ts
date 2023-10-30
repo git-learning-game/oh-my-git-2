@@ -44,11 +44,14 @@ export class CreatureCard extends Card {
     effectDescription(): string {
         const triggerDescriptions: Record<Trigger, string> = {
             [Trigger.Played]: gt`when this card is played`,
+            [Trigger.Dies]: gt`when this card dies`,
         }
 
         let description = ""
         for (let [trigger, effect] of this.effects) {
-            let newEffect = `${triggerDescriptions[trigger]}, ${effect.description}.`
+            let newEffect = `${
+                triggerDescriptions[trigger]
+            }, ${effect.getDescription()}.`
             description +=
                 newEffect.charAt(0).toUpperCase() + newEffect.slice(1)
         }
@@ -88,7 +91,7 @@ export class EffectCard extends Card {
         super(name, energy)
     }
     effectDescription(): string {
-        let description = this.effect.description
+        let description = this.effect.getDescription()
         return description.charAt(0).toUpperCase() + description.slice(1) + "."
     }
 }
@@ -167,6 +170,7 @@ class Command {
 
 enum Trigger {
     Played,
+    Dies,
 }
 
 class CardSource {
@@ -180,13 +184,18 @@ class CardSource {
 }
 
 abstract class Effect {
-    constructor(public description: string) {}
+    constructor() {}
+    abstract getDescription(): string
     abstract apply(battle: Battle, source: CardSource): void
 }
 
 class CommandEffect extends Effect {
     constructor(public command: Command) {
-        super(gt`run "${command.template}"`)
+        super()
+    }
+
+    getDescription(): string {
+        return gt`run "${this.command.template}"`
     }
 
     apply(battle: Battle, _source: CardSource) {
@@ -204,9 +213,32 @@ class CommandEffect extends Effect {
     }
 }
 
+class AddCardToHandEffect extends Effect {
+    constructor(public cardID: CardID) {
+        super()
+    }
+
+    getDescription(): string {
+        return gt`add a ${allCards()[this.cardID].name} to your hand`
+    }
+
+    apply(battle: Battle, source: CardSource) {
+        if (source.player) {
+            battle.hand.push(buildCard(this.cardID))
+            battle.log(
+                gt`Added a ${allCards()[this.cardID].name} to your hand.`,
+            )
+        }
+    }
+}
+
 class DeleteRandomEnemyEffect extends Effect {
     constructor() {
-        super(gt`delete a random enemy`)
+        super()
+    }
+
+    getDescription(): string {
+        return gt`delete a random enemy`
     }
 
     apply(battle: Battle, source: CardSource) {
@@ -219,15 +251,7 @@ class DeleteRandomEnemyEffect extends Effect {
             .filter((card) => card[0] !== null)
         if (slotsWithCreature.length > 0) {
             let slotToDelete = randomPick(slotsWithCreature)[1] as number
-            let card = targetSideCreatures[slotToDelete]
-            targetSideCreatures[slotToDelete] = null
-            if (card) {
-                battle.log(`${source.sourceDescription()} killed ${card.name}.`)
-            } else {
-                throw new Error(
-                    "Source or target of a random enemy deletion was null.",
-                )
-            }
+            battle.kill(source.player, slotToDelete, source)
         } else {
             throw new Error(
                 "DeleteRandomEnemyEffect can only have a creature as a source.",
@@ -238,12 +262,14 @@ class DeleteRandomEnemyEffect extends Effect {
 
 class DrawCardEffect extends Effect {
     constructor(public count: number) {
-        super(
-            gPlural(count, {
-                one: "draw a card",
-                other: "draw # cards",
-            }),
-        )
+        super()
+    }
+
+    getDescription(): string {
+        return gPlural(this.count, {
+            one: "draw a card",
+            other: "draw # cards",
+        })
     }
 
     apply(battle: Battle, source: CardSource) {
@@ -260,7 +286,11 @@ class GiveFriendsEffect extends Effect {
         public attack: number,
         public health: number,
     ) {
-        super(gt`give all friends +${attack.toString()}/${health.toString()}`)
+        super()
+    }
+
+    getDescription(): string {
+        return gt`give all friends +${this.attack.toString()}/${this.health.toString()}`
     }
 
     apply(battle: Battle, source: CardSource) {
@@ -320,7 +350,10 @@ function allCards(): Record<CardID, Card> {
             Trigger.Played,
             new DeleteRandomEnemyEffect(),
         ),
-        [CardID.TimeSnail]: new CreatureCard(gt`Time Snail`, 1, 1, 1),
+        [CardID.TimeSnail]: new CreatureCard(gt`Time Snail`, 1, 1, 1).addEffect(
+            Trigger.Dies,
+            new AddCardToHandEffect(CardID.TimeSnail),
+        ),
         [CardID.CloneWarrior]: new CreatureCard(gt`Clone Warrior`, 4, 2, 5),
         [CardID.MergeMonster]: new CreatureCard(gt`Merge Monster`, 4, 4, 4),
         [CardID.DetachedHead]: new CreatureCard(gt`Detached Head`, 0, 0, 2),
@@ -599,7 +632,6 @@ export class Adventure {
         let cards = [
             CardID.TimeSnail,
             CardID.TimeSnail,
-            CardID.TimeSnail,
             CardID.HealthPotion,
             CardID.DrawCard,
             CardID.TagTroll,
@@ -858,14 +890,10 @@ export class Battle {
                     }.`,
                 )
                 if (playerCard.health <= 0) {
-                    this.slots[i] = null
-                    this.log(gt`Your ${playerCard.name} died.`)
-                } else {
-                    let fileContent = playerCard.stringify()
+                    this.kill(true, i, new CardSource(true, enemyCard))
                 }
                 if (enemyCard.health <= 0) {
-                    this.enemySlots[i] = null
-                    this.log(gt`Enemy ${enemyCard.name} died.`)
+                    this.kill(false, i, new CardSource(false, playerCard))
                 }
             } else if (playerCard) {
                 // Only the player has a card in this slot. It attacks the enemy player.
@@ -920,6 +948,12 @@ export class Battle {
     }
 
     drawCard() {
+        if (this.drawPile.length === 0 && this.discardPile.length === 0) {
+            this.log(
+                gt`Tried to draw a card, but both draw and discard pile are empty.`,
+            )
+            return
+        }
         if (this.drawPile.length === 0) {
             this.drawPile = this.discardPile
             shuffle(this.drawPile)
@@ -930,6 +964,24 @@ export class Battle {
         if (card) {
             this.hand.push(card)
             this.log(gt`You drew ${card.name}.`)
+        }
+    }
+
+    kill(player: boolean, slot: number, source: CardSource) {
+        let targetSideCreatures = player ? this.slots : this.enemySlots
+        let card = targetSideCreatures[slot]
+        if (card) {
+            card.triggerEffects(
+                this,
+                Trigger.Dies,
+                new CardSource(player, card),
+            )
+            targetSideCreatures[slot] = null
+            this.log(`${source.sourceDescription()} killed ${card.name}.`)
+        } else {
+            throw new Error(
+                "Source or target of a random enemy deletion was null.",
+            )
         }
     }
 
