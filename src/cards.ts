@@ -169,11 +169,6 @@ enum Trigger {
     Played,
 }
 
-abstract class Effect {
-    constructor(public description: string) {}
-    abstract apply(battle: Battle, source: CardSource): void
-}
-
 class CardSource {
     constructor(
         public player: boolean,
@@ -181,6 +176,31 @@ class CardSource {
     ) {}
     sourceDescription(): string {
         return this.card.name
+    }
+}
+
+abstract class Effect {
+    constructor(public description: string) {}
+    abstract apply(battle: Battle, source: CardSource): void
+}
+
+class CommandEffect extends Effect {
+    constructor(public command: Command) {
+        super(gt`run "${command.template}"`)
+    }
+
+    apply(battle: Battle, _source: CardSource) {
+        this.command.onResolveCallback = (command) => {
+            battle.sideeffect(new CommandSideEffect(command.template))
+            battle.state = new PlayerTurnState()
+        }
+        if (this.command.placeholders.length === 0) {
+            this.command.onResolveCallback(this.command)
+        } else {
+            battle.state = new RequirePlaceholderState(
+                this.command.placeholders,
+            )
+        }
     }
 }
 
@@ -271,6 +291,7 @@ enum CardID {
     DetachedHead,
     RubberDuck,
     CollabCentaur,
+    TagTroll,
     Add,
     AddAll,
     Remove,
@@ -315,6 +336,10 @@ function allCards(): Record<CardID, Card> {
             1,
             1,
         ).addEffect(Trigger.Played, new GiveFriendsEffect(1, 1)),
+        [CardID.TagTroll]: new CreatureCard(gt`Tag Troll`, 2, 3, 1).addEffect(
+            Trigger.Played,
+            new CommandEffect(new Command("git tag $RANDOM")),
+        ),
         //new CommandCard(gt`Init`, 0, new Command("git init")),
         [CardID.Add]: new CommandCard(gt`Add`, 1, new Command("git add SLOT")),
         [CardID.AddAll]: new CommandCard(
@@ -577,11 +602,7 @@ export class Adventure {
             CardID.TimeSnail,
             CardID.HealthPotion,
             CardID.DrawCard,
-            CardID.DrawCard,
-            CardID.DrawCard,
-            CardID.DrawCard,
-            CardID.DrawCard,
-            CardID.DrawCard,
+            CardID.TagTroll,
         ]
 
         this.deck = cards.map((id) => buildCard(id))

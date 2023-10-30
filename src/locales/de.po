@@ -13,59 +13,59 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: Poedit 3.3.2\n"
 
-#: src/cards.ts:797
+#: src/cards.ts:874
 msgid "{0} dealt {1} damage to the enemy player."
 msgstr "{0} fügte dem gegnerischen Spieler {1} Schaden zu."
 
-#: src/cards.ts:214
+#: src/cards.ts:242
 msgid "{num, plural, one {draw a card} other {draw # cards}}"
 msgstr "{num, plural, one {ziehe eine Karte} other {ziehe # Karten}}"
 
-#: src/cards.ts:321
+#: src/cards.ts:344
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: src/cards.ts:323
+#: src/cards.ts:346
 msgid "Add all"
 msgstr "Alle hinzufügen"
 
-#: src/cards.ts:300
+#: src/cards.ts:319
 msgid "Blob Eater"
 msgstr "Blobfresser"
 
-#: src/cards.ts:351
+#: src/cards.ts:398
 msgid "Branch"
 msgstr "Branch"
 
-#: src/cards.ts:361
+#: src/cards.ts:408
 msgid "Checkout"
 msgstr "Checkout"
 
-#: src/cards.ts:305
+#: src/cards.ts:324
 msgid "Clone Warrior"
 msgstr "Klonkrieger"
 
-#: src/cards.ts:315
+#: src/cards.ts:334
 msgid "Collab Centaur"
 msgstr "Zusammenarbeitszentaur"
 
-#: src/cards.ts:334
+#: src/cards.ts:372
 msgid "Commit"
 msgstr "Committen"
 
-#: src/cards.ts:339
+#: src/cards.ts:377
 msgid "Commit all"
 msgstr "Alles committen"
 
-#: src/cards.ts:344
+#: src/cards.ts:382
 msgid "Copy"
 msgstr "Kopieren"
 
-#: src/cards.ts:175
+#: src/cards.ts:209
 msgid "delete a random enemy"
 msgstr "lösche einen zufälligen Gegner"
 
-#: src/cards.ts:307
+#: src/cards.ts:326
 msgid "Detached Head"
 msgstr "Abgetrennter Kopf"
 
@@ -73,43 +73,51 @@ msgstr "Abgetrennter Kopf"
 msgid "End turn"
 msgstr "Zug beenden"
 
-#: src/cards.ts:776
+#: src/cards.ts:845
 msgid "Enemy {0} dealt {1} damage to {2}."
 msgstr "Gegner {0} fügte {2} {1} Schaden zu."
 
-#: src/cards.ts:806
+#: src/cards.ts:885
 msgid "Enemy {0} dealt {1} damage to you."
 msgstr "Gegner {0} fügte dir {1} Schaden zu."
 
-#: src/cards.ts:791
+#: src/cards.ts:868
 msgid "Enemy {0} died."
 msgstr "Gegner {0} starb."
 
-#: src/Cards.svelte:34
+#: src/cards.ts:831
+msgid "Enemy announced {0} at slot {1}."
+msgstr "Der Gegner hat {0} auf Slot {1} angekündigt."
+
+#: src/Cards.svelte:42
 msgid "Enemy cards"
 msgstr "Gegnerische Karten"
 
-#: src/Cards.svelte:34
+#: src/Cards.svelte:42
 msgid "enemy health"
 msgstr "Gesundheit des Gegners"
 
 #: src/cards.ts:758
-msgid "Enemy played {0} to slot {1}."
-msgstr "Gegner spielte {0} auf Slot {1}."
+#~ msgid "Enemy played {0} to slot {1}."
+#~ msgstr "Gegner spielte {0} auf Slot {1}."
 
 #: src/Hand.svelte:21
 msgid "Energy"
 msgstr "Energie"
 
+#: src/Battle.svelte:31
+msgid "Enter text: "
+msgstr "Gib Text ein: "
+
 #: src/Cards.svelte:24
 msgid "Event log"
 msgstr "Ereignisprotokoll"
 
-#: src/cards.ts:241
+#: src/cards.ts:263
 msgid "give all friends +{0}/{1}"
 msgstr "gib allen Freunden +{0}/{1}"
 
-#: src/cards.ts:299
+#: src/cards.ts:318
 msgid "Graph Gnome"
 msgstr "Graphgnom"
 
@@ -117,15 +125,31 @@ msgstr "Graphgnom"
 msgid "Health"
 msgstr "Gesundheit"
 
-#: src/Cards.svelte:61
+#: src/cards.ts:418
+msgid "Health potion"
+msgstr "Heiltrank"
+
+#: src/Cards.svelte:64
 msgid "Index"
 msgstr "Index"
 
-#: src/cards.ts:306
+#: src/cards.ts:425
+msgid "Library"
+msgstr "Bibliothek"
+
+#: src/cards.ts:413
+msgid "Merge"
+msgstr "Merge"
+
+#: src/cards.ts:325
 msgid "Merge Monster"
 msgstr "Merge-Monster"
 
-#: src/cards.ts:711
+#: src/cards.ts:387
+msgid "Move"
+msgstr "Verschieben"
+
+#: src/cards.ts:778
 msgid "Not enough energy to play {0}."
 msgstr "Nicht genug Energie, um {0} zu spielen."
 
@@ -133,67 +157,105 @@ msgstr "Nicht genug Energie, um {0} zu spielen."
 msgid "Pick a card!"
 msgstr "Wähle eine Karte!"
 
-#: src/cards.ts:721
+#: src/cards.ts:788
 msgid "Played {0} to slot {1}."
-msgstr "Du spieltest {0} auf Slot {1}."
+msgstr "Du hast {0} auf Slot {1} gespielt."
 
-#: src/cards.ts:327
+#: src/cards.ts:393
+msgid "Pop stash"
+msgstr "Stash poppen"
+
+#: src/cards.ts:350
 msgid "Remove"
 msgstr "Entfernen"
 
-#: src/cards.ts:329
+#: src/cards.ts:352
+#: src/cards.ts:357
 msgid "Restore"
 msgstr "Wiederherstellen"
 
-#: src/cards.ts:309
+#: src/cards.ts:362
+#: src/cards.ts:367
+msgid "Restore staged"
+msgstr "Index wiederherstellen"
+
+#: src/cards.ts:328
 msgid "Rubber Duck"
 msgstr "Gummiente"
 
+#: src/cards.ts:189
+msgid "run \"{0}\""
+msgstr "führe \"{0}\" aus"
+
 #: src/Battle.svelte:26
-msgid "Select {0} targets"
-msgstr "Wähle {0} Ziele"
+#~ msgid "Select {0} targets"
+#~ msgstr "Wähle {0} Ziele"
+
+#: src/Battle.svelte:28
+msgid "Select ref"
+msgstr "Wähle Ref"
+
+#: src/Battle.svelte:25
+msgid "Select slot"
+msgstr "Wähle Slot"
 
 #: src/Battle.svelte:23
-msgid "Select target"
-msgstr "Wähle Ziel"
+#~ msgid "Select target"
+#~ msgstr "Wähle Ziel"
 
-#: src/cards.ts:829
+#: src/cards.ts:927
 msgid "Shuffled discard pile into draw pile."
 msgstr "Ablagestapel wurde in Zugstapel gemischt."
 
-#: src/cards.ts:356
+#: src/cards.ts:391
+msgid "Stash"
+msgstr "Stash"
+
+#: src/cards.ts:403
 msgid "Switch"
 msgstr "Switch"
 
-#: src/cards.ts:304
+#: src/cards.ts:339
+msgid "Tag Troll"
+msgstr "Tag-Troll"
+
+#: src/cards.ts:323
 msgid "Time Snail"
 msgstr "Zeitschnecke"
 
-#: src/Battle.svelte:30
+#: src/Battle.svelte:34
+msgid "Unknown placeholder"
+msgstr "Unbekannter Platzhalter"
+
+#: src/Battle.svelte:38
 msgid "Unknown state :("
 msgstr "Unbekannter Zustand :("
+
+#: src/Cards.svelte:34
+msgid "Upcoming enemy cards"
+msgstr "Angekündigte gegnerische Karten"
 
 #: src/cards.ts:46
 msgid "when this card is played"
 msgstr "wenn diese Karte gespielt wird"
 
-#: src/Cards.svelte:47
+#: src/Cards.svelte:50
 msgid "Working directory"
 msgstr "Arbeitsverzeichnis"
 
-#: src/cards.ts:834
+#: src/cards.ts:932
 msgid "You drew {0}."
 msgstr "Du hast {0} gezogen."
 
-#: src/cards.ts:767
+#: src/cards.ts:836
 msgid "You ended your turn"
 msgstr "Du hast deinen Zug beendet"
 
-#: src/cards.ts:781
+#: src/cards.ts:854
 msgid "Your {0} dealt {1} damage to {2}."
 msgstr "Dein {0} hat {2} {1} Schaden zugefügt."
 
-#: src/cards.ts:785
+#: src/cards.ts:862
 msgid "Your {0} died."
 msgstr "Dein {0} starb."
 
@@ -201,6 +263,6 @@ msgstr "Dein {0} starb."
 msgid "Your current deck"
 msgstr "Dein aktuelles Deck"
 
-#: src/Battle.svelte:19
+#: src/Battle.svelte:20
 msgid "Your turn"
 msgstr "Dein Zug"
