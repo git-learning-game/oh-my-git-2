@@ -1,11 +1,19 @@
 <script lang="ts">
     import {Card, CreatureCard, CommandCard, EffectCard} from "./cards.ts"
+    import {t} from "svelte-i18n-lingui"
 
     export let card: Card | null
     export let index: number
     export let playable = false
     export let clickable = false
     export let hand = false
+
+    // When language is switched, re-render card.
+    $: {
+        if ($t) {
+            card = card
+        }
+    }
 
     function dragStart(e: DragEvent) {
         e.dataTransfer?.setData("text/plain", index.toString())
@@ -27,7 +35,7 @@
 >
     {#if card}
         <div class="card-header">
-            <h3>({card.energy}) {card.name}</h3>
+            <h3>({card.energy}) {card.getName()}</h3>
         </div>
         {#if card instanceof CreatureCard}
             <div class="card-body">
