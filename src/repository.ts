@@ -396,6 +396,12 @@ export class Repository {
 
                         object.label = oid.slice(0, 4)
                         this.objects[oid] = object
+                    } else if (type == GitNodeType.Tree) {
+                        object = this.buildTree(oid, content)
+                        object.tooltip = content
+
+                        object.label = oid.slice(0, 4)
+                        this.objects[oid] = object
                     } else if (type == GitNodeType.Blob) {
                         object = new GitBlob(oid, content)
                         object.tooltip = content

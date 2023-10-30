@@ -11,6 +11,7 @@ import {
 } from "./repository"
 
 import * as d3 from "d3"
+import * as YAML from "yaml"
 
 export class Graph {
     repo: Repository
@@ -58,9 +59,9 @@ export class Graph {
                 "link",
                 d3.forceLink().distance((d: any) => {
                     if (d.label !== undefined) {
-                        return 100
+                        return 150
                     } else {
-                        return 50
+                        return 100
                     }
                 }),
             )
@@ -219,12 +220,11 @@ export class Graph {
                 for (let parent of (node as GitCommit).parents) {
                     tryAddLink(node.id(), parent)
                 }
-                //tryAddLink(node.id(), (node as GitCommit).tree)
-                /* } else if (node instanceof GitTree) {
+                tryAddLink(node.id(), (node as GitCommit).tree)
+            } else if (node instanceof GitTree) {
                 for (let entry of (node as GitTree).entries) {
                     tryAddLink(node.id(), entry.oid, entry.name)
                 }
-            } */
             } else if (node instanceof GitRef) {
                 let target = this.repo.resolve((node as GitRef).target)
                 if (target !== undefined) {
@@ -316,7 +316,13 @@ export class Graph {
                         .attr("width", 600)
                         .attr("height", 1000)
                         .append("xhtml:p")
-                        .text((d) => d.tooltip)
+                        .text((d) => {
+                            if (d instanceof GitCommit) {
+                                return this.buildCommitTooltip(d)
+                            } else {
+                                return d.tooltip
+                            }
+                        })
                         .style("color", "black")
                         .style("white-space", "pre")
                         .style("background-color", "rgba(255, 255, 255, 0.8)")
@@ -383,5 +389,25 @@ export class Graph {
         )
 
         this.simulation.alpha(0.3).restart()
+    }
+
+    buildCommitTooltip(commit: GitCommit): string {
+        let lines = []
+        // 1. find tree object
+        let tree = this.repo.resolve(commit.tree)
+        if (tree !== undefined) {
+            // 2. iterate through entries
+            for (let entry of (tree as GitTree).entries) {
+                let blob = this.repo.resolve(entry.oid)
+                if (blob !== undefined) {
+                    let content = (blob as GitBlob).content
+                    let yaml = YAML.parse(content)
+                    lines.push(
+                        `${entry.name}: ${yaml.name} (${yaml.attack}/${yaml.health})`,
+                    )
+                }
+            }
+        }
+        return lines.join("\n")
     }
 }

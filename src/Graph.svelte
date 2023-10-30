@@ -1,25 +1,34 @@
 <script lang="ts">
+    import {onMount} from "svelte"
     import {Repository} from "./repository.ts"
     import {Graph} from "./graph.ts"
     import {createEventDispatcher} from "svelte"
     const dispatch = createEventDispatcher()
 
-    let repo: Repository
+    export let repo: Repository
 
     let graphDiv: HTMLDivElement
 
     let graph: Graph
 
-    export const setRepo = (newRepo: Repository) => {
-        repo = newRepo
-        graph = new Graph(repo, graphDiv)
-        graph.onClickNode = (node) => {
-            dispatch("clickNode", {node})
+    $: {
+        if (repo) {
+            graph = new Graph(repo, graphDiv)
+            graph.onClickNode = (node) => {
+                dispatch("clickNode", {node})
+            }
+            update()
         }
     }
 
+    onMount(() => {
+        update()
+    })
+
     export const update = () => {
-        graph.update()
+        if (graph) {
+            graph.update()
+        }
     }
 
     export let refreshing = true

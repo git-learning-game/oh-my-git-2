@@ -58,9 +58,14 @@
         shell.setScreen(terminal.getTerminalDiv())
         await shell.enterNewGitRepo()
         repo = new Repository("/root/repo", shell)
-        graph.setRepo(repo)
         await update()
         battle.onSideEffect(realizeEffect)
+
+        window.addEventListener("keydown", (e) => {
+            if (e.key == "Enter") {
+                updateACoupleOfTimes()
+            }
+        })
     })
 
     async function update() {
@@ -205,6 +210,7 @@
 <div id="grid">
     <div id="graph">
         <Graph
+            {repo}
             bind:this={graph}
             on:clickNode={clickNode}
             on:dragToNode={dragToNode}
