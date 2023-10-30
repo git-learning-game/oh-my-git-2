@@ -213,11 +213,11 @@ abstract class Effect {
         }
     }
 
-    describeAmount(value: NumericValue, unit: string): string {
+    describeAmount(value: NumericValue, unit: string = ""): string {
         if (typeof value === "number") {
             return `${value.toString()} ${unit}`
         } else {
-            return gt`a number of ${unit} equal to ${value.getDescription()}`
+            return value.getDescription()
         }
     }
 }
@@ -228,10 +228,7 @@ class HealPlayerEffect extends Effect {
     }
 
     getDescription(): string {
-        return gt`heal yourself for ${this.describeAmount(
-            this.amount,
-            "points",
-        )}`
+        return gt`heal yourself by ${this.describeAmount(this.amount)}`
     }
 
     async apply(battle: Battle, _source: CardSource) {
@@ -317,6 +314,30 @@ class DrawCardEffect extends Effect {
                 battle.drawCard()
             }
         }
+    }
+}
+
+class GiveSelfEffect extends Effect {
+    constructor(
+        public attack: NumericValue,
+        public health: NumericValue,
+    ) {
+        super()
+    }
+
+    getDescription(): string {
+        return gt`increase its own attack by ${this.describeAmount(
+            this.attack,
+        )} and health by ${this.describeAmount(this.health)}`
+    }
+
+    async apply(battle: Battle, source: CardSource) {
+        let a = await this.eval(this.attack, battle)
+        let h = await this.eval(this.health, battle)
+        let card = source.card as CreatureCard
+        card.attack += a
+        card.health += h
+        battle.log(`${source.sourceDescription()} increased by +${a}/${h}.`)
     }
 }
 
@@ -417,6 +438,12 @@ function allCards(): Record<CardID, Card> {
             2,
             1,
             2,
+        ).addEffect(
+            Trigger.Played,
+            new GiveSelfEffect(
+                new DynamicNumericValue(DynamicValueType.CommitCount),
+                0,
+            ),
         ),
         [CardID.BlobEater]: new CreatureCard(
             CardID.BlobEater,
@@ -778,10 +805,10 @@ export class Adventure {
     constructor(public onNextEvent: (e: Battle | Decision | null) => void) {
         let cards = [
             CardID.TimeSnail,
-            CardID.DetachedHead,
             CardID.Add,
             CardID.Restore,
             CardID.Bandaid,
+            CardID.GraphGnome,
         ]
 
         this.deck = cards.map((id) => buildCard(id))
