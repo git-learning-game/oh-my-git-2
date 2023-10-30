@@ -215,7 +215,7 @@ abstract class Effect {
 
     describeAmount(value: NumericValue, unit: string = ""): string {
         if (typeof value === "number") {
-            return `${value.toString()} ${unit}`
+            return `${value} ${unit}`
         } else {
             return value.getDescription()
         }
@@ -235,7 +235,7 @@ class HealPlayerEffect extends Effect {
         let amount = await this.eval(this.amount, battle)
         console.log(`Healing player for ${amount}`)
         battle.health += amount
-        battle.log(gt`Healed yourself for ${amount.toString()} points.`)
+        battle.log(gt`Healed yourself for ${amount} points.`)
     }
 }
 
@@ -350,7 +350,7 @@ class GiveFriendsEffect extends Effect {
     }
 
     getDescription(): string {
-        return gt`give all friends +${this.attack.toString()}/${this.health.toString()}`
+        return gt`give all friends +${this.attack}/${this.health}`
     }
 
     async apply(battle: Battle, source: CardSource) {
@@ -1050,11 +1050,7 @@ export class Battle {
             throw new Error(`Card ${cardID} is not a creature card.`)
         }
         this.enemyUpcomingSlots[slot] = card
-        this.log(
-            gt`Enemy announced ${card.getName()} at slot ${(
-                slot + 1
-            ).toString()}.`,
-        )
+        this.log(gt`Enemy announced ${card.getName()} at slot ${slot + 1}.`)
     }
 
     runCommand(command: Command, onResolveCallback: () => void = () => {}) {
@@ -1083,12 +1079,16 @@ export class Battle {
                 // Both players have a card in this slot. They fight!
                 playerCard.health -= enemyCard.attack
                 this.log(
-                    gt`Enemy ${enemyCard.getName()} dealt ${enemyCard.attack.toString()} damage to ${playerCard.getName()}.`,
+                    gt`Enemy ${enemyCard.getName()} dealt ${
+                        enemyCard.attack
+                    } damage to ${playerCard.getName()}.`,
                 )
 
                 enemyCard.health -= playerCard.attack
                 this.log(
-                    gt`Your ${playerCard.getName()} dealt ${playerCard.attack.toString()} damage to ${enemyCard.getName()}.`,
+                    gt`Your ${playerCard.getName()} dealt ${
+                        playerCard.attack
+                    } damage to ${enemyCard.getName()}.`,
                 )
                 if (playerCard.health <= 0) {
                     this.kill(true, i, new CardSource(true, enemyCard))
@@ -1100,7 +1100,9 @@ export class Battle {
                 // Only the player has a card in this slot. It attacks the enemy player.
                 this.enemyHealth -= playerCard.attack
                 this.log(
-                    gt`${playerCard.getName()} dealt ${playerCard.attack.toString()} damage to the enemy player.`,
+                    gt`${playerCard.getName()} dealt ${
+                        playerCard.attack
+                    } damage to the enemy player.`,
                 )
                 if (this.enemyHealth < 1) {
                     this.onBattleFinished(true)
@@ -1109,7 +1111,9 @@ export class Battle {
                 // Only the enemy has a card in this slot. It attacks the player.
                 this.health -= enemyCard.attack
                 this.log(
-                    gt`Enemy ${enemyCard.getName()} dealt ${enemyCard.attack.toString()} damage to you.`,
+                    gt`Enemy ${enemyCard.getName()} dealt ${
+                        enemyCard.attack
+                    } damage to you.`,
                 )
                 if (this.health < 1) {
                     this.onBattleFinished(false)
