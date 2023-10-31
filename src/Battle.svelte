@@ -183,6 +183,7 @@
         await battle.playCardFromHand(e.detail.cardIndex)
         if (battle.state instanceof RequirePlaceholderState) {
             battle.state.resolveNext(node)
+            console.log("battle state is now", battle.state)
             battle = battle
         }
         //await realizeEffects(effects)

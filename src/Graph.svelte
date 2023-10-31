@@ -31,8 +31,7 @@
         let id = target.dataset.id
         if (id) {
             let draggedId = e.dataTransfer?.getData("text/plain")
-            console.log("dropped", draggedId, "on", id)
-            dispatch("dragToNode", {from: draggedId, onto: id})
+            dispatch("dragToNode", {node: id, cardIndex: draggedId})
         }
     }
 
@@ -51,6 +50,7 @@
     {#each commits as commit}
         <div
             class="commit"
+            on:dragover={(e) => e.preventDefault()}
             on:drop={drop}
             on:click={click}
             data-id={commit.id()}

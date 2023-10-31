@@ -158,9 +158,10 @@ class Command {
     }
 
     fulfill(placeholder: Placeholder, value: string) {
-        console.log(`Fulfilling placeholder ${placeholder} with ${value}`)
+        console.log(`Fulfilling placeholder`, placeholder, `with ${value}`)
         console.log(placeholder)
         // TODO: Make more elegant
+        /*
         if (placeholder instanceof FreeStringPlaceholder) {
             this.template = this.template.replace("STRING", value)
         } else if (placeholder instanceof RefPlaceholder) {
@@ -170,6 +171,9 @@ class Command {
         } else {
             throw new Error(`Unknown placeholder type: ${placeholder}`)
         }
+        */
+        this.template = this.template.replace(/(STRING|REF|SLOT)/, value)
+
         // Remove placeholder, as it is now resolved.
         this.placeholders = this.placeholders.splice(1)
 
@@ -605,7 +609,7 @@ function allCards(): Record<CardID, Card> {
             CardID.Checkout,
             gt`Checkout`,
             1,
-            new Command("git checkout REF"),
+            new Command("git checkout -f REF"),
         ),
         [CardID.Merge]: new CommandCard(
             CardID.Merge,
@@ -967,7 +971,11 @@ export class Battle {
 
     async devSetup() {
         this.slots[1] = buildCard(CardID.GraphGnome) as CreatureCard
-        this.runCommand(new Command("git add .; git commit -m'Initial commit'"))
+        this.runCommand(
+            new Command(
+                "git add .; git commit -m'Initial commit'; git rm 2; git commit -m'Second commit'",
+            ),
+        )
         this.sideeffect(new SyncGameToDiskSideEffect())
     }
 
