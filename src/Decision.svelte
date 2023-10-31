@@ -58,5 +58,6 @@
         display: flex;
         justify-content: space-around;
         flex-wrap: wrap;
+        gap: 1em;
     }
 </style>

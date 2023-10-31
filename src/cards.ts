@@ -175,7 +175,7 @@ class Command {
         this.template = this.template.replace(/(STRING|REF|SLOT)/, value)
 
         // Remove placeholder, as it is now resolved.
-        this.placeholders = this.placeholders.splice(1)
+        this.placeholders.shift()
 
         console.log(this.placeholders)
         if (this.placeholders.length === 0) {
@@ -815,12 +815,12 @@ export class Adventure {
             CardID.Branch,
         ]
 
-        this.deck = cards.map((id) => buildCard(id))
+        //this.deck = cards.map((id) => buildCard(id))
 
-        //let deckSize = 10
-        //for (let i = 0; i < deckSize; i++) {
-        //    this.deck.push(randomCard())
-        //}
+        let deckSize = 15
+        for (let i = 0; i < deckSize; i++) {
+            this.deck.push(randomCard())
+        }
 
         //for (let card of Object.values(allCards())) {
         //    this.deck.push(cloneDeep(card))
@@ -829,7 +829,7 @@ export class Adventure {
         this.state = null
 
         this.path = [
-            new BattleEvent(SnailEnemy),
+            //new BattleEvent(SnailEnemy),
             new DecisionEvent(),
             new BattleEvent(BluePrintEnemy),
             new DecisionEvent(),
