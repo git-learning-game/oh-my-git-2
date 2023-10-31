@@ -11,6 +11,8 @@
     let adventure: Adventure
 
     onMount(() => {
+        transformToFitScreen()
+
         shell = new GitShell()
         ;(window as any)["shell"] = shell
 
@@ -31,6 +33,41 @@
             throw new Error("decisionMade called when not in a decision state")
         }
     }
+
+    function transformToFitScreen() {
+        // apply css transform style to the container, so that it fits in the screen, centered in the screen
+        const container = document.getElementById("container")
+        if (container) {
+            const scale = Math.min(
+                window.innerWidth / container.offsetWidth,
+                window.innerHeight / container.offsetHeight,
+            )
+            let yShift =
+                window.innerHeight / 2 - (container.offsetHeight * scale) / 2
+            let xShift =
+                window.innerWidth / 2 - (container.offsetWidth * scale) / 2
+            // set transform so that the container is centered in the screen
+            container.style.transformOrigin = "top left"
+            container.style.transform = `translate(${xShift}px, ${yShift}px) scale(${scale}) `
+        }
+    }
+
+    function keydown(e: KeyboardEvent) {
+        if (e.key == "f" || e.key == "F11") {
+            toggleFullscreen()
+        }
+    }
+
+    function toggleFullscreen() {
+        const container = document.getElementById("container")
+        if (container) {
+            if (document.fullscreenElement) {
+                document.exitFullscreen()
+            } else {
+                container.requestFullscreen()
+            }
+        }
+    }
 </script>
 
 <div id="container">
@@ -49,3 +86,16 @@
         Starting game...
     {/if}
 </div>
+
+<svelte:window on:resize={transformToFitScreen} on:keydown={keydown} />
+
+<style>
+    :global(body) {
+        background: black;
+    }
+    #container {
+        background: red;
+        width: 1920px;
+        height: 1080px;
+    }
+</style>

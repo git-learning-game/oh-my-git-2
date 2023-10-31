@@ -237,20 +237,15 @@
     #topdown {
         display: flex;
         flex-direction: column;
-        height: 100vh;
+        height: 100%;
     }
 
     #columns {
-        width: 100vw;
+        width: 100%;
         background: yellow;
         display: flex;
         flex: 1;
         overflow: auto;
-    }
-
-    #graph,
-    #screen {
-        overflow-x: scroll;
     }
 
     #graph {
