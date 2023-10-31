@@ -26,63 +26,61 @@
 
 <div id="wrapper">
     {#if battle}
-        <h2>{$t`Event log`}</h2>
+        <div class="group">
+            <!--<h2>{$t`Upcoming enemy cards`}</h2>-->
 
-        <div id="log">
-            <ul>
-                {#each [...battle.eventLog].reverse() as event}
-                    <li>{event}</li>
+            <div class="cards">
+                {#each battle.enemyUpcomingSlots as slot}
+                    <CardSvelte card={slot} />
                 {/each}
-            </ul>
-        </div>
-
-        <h2>{$t`Upcoming enemy cards`}</h2>
-
-        <div class="cards">
-            {#each battle.enemyUpcomingSlots as slot}
-                <CardSvelte card={slot} />
-            {/each}
+            </div>
         </div>
 
         <div id="arena">
-            <h2>
+            <div class="group">
+                <!--<h2>
                 {$t`Enemy cards`} ({$t`enemy health`}: {battle.enemyHealth})
-            </h2>
+            </h2>-->
 
-            <div class="cards">
-                {#each battle.enemySlots as slot}
-                    <CardSvelte card={slot} />
-                {/each}
+                <div class="cards">
+                    {#each battle.enemySlots as slot}
+                        <CardSvelte card={slot} />
+                    {/each}
+                </div>
             </div>
 
             <div id="separator">⚡</div>
 
-            <h2>{$t`Working directory`}</h2>
+            <div class="group">
+                <!--<h2>{$t`Working directory`}</h2>-->
+
+                <div class="cards">
+                    {#each battle.slots as slot, index}
+                        <CardSvelte
+                            card={slot}
+                            {index}
+                            on:dragover={(e) => e.preventDefault()}
+                            on:drop={(e) => drop(e, index)}
+                            on:click={(e) => clickSlot(e, index)}
+                        />
+                    {/each}
+                </div>
+            </div>
+        </div>
+
+        <div class="group">
+            <!--<h2>{$t`Index`}</h2>-->
 
             <div class="cards">
-                {#each battle.slots as slot, index}
+                {#each indexSlots as slot, index}
                     <CardSvelte
                         card={slot}
                         {index}
                         on:dragover={(e) => e.preventDefault()}
                         on:drop={(e) => drop(e, index)}
-                        on:click={(e) => clickSlot(e, index)}
                     />
                 {/each}
             </div>
-        </div>
-
-        <h2>{$t`Index`}</h2>
-
-        <div class="cards">
-            {#each indexSlots as slot, index}
-                <CardSvelte
-                    card={slot}
-                    {index}
-                    on:dragover={(e) => e.preventDefault()}
-                    on:drop={(e) => drop(e, index)}
-                />
-            {/each}
         </div>
     {/if}
 </div>
@@ -90,27 +88,33 @@
 <style>
     #wrapper {
         padding: 1em;
+        display: flex;
+        flex-direction: row-reverse;
+        align-items: center;
+        justify-content: center;
     }
-    #log {
-        height: 7em;
-        overflow-y: scroll;
+    .group {
     }
     .cards {
         display: flex;
-        flex-wrap: wrap;
+        flex-direction: column;
+        gap: 0.5em;
     }
     #arena {
         background: #225cba;
         padding: 0.5em;
-        border-radius: 2em;
+        border-radius: 1.5em;
         color: white;
-        display: inline-block;
+        display: flex;
+        flex-direction: row-reverse;
+        margin: -0.5em 0.5em;
     }
     h2 {
         margin-left: 1em;
     }
     #separator {
         display: flex;
+        flex-direction: column;
         align-items: center;
         text-align: center;
         font-size: 150%;
@@ -120,14 +124,14 @@
     #separator::after {
         content: "";
         flex: 1;
-        border-bottom: 3px solid white;
+        border-left: 3px solid white;
     }
 
     #separator:not(:empty)::before {
-        margin-right: 0.25em;
+        margin-bottom: 0.25em;
     }
 
     #separator:not(:empty)::after {
-        margin-left: 0.25em;
+        margin-top: 0.25em;
     }
 </style>

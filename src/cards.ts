@@ -809,6 +809,7 @@ export class Adventure {
             CardID.Restore,
             CardID.Bandaid,
             CardID.GraphGnome,
+            CardID.Branch,
         ]
 
         this.deck = cards.map((id) => buildCard(id))
@@ -825,7 +826,7 @@ export class Adventure {
         this.state = null
 
         this.path = [
-            //new BattleEvent(SnailEnemy),
+            new BattleEvent(SnailEnemy),
             new DecisionEvent(),
             new BattleEvent(BluePrintEnemy),
             new DecisionEvent(),

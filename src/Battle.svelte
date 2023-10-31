@@ -6,6 +6,8 @@
     import Graph from "./Graph.svelte"
     import Cards from "./Cards.svelte"
     import Hand from "./Hand.svelte"
+    import EventLog from "./EventLog.svelte"
+    import StateIndicator from "./StateIndicator.svelte"
 
     import {GitShell} from "./gitshell.ts"
     import {Repository, GitBlob} from "./repository.ts"
@@ -34,25 +36,6 @@
 
     let stateMessage: string
     let inputText: string
-
-    $: {
-        if (battle.state instanceof PlayerTurnState) {
-            stateMessage = $t`Your turn`
-        } else if (battle.state instanceof RequirePlaceholderState) {
-            let currentPlaceholder = battle.state.currentPlaceholder()
-            if (currentPlaceholder instanceof SlotPlaceholder) {
-                stateMessage = $t`Select slot`
-            } else if (currentPlaceholder instanceof RefPlaceholder) {
-                stateMessage = $t`Select ref`
-            } else if (currentPlaceholder instanceof FreeStringPlaceholder) {
-                stateMessage = $t`Enter text: `
-            } else {
-                stateMessage = $t`Unknown placeholder`
-            }
-        } else {
-            stateMessage = $t`Unknown state :(`
-        }
-    }
 
     onMount(async () => {
         shell.setScreen(terminal.getTerminalDiv())
@@ -201,47 +184,44 @@
         //await realizeEffects(effects)
     }
 
-    function inputKeydown(e: KeyboardEvent) {
-        if (e.key === "Enter") {
-            if (battle.state instanceof RequirePlaceholderState) {
-                battle.state.resolveNext(inputText)
-                battle = battle
-                inputText = ""
-            }
+    function textEntered(e: CustomEvent) {
+        if (battle.state instanceof RequirePlaceholderState) {
+            battle.state.resolveNext(e.detail)
+            battle = battle
         }
     }
 </script>
 
-<div id="grid">
-    <div id="graph">
-        <Graph
-            {repo}
-            bind:this={graph}
-            on:clickNode={clickNode}
-            on:dragToNode={dragToNode}
-        />
-    </div>
-    <div id="screen">
-        <Terminal bind:this={terminal} />
-    </div>
-    <div id="cards">
-        <h1>
-            {stateMessage}
-            {#if battle.state instanceof RequirePlaceholderState && battle.state.currentPlaceholder() instanceof FreeStringPlaceholder}
-                <input
-                    type="text"
-                    bind:value={inputText}
-                    on:keydown={inputKeydown}
+<div id="topdown">
+    <div id="columns">
+        <div id="left">
+            <div id="graph">
+                <Graph
+                    {repo}
+                    bind:this={graph}
+                    on:clickNode={clickNode}
+                    on:dragToNode={dragToNode}
                 />
-            {/if}
-        </h1>
-        <Cards
-            on:clickSlot={clickSlot}
-            on:drag={cardDrag}
-            on:endTurn={endTurn}
-            {battle}
-            {indexSlots}
-        />
+            </div>
+        </div>
+        <div id="cards">
+            <Cards
+                on:clickSlot={clickSlot}
+                on:drag={cardDrag}
+                on:endTurn={endTurn}
+                {battle}
+                {indexSlots}
+            />
+        </div>
+        <div id="right">
+            <StateIndicator {battle} on:textEntered={textEntered} />
+
+            <EventLog {battle} />
+
+            <div id="screen">
+                <Terminal bind:this={terminal} />
+            </div>
+        </div>
     </div>
     <div id="hand">
         <Hand on:endTurn={endTurn} {battle} on:playCard={playCard} />
@@ -254,40 +234,49 @@
         --term-height: 305px;
     }
 
-    #grid {
-        width: 100vw;
+    #topdown {
+        display: flex;
+        flex-direction: column;
         height: 100vh;
-        display: grid;
-        grid-template-areas:
-            "graph cards"
-            "screen cards"
-            "hand cards";
-        grid-template-columns: 1fr var(--term-width);
-        grid-template-rows: 1fr var(--term-height);
+    }
+
+    #columns {
+        width: 100vw;
+        background: yellow;
+        display: flex;
+        flex: 1;
+        overflow: auto;
     }
 
     #graph,
     #screen {
-        overflow: auto;
+        overflow-x: scroll;
     }
 
     #graph {
-        grid-area: graph;
         background: peachpuff;
+        flex: 1;
     }
 
     #hand {
-        grid-area: hand;
         overflow: auto;
     }
 
     #cards {
-        grid-area: cards;
         background: lightblue;
+        width: 48em;
+        overflow: auto;
+    }
+
+    #right,
+    #left {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
     }
 
     #screen {
-        grid-area: screen;
         font-family: Iosevka;
+        max-width: 30em;
     }
 </style>

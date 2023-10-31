@@ -68,7 +68,6 @@
         height: 13em;
         background: #aaa;
         border-radius: 1em;
-        margin: 1em;
         padding: 0.5em;
         display: inline-block;
     }

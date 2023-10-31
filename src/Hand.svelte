@@ -66,6 +66,7 @@
     }
     .cards {
         display: flex;
+        gap: 0.5em;
     }
     .button {
         padding: 0.5em;
