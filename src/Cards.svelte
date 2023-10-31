@@ -28,13 +28,13 @@
 <div id="header">
     <div class="half">
         <div class="player">
-            You
+            {$t`You`}
             <EmojiNumber number={battle.health} emoji={"🩸"} />
         </div>
     </div>
     <div class="half">
         <div class="player">
-            Enemy
+            {$t`Enemy`}
             <EmojiNumber number={battle.enemyHealth} emoji={"🩸"} />
         </div>
     </div>

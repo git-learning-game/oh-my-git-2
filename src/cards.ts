@@ -1045,12 +1045,12 @@ export class Battle {
         } else if (card instanceof CommandCard) {
             let command = new Command(card.command.template)
             this.runCommand(command, () => {
-                this.log(`Played ${card.getName()}.`)
+                this.log(gt`Played ${card.getName()}.`)
                 this.discardHandCard(i)
             })
         } else if (card instanceof EffectCard) {
             this.energy -= card.energy
-            this.log(`Played ${card.getName()}.`)
+            this.log(gt`Played ${card.getName()}.`)
             await card.effect.apply(this, new CardSource(true, card))
             this.discardHandCard(i)
         } else {
