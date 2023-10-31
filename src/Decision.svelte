@@ -26,7 +26,7 @@
                 tabindex="0"
                 role="button"
             >
-                <CardSvelte {card} clickable={true} />
+                <CardSvelte {card} clickable={true} showCost={true} />
             </div>
         {/each}
     </div>
@@ -35,7 +35,7 @@
     <div class="cards">
         {#each deck as card}
             <div class="choice">
-                <CardSvelte {card} clickable={false} />
+                <CardSvelte {card} clickable={false} showCost={true} />
             </div>
         {/each}
     </div>

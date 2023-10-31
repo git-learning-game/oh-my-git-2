@@ -22,9 +22,10 @@
 
 <style>
     #lang-switch {
+        font-size: 120%;
         position: absolute;
-        bottom: 10px;
-        right: 10px;
+        top: 10px;
+        left: 10px;
         z-index: 10;
     }
 </style>

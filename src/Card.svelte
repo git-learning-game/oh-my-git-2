@@ -1,5 +1,6 @@
 <script lang="ts">
     import {Card, CreatureCard, CommandCard, EffectCard} from "./cards.ts"
+    import EmojiNumber from "./EmojiNumber.svelte"
     import {t} from "svelte-i18n-lingui"
 
     export let card: Card | null = null
@@ -7,6 +8,8 @@
     export let playable = false
     export let clickable = false
     export let hand = false
+    export let placeholderEmoji: string
+    export let showCost = false
 
     // When language is switched, re-render card.
     $: $t, (card = card)
@@ -15,6 +18,17 @@
         if (index != null) {
             e.dataTransfer?.setData("text/plain", index.toString())
             console.log("drag", index)
+        }
+    }
+
+    let fontSize: number
+    $: if (card) {
+        if (card.getName().length > 15) {
+            fontSize = 80
+        } else if (card.getName().length > 10) {
+            fontSize = 100
+        } else {
+            fontSize = 130
         }
     }
 </script>
@@ -26,6 +40,7 @@
     class:card
     class:playable
     class:clickable
+    class:show-cost={showCost}
     on:dragstart={(e) => dragStart(e)}
     on:dragover
     on:drop
@@ -41,15 +56,24 @@
     tabindex="0"
 >
     {#if card}
+        {#if showCost}
+            <span class="emoji energy"
+                ><EmojiNumber number={card.energy} emoji="🔷" /></span
+            >
+        {/if}
         <div class="card-header">
-            <h3>({card.energy}) {card.getName()}</h3>
+            <div id="name" style="font-size: {fontSize}%">{card.getName()}</div>
         </div>
         {#if card instanceof CreatureCard}
             <div class="card-body">
                 {card.effectDescription()}
             </div>
-            <div class="attack">{card.attack}</div>
-            <div class="health">{card.health}</div>
+            <div class="attack">
+                <EmojiNumber number={card.attack} emoji={"⚔️"} color="black" />
+            </div>
+            <div class="health">
+                <EmojiNumber number={card.health} emoji={"🩸"} />
+            </div>
         {:else if card instanceof CommandCard}
             <div class="card-body">
                 <code>{card.command.template}</code>
@@ -59,6 +83,8 @@
                 {card.effectDescription()}
             </div>
         {/if}
+    {:else if placeholderEmoji}
+        <span class="placeholder">{placeholderEmoji}</span>
     {/if}
 </div>
 
@@ -69,16 +95,52 @@
         background: #aaa;
         border-radius: 1em;
         padding: 0.5em;
-        display: inline-block;
+        display: inline-flex;
+        flex-direction: column;
+        position: relative;
+        user-select: none;
+    }
+    .energy {
+        position: absolute;
+        top: -0.8em;
+        left: -0.5em;
+        font-weight: bold;
+    }
+    .slot:not(.card) {
+        opacity: 0.5;
+    }
+    .hand {
+        transition: transform 0.1s;
+    }
+    .hand:hover {
+        transition-timing-function: ease-out;
+        transform: scale(1.3);
+        transform-origin: center bottom;
+        z-index: 10;
     }
     .card {
         background: white;
         color: black;
         position: relative;
-        user-select: none;
+        box-shadow: 0 0 0.5em rgba(0, 0, 0, 0.2);
+    }
+    .emoji {
+        font-size: 150%;
+    }
+    .card.show-cost .card-header {
+        margin-left: 1.5em;
+    }
+    .card-header {
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        margin-bottom: 1em;
+    }
+    #name {
+        font-size: 150%;
     }
     .playable {
-        border: solid blue 5px;
+        border: solid #225cba 5px;
         cursor: move;
     }
     .clickable {
@@ -87,14 +149,27 @@
     .attack,
     .health {
         position: absolute;
-        bottom: 0.5em;
+        bottom: -0.5em;
         font-size: 150%;
         font-weight: bold;
     }
     .attack {
-        left: 0.5em;
+        left: -0.5em;
     }
     .health {
-        right: 0.5em;
+        right: -0.5em;
+    }
+    .card-body {
+        max-height: 8em;
+        overflow: auto;
+    }
+    .placeholder {
+        font-size: 600%;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        filter: grayscale(100%);
+        opacity: 0.5;
     }
 </style>

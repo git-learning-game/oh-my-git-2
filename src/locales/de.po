@@ -13,7 +13,7 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: Poedit 3.3.2\n"
 
-#: src/cards.ts:1103
+#: src/cards.ts:1104
 msgid "{0} dealt {1} damage to the enemy player."
 msgstr "{0} fügte dem gegnerischen Spieler {1} Schaden zu."
 
@@ -37,7 +37,7 @@ msgstr "Alle hinzufügen"
 msgid "Added a {0} to your hand."
 msgstr "{0} wurde deiner Hand hinzugefügt."
 
-#: src/cards.ts:1070
+#: src/cards.ts:1071
 msgid "Automatically creating a commit."
 msgstr "Erstelle automatisch einen Commit."
 
@@ -73,7 +73,7 @@ msgstr "Committen"
 msgid "Commit all"
 msgstr "Alles committen"
 
-#: src/Hand.svelte:52
+#: src/Hand.svelte:55
 msgid "Commit!"
 msgstr "Commit!"
 
@@ -90,42 +90,42 @@ msgid "Detached Head"
 msgstr "Abgetrennter Kopf"
 
 #: src/Hand.svelte:23
-msgid "Discard pile"
-msgstr "Ablagestapel"
+#~ msgid "Discard pile"
+#~ msgstr "Ablagestapel"
 
 #: src/Hand.svelte:22
-msgid "Draw pile"
-msgstr "Zugstapel"
+#~ msgid "Draw pile"
+#~ msgstr "Zugstapel"
 
-#: src/cards.ts:1082
+#: src/cards.ts:1083
 msgid "Enemy {0} dealt {1} damage to {2}."
 msgstr "Gegner {0} fügte {2} {1} Schaden zu."
 
-#: src/cards.ts:1114
+#: src/cards.ts:1115
 msgid "Enemy {0} dealt {1} damage to you."
 msgstr "Gegner {0} fügte dir {1} Schaden zu."
 
-#: src/cards.ts:1053
+#: src/cards.ts:1054
 msgid "Enemy announced {0} at slot {1}."
 msgstr "Der Gegner hat {0} auf Slot {1} angekündigt."
 
 #: src/Cards.svelte:45
-msgid "Enemy cards"
-msgstr "Gegnerische Karten"
+#~ msgid "Enemy cards"
+#~ msgstr "Gegnerische Karten"
 
 #: src/Cards.svelte:45
-msgid "enemy health"
-msgstr "Gesundheit des Gegners"
+#~ msgid "enemy health"
+#~ msgstr "Gesundheit des Gegners"
 
 #: src/Hand.svelte:22
-msgid "Energy"
-msgstr "Energie"
+#~ msgid "Energy"
+#~ msgstr "Energie"
 
-#: src/Battle.svelte:31
+#: src/StateIndicator.svelte:21
 msgid "Enter text: "
 msgstr "Gib Text ein: "
 
-#: src/Cards.svelte:25
+#: src/EventLog.svelte:6
 msgid "Event log"
 msgstr "Ereignisprotokoll"
 
@@ -146,8 +146,8 @@ msgid "Healed yourself for {0} points."
 msgstr "Du wurdest um {0} Punkte geheilt."
 
 #: src/Hand.svelte:22
-msgid "Health"
-msgstr "Gesundheit"
+#~ msgid "Health"
+#~ msgstr "Gesundheit"
 
 #: src/cards.ts:618
 msgid "Health potion"
@@ -158,8 +158,8 @@ msgid "increase its own attack by {0} and health by {1}"
 msgstr "erhöhe den Angriff der Karte um {0}, und die Gesundheit um {1}"
 
 #: src/Cards.svelte:71
-msgid "Index"
-msgstr "Index"
+#~ msgid "Index"
+#~ msgstr "Index"
 
 #: src/cards.ts:626
 msgid "Library"
@@ -177,7 +177,7 @@ msgstr "Merge-Monster"
 msgid "Move"
 msgstr "Verschieben"
 
-#: src/cards.ts:1010
+#: src/cards.ts:1011
 msgid "Not enough energy to play {0}."
 msgstr "Nicht genug Energie, um {0} zu spielen."
 
@@ -185,7 +185,7 @@ msgstr "Nicht genug Energie, um {0} zu spielen."
 msgid "Pick a card!"
 msgstr "Wähle eine Karte!"
 
-#: src/cards.ts:1020
+#: src/cards.ts:1021
 msgid "Played {0} to slot {1}."
 msgstr "Du hast {0} auf Slot {1} gespielt."
 
@@ -197,7 +197,8 @@ msgstr "Stash poppen"
 msgid "Remove"
 msgstr "Entfernen"
 
-#: src/cards.ts:528 src/cards.ts:540
+#: src/cards.ts:528
+#: src/cards.ts:540
 msgid "Restore"
 msgstr "Wiederherstellen"
 
@@ -205,7 +206,8 @@ msgstr "Wiederherstellen"
 msgid "Restore All"
 msgstr "Alles wiederherstellen"
 
-#: src/cards.ts:546 src/cards.ts:552
+#: src/cards.ts:546
+#: src/cards.ts:552
 msgid "Restore staged"
 msgstr "Index wiederherstellen"
 
@@ -217,15 +219,15 @@ msgstr "Gummiente"
 msgid "run \"{0}\""
 msgstr "führe \"{0}\" aus"
 
-#: src/Battle.svelte:28
+#: src/StateIndicator.svelte:18
 msgid "Select ref"
-msgstr "Wähle Ref"
+msgstr "Klick auf einen Ref"
 
-#: src/Battle.svelte:25
+#: src/StateIndicator.svelte:15
 msgid "Select slot"
-msgstr "Wähle Slot"
+msgstr "Klick auf einen Slot"
 
-#: src/cards.ts:1173
+#: src/cards.ts:1174
 msgid "Shuffled discard pile into draw pile."
 msgstr "Ablagestapel wurde in Zugstapel gemischt."
 
@@ -257,21 +259,21 @@ msgstr "die Anzahl von Tags in deinem Repository"
 msgid "Time Snail"
 msgstr "Zeitschnecke"
 
-#: src/cards.ts:1165
+#: src/cards.ts:1166
 msgid "Tried to draw a card, but both draw and discard pile are empty."
 msgstr "Versuchte, eine Karte zu ziehen, aber Nachzieh- und Ablagestapel sind beide leer."
 
-#: src/Battle.svelte:34
+#: src/StateIndicator.svelte:24
 msgid "Unknown placeholder"
 msgstr "Unbekannter Platzhalter"
 
-#: src/Battle.svelte:38
+#: src/StateIndicator.svelte:28
 msgid "Unknown state :("
 msgstr "Unbekannter Zustand :("
 
 #: src/Cards.svelte:35
-msgid "Upcoming enemy cards"
-msgstr "Angekündigte gegnerische Karten"
+#~ msgid "Upcoming enemy cards"
+#~ msgstr "Angekündigte gegnerische Karten"
 
 #: src/cards.ts:62
 msgid "when this card dies"
@@ -282,18 +284,18 @@ msgid "when this card is played"
 msgstr "wenn diese Karte gespielt wird"
 
 #: src/Cards.svelte:56
-msgid "Working directory"
-msgstr "Arbeitsverzeichnis"
+#~ msgid "Working directory"
+#~ msgstr "Arbeitsverzeichnis"
 
-#: src/cards.ts:1178
+#: src/cards.ts:1179
 msgid "You drew {0}."
 msgstr "Du hast {0} gezogen."
 
-#: src/cards.ts:1144
+#: src/cards.ts:1145
 msgid "You ended your turn"
 msgstr "Du hast deinen Zug beendet"
 
-#: src/cards.ts:1089
+#: src/cards.ts:1090
 msgid "Your {0} dealt {1} damage to {2}."
 msgstr "Dein {0} hat {2} {1} Schaden zugefügt."
 
@@ -301,24 +303,6 @@ msgstr "Dein {0} hat {2} {1} Schaden zugefügt."
 msgid "Your current deck"
 msgstr "Dein aktuelles Deck"
 
-#: src/Battle.svelte:20
+#: src/StateIndicator.svelte:10
 msgid "Your turn"
-msgstr "Dein Zug"
-
-#~ msgid "End turn"
-#~ msgstr "Zug beenden"
-
-#~ msgid "Enemy {0} died."
-#~ msgstr "Gegner {0} starb."
-
-#~ msgid "Enemy played {0} to slot {1}."
-#~ msgstr "Gegner spielte {0} auf Slot {1}."
-
-#~ msgid "Select {0} targets"
-#~ msgstr "Wähle {0} Ziele"
-
-#~ msgid "Select target"
-#~ msgstr "Wähle Ziel"
-
-#~ msgid "Your {0} died."
-#~ msgstr "Dein {0} starb."
+msgstr "Du bist dran"

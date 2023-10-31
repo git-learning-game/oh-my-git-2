@@ -192,6 +192,10 @@
     }
 </script>
 
+<div id="state">
+    <StateIndicator {battle} on:textEntered={textEntered} />
+</div>
+
 <div id="topdown">
     <div id="columns">
         <div id="left">
@@ -214,8 +218,6 @@
             />
         </div>
         <div id="right">
-            <StateIndicator {battle} on:textEntered={textEntered} />
-
             <EventLog {battle} />
 
             <div id="screen">
@@ -232,6 +234,13 @@
     :root {
         --term-width: 730px;
         --term-height: 305px;
+    }
+
+    #state {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 15.3em;
     }
 
     #topdown {
@@ -251,10 +260,6 @@
     #graph {
         background: peachpuff;
         flex: 1;
-    }
-
-    #hand {
-        overflow: auto;
     }
 
     #cards {

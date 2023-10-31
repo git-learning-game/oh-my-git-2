@@ -7,14 +7,6 @@
 
     export let battle: Battle
 
-    let energyString = ""
-    $: if (battle) {
-        energyString = ""
-        for (let i = 0; i < battle.energy; i++) {
-            energyString += "⚡"
-        }
-    }
-
     function endTurn() {
         dispatch("endTurn")
     }
@@ -22,11 +14,20 @@
 
 <div id="wrapper">
     {#if battle}
-        <h2>
+        <div id="energy">
+            {battle.energy}/{battle.maxEnergy}
+            {#each new Array(battle.energy) as _}
+                🔷
+            {/each}
+            {#each new Array(battle.maxEnergy - battle.energy) as _}
+                <span class="used">🔷</span>
+            {/each}
+        </div>
+        <!--<h2>
             {$t`Health`}: {battle.health} – {$t`Energy`}: {energyString} – {$t`Draw pile`}:
             {battle.drawPile.length} – {$t`Discard pile`}: {battle.discardPile
                 .length}
-        </h2>
+        </h2>-->
         <div class="cards">
             {#each battle.hand as card, index}
                 <CardSvelte
@@ -34,6 +35,7 @@
                     {index}
                     hand={true}
                     playable={card.energy <= battle.energy}
+                    showCost={true}
                     on:click={() => {
                         console.log("click :)")
                         dispatch("playCard", {index})
@@ -64,24 +66,47 @@
         padding: 0.5em;
         position: relative;
     }
+    #energy {
+        font-size: 200%;
+        position: absolute;
+        left: 1em;
+        top: -1em;
+        font-weight: bold;
+        background: rgba(255, 255, 255, 0.5);
+        padding: 0.3em;
+        border-radius: 999em;
+    }
+    #energy .used {
+        filter: grayscale(100%);
+        opacity: 0.5;
+    }
     .cards {
         display: flex;
-        gap: 0.5em;
+        gap: 1em;
+        justify-content: center;
+        margin: 0 15em;
     }
     .button {
+        font-size: 130%;
+        font-weight: bold;
         padding: 0.5em;
-        border-radius: 0.5em;
+        border-radius: 99em;
         background-color: orange;
         color: black;
         display: inline-block;
         margin-top: 1em;
         position: absolute;
-        right: 0.5em;
-        top: 0.5em;
+        right: 1em;
+        top: -2.5em;
+        box-sizing: content-box;
+        border: 4px solid transparent;
+        box-shadow: 0 0 0.2em rgba(0, 0, 0, 0.2);
     }
     .button:hover {
         cursor: pointer;
         box-shadow: 0 1px 0.2em rgba(0, 0, 0, 0.2);
+        border: 4px solid red;
+        background-color: darkorange;
     }
     .button:active {
         background-color: #ddd;

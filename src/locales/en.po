@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/cards.ts:1103
+#: src/cards.ts:1104
 msgid "{0} dealt {1} damage to the enemy player."
 msgstr "{0} dealt {1} damage to the enemy player."
 
@@ -41,7 +41,7 @@ msgstr "Add all"
 msgid "Added a {0} to your hand."
 msgstr "Added a {0} to your hand."
 
-#: src/cards.ts:1070
+#: src/cards.ts:1071
 msgid "Automatically creating a commit."
 msgstr "Automatically creating a commit."
 
@@ -77,7 +77,7 @@ msgstr "Commit"
 msgid "Commit all"
 msgstr "Commit all"
 
-#: src/Hand.svelte:52
+#: src/Hand.svelte:55
 msgid "Commit!"
 msgstr "Commit!"
 
@@ -94,22 +94,22 @@ msgid "Detached Head"
 msgstr "Detached Head"
 
 #: src/Hand.svelte:23
-msgid "Discard pile"
-msgstr "Discard pile"
+#~ msgid "Discard pile"
+#~ msgstr "Discard pile"
 
 #: src/Hand.svelte:22
-msgid "Draw pile"
-msgstr "Draw pile"
+#~ msgid "Draw pile"
+#~ msgstr "Draw pile"
 
 #: src/Hand.svelte:38
 #~ msgid "End turn"
 #~ msgstr "End turn"
 
-#: src/cards.ts:1082
+#: src/cards.ts:1083
 msgid "Enemy {0} dealt {1} damage to {2}."
 msgstr "Enemy {0} dealt {1} damage to {2}."
 
-#: src/cards.ts:1114
+#: src/cards.ts:1115
 msgid "Enemy {0} dealt {1} damage to you."
 msgstr "Enemy {0} dealt {1} damage to you."
 
@@ -117,31 +117,31 @@ msgstr "Enemy {0} dealt {1} damage to you."
 #~ msgid "Enemy {0} died."
 #~ msgstr "Enemy {0} died."
 
-#: src/cards.ts:1053
+#: src/cards.ts:1054
 msgid "Enemy announced {0} at slot {1}."
 msgstr "Enemy announced {0} at slot {1}."
 
 #: src/Cards.svelte:45
-msgid "Enemy cards"
-msgstr "Enemy cards"
+#~ msgid "Enemy cards"
+#~ msgstr "Enemy cards"
 
 #: src/Cards.svelte:45
-msgid "enemy health"
-msgstr "enemy health"
+#~ msgid "enemy health"
+#~ msgstr "enemy health"
 
 #: src/cards.ts:758
 #~ msgid "Enemy played {0} to slot {1}."
 #~ msgstr "Enemy played {0} to slot {1}."
 
 #: src/Hand.svelte:22
-msgid "Energy"
-msgstr "Energy"
+#~ msgid "Energy"
+#~ msgstr "Energy"
 
-#: src/Battle.svelte:31
+#: src/StateIndicator.svelte:21
 msgid "Enter text: "
 msgstr "Enter text: "
 
-#: src/Cards.svelte:25
+#: src/EventLog.svelte:6
 msgid "Event log"
 msgstr "Event log"
 
@@ -162,8 +162,8 @@ msgid "Healed yourself for {0} points."
 msgstr "Healed yourself for {0} points."
 
 #: src/Hand.svelte:22
-msgid "Health"
-msgstr "Health"
+#~ msgid "Health"
+#~ msgstr "Health"
 
 #: src/cards.ts:618
 msgid "Health potion"
@@ -174,8 +174,8 @@ msgid "increase its own attack by {0} and health by {1}"
 msgstr "increase its own attack by {0} and health by {1}"
 
 #: src/Cards.svelte:71
-msgid "Index"
-msgstr "Index"
+#~ msgid "Index"
+#~ msgstr "Index"
 
 #: src/cards.ts:626
 msgid "Library"
@@ -197,7 +197,7 @@ msgstr "Merge Monster"
 msgid "Move"
 msgstr "Move"
 
-#: src/cards.ts:1010
+#: src/cards.ts:1011
 msgid "Not enough energy to play {0}."
 msgstr "Not enough energy to play {0}."
 
@@ -205,7 +205,7 @@ msgstr "Not enough energy to play {0}."
 msgid "Pick a card!"
 msgstr "Pick a card!"
 
-#: src/cards.ts:1020
+#: src/cards.ts:1021
 msgid "Played {0} to slot {1}."
 msgstr "Played {0} to slot {1}."
 
@@ -243,11 +243,11 @@ msgstr "run \"{0}\""
 #~ msgid "Select {0} targets"
 #~ msgstr "Select {0} targets"
 
-#: src/Battle.svelte:28
+#: src/StateIndicator.svelte:18
 msgid "Select ref"
 msgstr "Select ref"
 
-#: src/Battle.svelte:25
+#: src/StateIndicator.svelte:15
 msgid "Select slot"
 msgstr "Select slot"
 
@@ -255,7 +255,7 @@ msgstr "Select slot"
 #~ msgid "Select target"
 #~ msgstr "Select target"
 
-#: src/cards.ts:1173
+#: src/cards.ts:1174
 msgid "Shuffled discard pile into draw pile."
 msgstr "Shuffled discard pile into draw pile."
 
@@ -287,21 +287,21 @@ msgstr "the number of tags in your repository"
 msgid "Time Snail"
 msgstr "Time Snail"
 
-#: src/cards.ts:1165
+#: src/cards.ts:1166
 msgid "Tried to draw a card, but both draw and discard pile are empty."
 msgstr "Tried to draw a card, but both draw and discard pile are empty."
 
-#: src/Battle.svelte:34
+#: src/StateIndicator.svelte:24
 msgid "Unknown placeholder"
 msgstr "Unknown placeholder"
 
-#: src/Battle.svelte:38
+#: src/StateIndicator.svelte:28
 msgid "Unknown state :("
 msgstr "Unknown state :("
 
 #: src/Cards.svelte:35
-msgid "Upcoming enemy cards"
-msgstr "Upcoming enemy cards"
+#~ msgid "Upcoming enemy cards"
+#~ msgstr "Upcoming enemy cards"
 
 #: src/cards.ts:62
 msgid "when this card dies"
@@ -312,18 +312,18 @@ msgid "when this card is played"
 msgstr "when this card is played"
 
 #: src/Cards.svelte:56
-msgid "Working directory"
-msgstr "Working directory"
+#~ msgid "Working directory"
+#~ msgstr "Working directory"
 
-#: src/cards.ts:1178
+#: src/cards.ts:1179
 msgid "You drew {0}."
 msgstr "You drew {0}."
 
-#: src/cards.ts:1144
+#: src/cards.ts:1145
 msgid "You ended your turn"
 msgstr "You ended your turn"
 
-#: src/cards.ts:1089
+#: src/cards.ts:1090
 msgid "Your {0} dealt {1} damage to {2}."
 msgstr "Your {0} dealt {1} damage to {2}."
 
@@ -335,6 +335,6 @@ msgstr "Your {0} dealt {1} damage to {2}."
 msgid "Your current deck"
 msgstr "Your current deck"
 
-#: src/Battle.svelte:20
+#: src/StateIndicator.svelte:10
 msgid "Your turn"
 msgstr "Your turn"

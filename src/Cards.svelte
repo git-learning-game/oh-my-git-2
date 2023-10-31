@@ -5,9 +5,10 @@
 
     import {Battle, Card, CreatureCard} from "./cards.ts"
     import CardSvelte from "./Card.svelte"
+    import EmojiNumber from "./EmojiNumber.svelte"
 
     export let battle: Battle
-    export let indexSlots: (CreatureCard | null)[] = []
+    export let indexSlots: (CreatureCard | null)[] = [null, null, null]
 
     function drop(e: DragEvent, slotIndex: number) {
         console.log("drop", slotIndex)
@@ -24,24 +25,34 @@
     }
 </script>
 
+<div id="header">
+    <div class="half">
+        <div class="player">
+            You
+            <EmojiNumber number={battle.health} emoji={"🩸"} />
+        </div>
+    </div>
+    <div class="half">
+        <div class="player">
+            Enemy
+            <EmojiNumber number={battle.enemyHealth} emoji={"🩸"} />
+        </div>
+    </div>
+</div>
 <div id="wrapper">
     {#if battle}
         <div class="group">
-            <!--<h2>{$t`Upcoming enemy cards`}</h2>-->
+            <h2></h2>
 
             <div class="cards">
                 {#each battle.enemyUpcomingSlots as slot}
-                    <CardSvelte card={slot} />
+                    <CardSvelte card={slot} placeholderEmoji="⬅️" />
                 {/each}
             </div>
         </div>
 
         <div id="arena">
             <div class="group">
-                <!--<h2>
-                {$t`Enemy cards`} ({$t`enemy health`}: {battle.enemyHealth})
-            </h2>-->
-
                 <div class="cards">
                     {#each battle.enemySlots as slot}
                         <CardSvelte card={slot} />
@@ -52,8 +63,6 @@
             <div id="separator">⚡</div>
 
             <div class="group">
-                <!--<h2>{$t`Working directory`}</h2>-->
-
                 <div class="cards">
                     {#each battle.slots as slot, index}
                         <CardSvelte
@@ -69,8 +78,6 @@
         </div>
 
         <div class="group">
-            <!--<h2>{$t`Index`}</h2>-->
-
             <div class="cards">
                 {#each indexSlots as slot, index}
                     <CardSvelte
@@ -78,6 +85,7 @@
                         {index}
                         on:dragover={(e) => e.preventDefault()}
                         on:drop={(e) => drop(e, index)}
+                        placeholderEmoji="📜"
                     />
                 {/each}
             </div>
@@ -86,6 +94,15 @@
 </div>
 
 <style>
+    #header {
+        display: flex;
+        font-size: 2em;
+        font-weight: bold;
+    }
+    .half {
+        flex: 1;
+        text-align: center;
+    }
     #wrapper {
         padding: 1em;
         display: flex;
@@ -98,19 +115,16 @@
     .cards {
         display: flex;
         flex-direction: column;
-        gap: 0.5em;
+        gap: 1em;
     }
     #arena {
         background: #225cba;
-        padding: 0.5em;
+        padding: 1em;
         border-radius: 1.5em;
         color: white;
         display: flex;
         flex-direction: row-reverse;
-        margin: -0.5em 0.5em;
-    }
-    h2 {
-        margin-left: 1em;
+        margin: -1em 1em;
     }
     #separator {
         display: flex;
