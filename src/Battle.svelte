@@ -38,7 +38,7 @@
     let inputText: string
 
     onMount(async () => {
-        shell.setScreen(terminal.getTerminalDiv())
+        //shell.setScreen(terminal.getTerminalDiv())
         await shell.enterNewGitRepo()
         repo = new Repository("/root/repo", shell)
         await update()
@@ -218,7 +218,9 @@
             />
         </div>
         <div id="right">
-            <EventLog {battle} />
+            <div id="log">
+                <EventLog {battle} />
+            </div>
 
             <div id="screen">
                 <Terminal bind:this={terminal} />
@@ -251,7 +253,6 @@
 
     #columns {
         width: 100%;
-        background: yellow;
         display: flex;
         flex: 1;
         overflow: auto;
@@ -277,6 +278,11 @@
 
     #screen {
         font-family: Iosevka;
-        max-width: 30em;
+    }
+
+    #log,
+    #screen {
+        flex: 1;
+        overflow: auto;
     }
 </style>

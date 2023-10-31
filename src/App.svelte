@@ -94,7 +94,6 @@
         background: black;
     }
     #container {
-        background: red;
         width: 1920px;
         height: 1080px;
     }

@@ -5,9 +5,7 @@
     export let battle: Battle
 </script>
 
-<h2>{$t`Event log`}</h2>
-
-<div id="log">
+<div id="wrapper">
     <ul>
         {#each [...battle.eventLog].reverse() as event}
             <li>{event}</li>
@@ -16,8 +14,19 @@
 </div>
 
 <style>
-    #log {
-        overflow: auto;
-        height: 200px;
+    #wrapper {
+        background: lightgrey;
+        padding: 0.5em;
+    }
+    ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    li {
+        padding: 0.2em 0.5em;
+    }
+    li:nth-child(odd) {
+        background: rgba(255, 255, 255, 0.5);
     }
 </style>

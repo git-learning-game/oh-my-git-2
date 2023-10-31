@@ -65,6 +65,7 @@
         background: lightgreen;
         padding: 0.5em;
         position: relative;
+        height: 14em;
     }
     #energy {
         font-size: 200%;
