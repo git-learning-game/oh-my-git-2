@@ -38,12 +38,14 @@
     let inputText: string
 
     onMount(async () => {
-        //shell.setScreen(terminal.getTerminalDiv())
+        shell.setScreen(terminal.getTerminalDiv())
         await shell.enterNewGitRepo()
         repo = new Repository("/root/repo", shell)
         await update()
         battle.onSideEffect(realizeEffect)
         battle.onHiddenCommand(runCommand)
+
+        await battle.devSetup()
 
         window.addEventListener("keydown", (e) => {
             if (e.key == "Enter") {
@@ -56,7 +58,8 @@
         graph.setRefreshing(true)
         await repo.update()
         syncDiskToGame()
-        graph.update()
+        repo = repo
+        //graph.update()
         graph.setRefreshing(false)
     }
 
@@ -166,6 +169,7 @@
     }
 
     function clickNode(e: CustomEvent) {
+        console.log("click event", e.detail)
         if (battle.state instanceof RequirePlaceholderState) {
             battle.state.resolveNext(e.detail.node)
             battle = battle
@@ -261,6 +265,11 @@
     #graph {
         background: peachpuff;
         flex: 1;
+        width: 35em;
+    }
+
+    #screen {
+        width: 35em;
     }
 
     #cards {

@@ -806,9 +806,8 @@ export class Adventure {
         let cards = [
             CardID.TimeSnail,
             CardID.Add,
-            CardID.Restore,
-            CardID.Bandaid,
-            CardID.GraphGnome,
+            CardID.Checkout,
+            CardID.RestoreS,
             CardID.Branch,
         ]
 
@@ -964,6 +963,12 @@ export class Battle {
         this.enemy.makeMove()
 
         this.state = new PlayerTurnState()
+    }
+
+    async devSetup() {
+        this.slots[1] = buildCard(CardID.GraphGnome) as CreatureCard
+        this.runCommand(new Command("git add .; git commit -m'Initial commit'"))
+        this.sideeffect(new SyncGameToDiskSideEffect())
     }
 
     log(event: string) {
