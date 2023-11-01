@@ -3,8 +3,10 @@
     let terminalDiv: HTMLDivElement
 
     export let shell: WebShell
+    let active = false
 
     $: if (shell && terminalDiv) {
+        shell.setKeyboardActive(false)
         shell.setScreen(terminalDiv)
         let width = Math.min(Math.floor(terminalDiv.clientWidth / 27.2), 25)
         let height =
@@ -16,9 +18,26 @@
             ) * 2
         shell.type(`stty rows ${width} cols ${height}\n`)
     }
+
+    function enable() {
+        active = true
+        shell.setKeyboardActive(true)
+        ;(document.activeElement as HTMLElement).blur()
+    }
+
+    function disable() {
+        active = false
+        shell.setKeyboardActive(false)
+    }
 </script>
 
-<div id="wrapper">
+<div
+    id="wrapper"
+    class:active
+    on:mouseenter={enable}
+    on:mouseleave={disable}
+    role="none"
+>
     <div id="terminal" bind:this={terminalDiv} />
 </div>
 
@@ -26,7 +45,10 @@
     #wrapper {
         width: 100%;
         height: 100%;
-        background: black;
+        background: #111;
         overflow: auto;
+    }
+    .active {
+        background: yellow;
     }
 </style>

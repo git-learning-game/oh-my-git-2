@@ -52,11 +52,7 @@
         }
     }
 
-    function keydown(e: KeyboardEvent) {
-        if (e.key == "F11") {
-            toggleFullscreen()
-        }
-    }
+    function keydown(e: KeyboardEvent) {}
 
     function toggleFullscreen() {
         const container = document.getElementById("container")

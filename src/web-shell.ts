@@ -244,7 +244,9 @@ class WebShell {
     }
 
     type(text: string): void {
+        this.emulator.keyboard_set_status(true)
         this.emulator.keyboard_send_text(text)
+        this.emulator.keyboard_set_status(false)
     }
 
     async putFile(path: string, lines: string[]): Promise<void> {
