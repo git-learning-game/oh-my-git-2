@@ -816,12 +816,12 @@ export class Adventure {
             CardID.Switch,
         ]
 
-        this.deck = cards.map((id) => buildCard(id))
+        //this.deck = cards.map((id) => buildCard(id))
 
-        //let deckSize = 15
-        //for (let i = 0; i < deckSize; i++) {
-        //    this.deck.push(randomCard())
-        //}
+        let deckSize = 15
+        for (let i = 0; i < deckSize; i++) {
+            this.deck.push(randomCard())
+        }
 
         //for (let card of Object.values(allCards())) {
         //    this.deck.push(cloneDeep(card))
@@ -831,10 +831,10 @@ export class Adventure {
 
         this.path = [
             //new BattleEvent(SnailEnemy),
-            new DecisionEvent(),
-            new BattleEvent(BluePrintEnemy),
-            new DecisionEvent(),
-            new BattleEvent(BluePrintEnemy),
+            //new DecisionEvent(),
+            //new BattleEvent(BluePrintEnemy),
+            //new DecisionEvent(),
+            //new BattleEvent(BluePrintEnemy),
             new DecisionEvent(),
             new BattleEvent(RandomEnemy),
             new DecisionEvent(),
@@ -971,13 +971,14 @@ export class Battle {
     }
 
     async devSetup() {
+        this.slots[0] = buildCard(CardID.TimeSnail) as CreatureCard
         this.slots[1] = buildCard(CardID.GraphGnome) as CreatureCard
+        this.sideeffect(new SyncGameToDiskSideEffect())
         this.runCommand(
             new Command(
-                "git add .; git commit -m'Initial commit'; git tag test;git rm 2; git commit -m'Second commit'",
+                "git commit --allow-empty -m 'Empty';git branch second;git add 1; git commit -m'Snail'; git tag test;git switch second;mv 2 1;git add 1; git commit -m'Gnome'",
             ),
         )
-        this.sideeffect(new SyncGameToDiskSideEffect())
     }
 
     log(event: string) {
@@ -1046,6 +1047,7 @@ export class Battle {
         } else if (card instanceof CommandCard) {
             let command = new Command(card.command.template)
             this.runCommand(command, () => {
+                this.energy -= card.energy
                 this.log(gt`Played ${card.getName()}.`)
                 this.discardHandCard(i)
             })

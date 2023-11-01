@@ -130,7 +130,7 @@ class WebShell {
 
         if (result.exit_code != 0) {
             throw new Error(
-                `Command '${cmd}' exited with code '${result.exit_code}'`,
+                `Command '${cmd}' exited with code '${result.exit_code}'. Output: '${result.output}'`,
             )
         }
         return result.output

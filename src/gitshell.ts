@@ -31,11 +31,15 @@ export class GitShell extends WebShell {
             "cd /root/repo",
             "git init",
         ])
+        await this.putFile("/root/repo/.gitattributes", ["* merge=cardgame"])
+        await this.putFile("/root/.gitignore", [".gitattributes"])
         this.type("cd /root/repo\nclear\n")
     }
 
     async runConfigureCommands() {
         await this.putFile("~/.gitconfig", [
+            "[core]",
+            "    excludesfile = /root/.gitignore",
             "[init]",
             "    defaultBranch = main",
             "[user]",
@@ -47,7 +51,29 @@ export class GitShell extends WebShell {
             "    take = checkout -b",
             "[color]",
             "    ui = never",
+            '[merge "cardgame"]',
+            "    name = cardgame merge driver",
+            "    driver = /tmp/merge.sh %A %B",
         ])
+        await this.putFile("/tmp/merge.sh", [
+            'CURRENT="$1"',
+            'OTHER="$2"',
+            "",
+            "function get_property() {",
+            '    grep "^$1:" "$2" | cut -d" " -f2',
+            "}",
+            "",
+            'ID=$(get_property id "$CURRENT")',
+            'HEALTH=$(($(get_property health "$CURRENT") + $(get_property health "$OTHER")))',
+            'ATTACK=$(($(get_property attack "$CURRENT") + $(get_property attack "$OTHER")))',
+            "",
+            'echo "id: $ID" > "$1"',
+            'echo "health: $HEALTH" >> "$1"',
+            'echo "attack: $ATTACK" >> "$1"',
+            "",
+            "exit 0",
+        ])
+        await this.run("chmod +x /tmp/merge.sh")
     }
 
     async runLazynessCommands() {
