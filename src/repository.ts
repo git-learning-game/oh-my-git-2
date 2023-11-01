@@ -220,7 +220,7 @@ export class Repository {
         await this.time("wd", async () => await this.updateWorkingDirectory())
 
         for (let t in this.timings) {
-            console.warn(`${t}: ${this.timings[t]}ms`)
+            //console.warn(`${t}: ${this.timings[t]}ms`)
         }
 
         this.removeDeletedNodes()

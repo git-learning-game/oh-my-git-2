@@ -4,11 +4,11 @@
     import {t} from "svelte-i18n-lingui"
 
     export let card: Card | null = null
-    export let index: number
+    export let index: number | null = null
     export let playable = false
     export let clickable = false
     export let hand = false
-    export let placeholderEmoji: string
+    export let placeholderEmoji: string | null = null
     export let showCost = false
 
     // When language is switched, re-render card.

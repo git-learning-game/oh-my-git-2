@@ -217,11 +217,15 @@ abstract class Effect {
         }
     }
 
-    describeAmount(value: NumericValue, unit: string = ""): string {
+    describeAmount(value: NumericValue, unit?: string): string {
         if (typeof value === "number") {
             return `${value} ${unit}`
         } else {
-            return value.getDescription()
+            if (unit === undefined) {
+                return value.getDescription()
+            } else {
+                return gt`${unit} equal to ${value.getDescription()}`
+            }
         }
     }
 }
@@ -237,9 +241,24 @@ class HealPlayerEffect extends Effect {
 
     async apply(battle: Battle, _source: CardSource) {
         let amount = await this.eval(this.amount, battle)
-        console.log(`Healing player for ${amount}`)
+        battle.log(gt`Healed for ${amount}`)
         battle.health += amount
-        battle.log(gt`Healed yourself for ${amount} points.`)
+    }
+}
+
+class GainEnergyEffect extends Effect {
+    constructor(public amount: NumericValue) {
+        super()
+    }
+
+    getDescription(): string {
+        return gt`gain ${this.describeAmount(this.amount, gt`energy`)}`
+    }
+
+    async apply(battle: Battle, _source: CardSource) {
+        let amount = await this.eval(this.amount, battle)
+        battle.log(gt`Gain ${amount} energy`)
+        battle.energy += amount
     }
 }
 
@@ -388,6 +407,7 @@ class DynamicNumericValue {
             [DynamicValueType.TagCount]: gt`the number of tags in your repository`,
             [DynamicValueType.CommitCount]: gt`the number of commits in your repository`,
             [DynamicValueType.BranchLength]: gt`the length of the current branch`,
+            [DynamicValueType.BranchCount]: gt`the number of branches in your repository`,
         }
         return descriptions[this.type]
     }
@@ -397,6 +417,7 @@ enum DynamicValueType {
     TagCount,
     CommitCount,
     BranchLength,
+    BranchCount,
 }
 
 type NumericValue = number | DynamicNumericValue
@@ -432,6 +453,7 @@ enum CardID {
     HealthPotion = "HealthPotion",
     DrawCard = "DrawCard",
     Bandaid = "Bandaid",
+    Inspiration = "Inspiration",
 }
 
 function allCards(): Record<CardID, Card> {
@@ -639,6 +661,14 @@ function allCards(): Record<CardID, Card> {
                 new DynamicNumericValue(DynamicValueType.TagCount),
             ),
         ),
+        [CardID.Inspiration]: new EffectCard(
+            CardID.Inspiration,
+            gt`Inspiration`,
+            0,
+            new GainEnergyEffect(
+                new DynamicNumericValue(DynamicValueType.BranchCount),
+            ),
+        ),
     }
 }
 
@@ -808,15 +838,14 @@ export class Adventure {
 
     constructor(public onNextEvent: (e: Battle | Decision | null) => void) {
         let cards = [
-            CardID.TimeSnail,
-            CardID.Add,
-            CardID.Checkout,
-            CardID.RestoreS,
-            CardID.Branch,
-            CardID.Switch,
+            CardID.Inspiration,
+            CardID.Inspiration,
+            CardID.Inspiration,
+            CardID.Bandaid,
+            CardID.Bandaid,
         ]
 
-        //this.deck = cards.map((id) => buildCard(id))
+        this.deck = cards.map((id) => buildCard(id))
 
         let deckSize = 15
         for (let i = 0; i < deckSize; i++) {
@@ -934,7 +963,7 @@ export class Battle {
     energy = 1
     maxEnergy = 1
 
-    enemyHealth = 10
+    enemyHealth = 1
 
     drawPile: Card[] = []
     hand: Card[] = []
@@ -998,6 +1027,7 @@ export class Battle {
             [DynamicValueType.TagCount]: "git tag | wc -l",
             [DynamicValueType.CommitCount]: "git rev-list --all --count",
             [DynamicValueType.BranchLength]: "git rev-list HEAD --count",
+            [DynamicValueType.BranchCount]: "git branch | wc -l",
         }
         let output = await this.runHiddenCommand(commands[value])
         return parseInt(output)

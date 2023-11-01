@@ -42,7 +42,7 @@
         }
     }
 
-    export let refreshing: boolean
+    let refreshing: boolean
     export const setRefreshing = (newRefreshing: boolean) => {
         refreshing = newRefreshing
     }

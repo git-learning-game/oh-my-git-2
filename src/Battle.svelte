@@ -33,9 +33,6 @@
 
     let indexSlots: (CreatureCard | null)[]
 
-    let stateMessage: string
-    let inputText: string
-
     onMount(async () => {
         await shell.enterNewGitRepo()
         repo = new Repository("/root/repo", shell)
@@ -53,12 +50,16 @@
     })
 
     async function update() {
-        graph.setRefreshing(true)
+        if (graph) {
+            graph.setRefreshing(true)
+        }
         await repo.update()
         syncDiskToGame()
         repo = repo
         //graph.update()
-        graph.setRefreshing(false)
+        if (graph) {
+            graph.setRefreshing(false)
+        }
     }
 
     function updateACoupleOfTimes() {

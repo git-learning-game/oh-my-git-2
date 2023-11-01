@@ -18,8 +18,7 @@
             {battle.energy}/{battle.maxEnergy}
             {#each new Array(battle.energy) as _}
                 🔷
-            {/each}
-            {#each new Array(battle.maxEnergy - battle.energy) as _}
+            {/each}{#each new Array(Math.max(0, battle.maxEnergy - battle.energy)) as _}
                 <span class="used">🔷</span>
             {/each}
         </div>
@@ -37,7 +36,6 @@
                     playable={card.energy <= battle.energy}
                     showCost={true}
                     on:click={() => {
-                        console.log("click :)")
                         dispatch("playCard", {index})
                     }}
                 />
