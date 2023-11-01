@@ -305,6 +305,8 @@ class DeleteRandomEnemyEffect extends Effect {
     }
 
     async apply(battle: Battle, source: CardSource) {
+        console.log("source", source)
+
         let targetSideCreatures = source.player
             ? battle.enemySlots
             : battle.slots
@@ -314,7 +316,7 @@ class DeleteRandomEnemyEffect extends Effect {
             .filter((card) => card[0] !== null)
         if (slotsWithCreature.length > 0) {
             let slotToDelete = randomPick(slotsWithCreature)[1] as number
-            battle.kill(source.player, slotToDelete, source)
+            battle.kill(!source.player, slotToDelete, source)
         }
     }
 }
@@ -839,13 +841,7 @@ export class Adventure {
     path: Event[]
 
     constructor(public onNextEvent: (e: AdventureState | null) => void) {
-        let cards = [
-            CardID.Inspiration,
-            CardID.Inspiration,
-            CardID.Inspiration,
-            CardID.Bandaid,
-            CardID.Bandaid,
-        ]
+        let cards = [CardID.BlobEater, CardID.BlobEater, CardID.BlobEater]
 
         this.deck = cards.map((id) => buildCard(id))
 
@@ -1249,21 +1245,22 @@ export class Battle {
         }
     }
 
-    kill(player: boolean, slot: number, source: CardSource) {
-        let targetSideCreatures = player ? this.slots : this.enemySlots
+    kill(playerSideToKill: boolean, slot: number, source: CardSource) {
+        debugger
+        let targetSideCreatures = playerSideToKill
+            ? this.slots
+            : this.enemySlots
         let card = targetSideCreatures[slot]
         if (card) {
             card.triggerEffects(
                 this,
                 Trigger.Dies,
-                new CardSource(player, card),
+                new CardSource(playerSideToKill, card),
             )
             targetSideCreatures[slot] = null
             this.log(`${source.sourceDescription()} killed ${card.getName()}.`)
         } else {
-            throw new Error(
-                "Source or target of a random enemy deletion was null.",
-            )
+            throw new Error("Target of a random enemy deletion was null.")
         }
     }
 
