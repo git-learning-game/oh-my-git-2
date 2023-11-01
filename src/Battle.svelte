@@ -72,7 +72,7 @@
     async function cardDrag(e: CustomEvent) {
         console.log("drag", e.detail)
         const slot = e.detail.slotIndex + 1
-        await battle.playCardFromHand(e.detail.cardIndex)
+        battle.playCardFromHand(e.detail.cardIndex)
         if (battle.state instanceof RequirePlaceholderState) {
             battle.state.resolveNext(slot)
             battle = battle
