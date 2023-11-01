@@ -16,6 +16,7 @@
 
     let head = ""
     let slots: CommitWithRefs[] = []
+    let graph
 
     $: if (repo) {
         slots = []
@@ -35,6 +36,10 @@
                 }
             }
         })
+        // scroll to the right
+        if (graph) {
+            graph.scrollLeft = graph.scrollWidth
+        }
     }
 
     export let refreshing: boolean
@@ -64,7 +69,7 @@
     }
 </script>
 
-<div id="graph">
+<div id="graph" bind:this={graph}>
     {#each slots as slot}
         {@const commit = slot.commit}
         <div id="topdown">
