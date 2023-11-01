@@ -1,14 +1,14 @@
 <script lang="ts">
     import {t} from "svelte-i18n-lingui"
-    import {Battle} from "./cards.ts"
+    import {Battle, LogType} from "./cards.ts"
 
     export let battle: Battle
 </script>
 
 <div id="wrapper">
     <ul>
-        {#each [...battle.eventLog].reverse() as event}
-            <li>{event}</li>
+        {#each [...battle.eventLog].reverse() as [message, type]}
+            <li class:error={type == LogType.Error}>{message}</li>
         {/each}
     </ul>
 </div>
@@ -28,5 +28,9 @@
     }
     li:nth-child(odd) {
         background: rgba(255, 255, 255, 0.5);
+    }
+    .error {
+        background: red !important;
+        color: white;
     }
 </style>

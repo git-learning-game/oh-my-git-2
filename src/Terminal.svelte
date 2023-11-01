@@ -3,7 +3,6 @@
     let terminalDiv: HTMLDivElement
 
     export let shell: WebShell
-    let active = false
 
     $: if (shell && terminalDiv) {
         shell.setKeyboardActive(false)
@@ -20,24 +19,16 @@
     }
 
     function enable() {
-        active = true
         shell.setKeyboardActive(true)
         ;(document.activeElement as HTMLElement).blur()
     }
 
     function disable() {
-        active = false
         shell.setKeyboardActive(false)
     }
 </script>
 
-<div
-    id="wrapper"
-    class:active
-    on:mouseenter={enable}
-    on:mouseleave={disable}
-    role="none"
->
+<div id="wrapper" on:mouseenter={enable} on:mouseleave={disable} role="none">
     <div id="terminal" bind:this={terminalDiv} />
 </div>
 
@@ -45,10 +36,7 @@
     #wrapper {
         width: 100%;
         height: 100%;
-        background: #111;
+        background: black;
         overflow: auto;
-    }
-    .active {
-        background: yellow;
     }
 </style>

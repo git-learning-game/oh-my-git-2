@@ -862,7 +862,7 @@ export class Adventure {
             //new BattleEvent(BluePrintEnemy),
             //new DecisionEvent(),
             //new BattleEvent(BluePrintEnemy),
-            new CardRemovalEvent(),
+            //new CardRemovalEvent(),
             new BattleEvent(RandomEnemy),
             new NewCardEvent(),
             new BattleEvent(RandomEnemy),
@@ -957,6 +957,8 @@ export class BattleState {}
 
 export class PlayerTurnState extends BattleState {}
 
+export class WaitingState extends BattleState {}
+
 export class RequirePlaceholderState extends BattleState {
     constructor(public placeholders: Placeholder[]) {
         super()
@@ -971,12 +973,24 @@ export class RequirePlaceholderState extends BattleState {
     }
 }
 
+export type CommandResult = {
+    exit_code: number
+    output: string
+}
+
+export enum LogType {
+    Normal,
+    Error,
+}
+
 export class Battle {
     state: BattleState
     onSideeffectCallback: (sideEffect: SideEffect) => void = () => {}
-    onHiddenCommandCallback: undefined | ((command: string) => Promise<string>)
+    onHiddenCommandCallback:
+        | undefined
+        | ((command: string) => Promise<CommandResult>)
 
-    eventLog: string[] = []
+    eventLog: [string, LogType][] = []
 
     health = 10
     energy = 1
@@ -1021,7 +1035,7 @@ export class Battle {
     async devSetup() {
         this.slots[0] = buildCard(CardID.TimeSnail) as CreatureCard
         this.slots[1] = buildCard(CardID.GraphGnome) as CreatureCard
-        this.sideeffect(new SyncGameToDiskSideEffect())
+        await this.sideeffect(new SyncGameToDiskSideEffect())
         this.runCommand(
             new Command(
                 "git commit --allow-empty -m 'Empty';git branch second;git add 1; git commit -m'Snail'; git tag test;git switch second;mv 2 1;git add 1; git commit -m'Gnome'",
@@ -1029,15 +1043,15 @@ export class Battle {
         )
     }
 
-    log(event: string) {
-        this.eventLog.push(event)
+    log(event: string, type: LogType = LogType.Normal) {
+        this.eventLog.push([event, type])
     }
 
     onSideEffect(callback: (sideEffect: SideEffect) => void) {
         this.onSideeffectCallback = callback
     }
 
-    onHiddenCommand(callback: (command: string) => Promise<string>) {
+    onHiddenCommand(callback: (command: string) => Promise<CommandResult>) {
         this.onHiddenCommandCallback = callback
     }
 
@@ -1048,20 +1062,32 @@ export class Battle {
             [DynamicValueType.BranchLength]: "git rev-list HEAD --count",
             [DynamicValueType.BranchCount]: "git branch | wc -l",
         }
-        let output = await this.runHiddenCommand(commands[value])
-        return parseInt(output)
+        let result = await this.runHiddenCommand(commands[value])
+        if (result.exit_code !== 0) {
+            throw new Error(`Command failed: ${result.output}`)
+        }
+        return parseInt(result.output)
     }
 
-    async runHiddenCommand(command: string): Promise<string> {
+    async runHiddenCommand(command: string): Promise<CommandResult> {
         if (this.onHiddenCommandCallback) {
-            return await this.onHiddenCommandCallback(command)
+            this.state = new WaitingState()
+            let result = await this.onHiddenCommandCallback(command)
+            this.state = new PlayerTurnState()
+            return result
         } else {
             throw new Error(`No hidden command callback set to run ${command}`)
         }
     }
 
-    sideeffect(sideEffect: SideEffect) {
-        this.onSideeffectCallback(sideEffect)
+    async sideeffect(sideEffect: SideEffect) {
+        if (sideEffect instanceof CommandSideEffect) {
+            this.log(gt`Running "${sideEffect.command}"`)
+            let result = await this.runHiddenCommand(sideEffect.command)
+            this.log(`Output was: ${result}`)
+        } else {
+            this.onSideeffectCallback(sideEffect)
+        }
     }
 
     async playCardFromHand(i: number) {
@@ -1072,12 +1098,15 @@ export class Battle {
         const card = cloneDeep(this.hand[i])
 
         if (card.energy > this.energy) {
-            this.log(gt`Not enough energy to play ${card.getName()}.`)
+            this.log(
+                gt`Not enough energy to play ${card.getName()}.`,
+                LogType.Error,
+            )
             return
         }
 
         if (card instanceof CreatureCard) {
-            let placeholder = new SlotPlaceholder((_, slotString) => {
+            let placeholder = new SlotPlaceholder(async (_, slotString) => {
                 let slot = parseInt(slotString)
                 this.energy -= card.energy
                 let newCard = cloneDeep(card)
@@ -1090,16 +1119,22 @@ export class Battle {
                 )
                 this.discardHandCard(i)
                 this.state = new PlayerTurnState()
-                this.sideeffect(new SyncGameToDiskSideEffect())
+                await this.sideeffect(new SyncGameToDiskSideEffect())
             })
             this.state = new RequirePlaceholderState([placeholder])
         } else if (card instanceof CommandCard) {
             let command = new Command(card.command.template)
-            this.runCommand(command, () => {
-                this.energy -= card.energy
-                this.log(gt`Played ${card.getName()}.`)
-                this.discardHandCard(i)
-            })
+            this.runCommand(
+                command,
+                () => {
+                    this.energy -= card.energy
+                    this.log(gt`Played ${card.getName()}.`)
+                    this.discardHandCard(i)
+                },
+                (error: string) => {
+                    this.log(gt`Failed to run command: ${error}`, LogType.Error)
+                },
+            )
         } else if (card instanceof EffectCard) {
             this.energy -= card.energy
             this.log(gt`Played ${card.getName()}.`)
@@ -1119,10 +1154,18 @@ export class Battle {
         this.log(gt`Enemy announced ${card.getName()} at slot ${slot + 1}.`)
     }
 
-    runCommand(command: Command, onResolveCallback: () => void = () => {}) {
-        command.onResolveCallback = () => {
-            this.sideeffect(new CommandSideEffect(command.template))
-            onResolveCallback()
+    runCommand(
+        command: Command,
+        onResolveCallback: () => void = () => {},
+        onFailureCallback: (error: string) => void = () => {},
+    ) {
+        command.onResolveCallback = async () => {
+            let result = await this.runHiddenCommand(command.template)
+            if (result.exit_code === 0) {
+                onResolveCallback()
+            } else {
+                onFailureCallback(result.output)
+            }
             this.state = new PlayerTurnState()
         }
         if (command.placeholders.length === 0) {
@@ -1246,7 +1289,6 @@ export class Battle {
     }
 
     kill(playerSideToKill: boolean, slot: number, source: CardSource) {
-        debugger
         let targetSideCreatures = playerSideToKill
             ? this.slots
             : this.enemySlots

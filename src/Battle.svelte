@@ -98,11 +98,14 @@
         battle = battle
     }
 
-    async function runCommand(command: string): Promise<string> {
+    async function runCommand(
+        command: string,
+    ): Promise<{output: string; exit_code: number}> {
         console.log(`Running command: ${command}`)
-        let output = await shell.run(command)
-        console.log(`Command output: ${output}`)
-        return output
+        let result = await shell.run_with_exit_code(command)
+        console.log(`Command output: ${result.output}`)
+        updateACoupleOfTimes()
+        return result
     }
 
     async function syncGameToDisk() {

@@ -6,6 +6,7 @@
     import {
         Battle,
         PlayerTurnState,
+        WaitingState,
         RequirePlaceholderState,
         FreeStringPlaceholder,
         RefPlaceholder,
@@ -22,6 +23,8 @@
         showInput = false
         if (battle.state instanceof PlayerTurnState) {
             stateMessage = $t`Your turn`
+        } else if (battle.state instanceof WaitingState) {
+            stateMessage = $t`Waiting...`
         } else if (battle.state instanceof RequirePlaceholderState) {
             console.log("cur pl", battle.state.currentPlaceholder())
             let currentPlaceholder = battle.state.currentPlaceholder()
