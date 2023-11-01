@@ -43,7 +43,7 @@
         battle.onSideEffect(realizeEffect)
         battle.onHiddenCommand(runCommand)
 
-        //await battle.devSetup()
+        await battle.devSetup()
 
         window.addEventListener("keydown", (e) => {
             if (e.key == "Enter") {

@@ -1,22 +1,26 @@
 <script lang="ts">
     import {onMount} from "svelte"
-    import {Repository, GitCommit, GitObject} from "./repository.ts"
+    import {Repository, GitCommit, GitObject, GitRef} from "./repository.ts"
     import {createEventDispatcher} from "svelte"
     const dispatch = createEventDispatcher()
 
     import Commit from "./Commit.svelte"
+    import Ref from "./Ref.svelte"
 
     export let repo: Repository
 
-    let graphDiv: HTMLDivElement
-
     let commits: GitCommit[] = []
+    let refs: GitRef[] = []
     $: if (repo) {
         commits = []
         Object.values(repo.objects).forEach((object) => {
             if (object instanceof GitCommit) {
                 commits.push(object)
             }
+        })
+        refs = []
+        Object.values(repo.refs).forEach((ref) => {
+            refs.push(ref)
         })
     }
 
@@ -46,18 +50,38 @@
     }
 </script>
 
-<div id="graph" bind:this={graphDiv}>
-    {#each commits as commit}
-        <div
-            class="commit"
-            on:dragover={(e) => e.preventDefault()}
-            on:drop={drop}
-            on:click={click}
-            data-id={commit.id()}
-        >
-            <Commit {commit} {repo} />
+<div id="graph">
+    <div id="topdown">
+        <div id="refs">
+            {#each refs as ref}
+                <div
+                    class="ref"
+                    on:dragover={(e) => e.preventDefault()}
+                    on:drop={drop}
+                    on:click={click}
+                    data-id={ref.id()}
+                >
+                    <Ref {ref} {repo} />
+                </div>
+            {/each}
         </div>
-    {/each}
+        <div id="commits">
+            {#each commits as commit}
+                <div
+                    class="commit"
+                    on:dragover={(e) => e.preventDefault()}
+                    on:drop={drop}
+                    on:click={click}
+                    data-id={commit.id()}
+                >
+                    <Commit {commit} {repo} />
+                </div>
+            {/each}
+            {#if refreshing}
+                <div id="refreshing">Refreshing...</div>
+            {/if}
+        </div>
+    </div>
     {#if refreshing}
         <div id="refreshing">Refreshing...</div>
     {/if}
@@ -70,13 +94,21 @@
         position: relative;
         padding: 1em;
         padding-top: 3em;
+        overflow: auto;
+    }
+    #topdown {
+        display: flex;
+        flex-direction: column;
+        gap: 1em;
+    }
+    #commits,
+    #refs {
         display: flex;
         align-items: center;
         gap: 1em;
-        overflow: auto;
     }
     /* hack so that parent receives events */
-    :global(.commit *) {
+    :global(.commit *, .ref *) {
         pointer-events: none;
     }
     #refreshing {

@@ -973,7 +973,7 @@ export class Battle {
         this.slots[1] = buildCard(CardID.GraphGnome) as CreatureCard
         this.runCommand(
             new Command(
-                "git add .; git commit -m'Initial commit'; git rm 2; git commit -m'Second commit'",
+                "git add .; git commit -m'Initial commit'; git tag test;git rm 2; git commit -m'Second commit'",
             ),
         )
         this.sideeffect(new SyncGameToDiskSideEffect())
