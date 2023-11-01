@@ -30,7 +30,6 @@
 
     let repo: Repository
     let graph: Graph
-    let terminal: Terminal
 
     let indexSlots: (CreatureCard | null)[]
 
@@ -38,7 +37,6 @@
     let inputText: string
 
     onMount(async () => {
-        shell.setScreen(terminal.getTerminalDiv())
         await shell.enterNewGitRepo()
         repo = new Repository("/root/repo", shell)
         await update()
@@ -228,7 +226,7 @@
             </div>
 
             <div id="screen">
-                <Terminal bind:this={terminal} />
+                <Terminal {shell} />
             </div>
         </div>
     </div>
@@ -266,7 +264,8 @@
     #graph {
         background: peachpuff;
         flex: 1;
-        width: 35em;
+        overflow: auto;
+        width: 36em;
     }
 
     #screen {

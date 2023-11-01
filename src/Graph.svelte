@@ -73,6 +73,7 @@
         display: flex;
         align-items: center;
         gap: 1em;
+        overflow: auto;
     }
     /* hack so that parent receives events */
     :global(.commit *) {
