@@ -272,7 +272,9 @@ class CommandEffect extends Effect {
     }
 
     async apply(battle: Battle, _source: CardSource) {
-        battle.runCommand(this.command)
+        try {
+            await battle.runCommand(this.command)
+        } catch (_) {}
     }
 }
 
@@ -729,6 +731,8 @@ export class CommandSideEffect extends SideEffect {
 
 export class SyncGameToDiskSideEffect extends SideEffect {}
 
+export class BattleUpdatedSideEffect extends SideEffect {}
+
 class Enemy {
     constructor(public battle: Battle) {}
 
@@ -1036,7 +1040,7 @@ export class Battle {
         this.slots[0] = buildCard(CardID.TimeSnail) as CreatureCard
         this.slots[1] = buildCard(CardID.GraphGnome) as CreatureCard
         await this.sideeffect(new SyncGameToDiskSideEffect())
-        this.runCommand(
+        await this.runCommand(
             new Command(
                 "git commit --allow-empty -m 'Empty';git branch second;git add 1; git commit -m'Snail'; git tag test;git switch second;mv 2 1;git add 1; git commit -m'Gnome'",
             ),
@@ -1072,8 +1076,10 @@ export class Battle {
     async runHiddenCommand(command: string): Promise<CommandResult> {
         if (this.onHiddenCommandCallback) {
             this.state = new WaitingState()
+            this.sideeffect(new BattleUpdatedSideEffect())
             let result = await this.onHiddenCommandCallback(command)
             this.state = new PlayerTurnState()
+            this.sideeffect(new BattleUpdatedSideEffect())
             return result
         } else {
             throw new Error(`No hidden command callback set to run ${command}`)
@@ -1124,17 +1130,14 @@ export class Battle {
             this.state = new RequirePlaceholderState([placeholder])
         } else if (card instanceof CommandCard) {
             let command = new Command(card.command.template)
-            this.runCommand(
-                command,
-                () => {
-                    this.energy -= card.energy
-                    this.log(gt`Played ${card.getName()}.`)
-                    this.discardHandCard(i)
-                },
-                (error: string) => {
-                    this.log(gt`Failed to run command: ${error}`, LogType.Error)
-                },
-            )
+            try {
+                await this.runCommand(command)
+                this.energy -= card.energy
+                this.log(gt`Played ${card.getName()}.`)
+                this.discardHandCard(i)
+            } catch (_) {
+                // Playing the card failed, do nothing.
+            }
         } else if (card instanceof EffectCard) {
             this.energy -= card.energy
             this.log(gt`Played ${card.getName()}.`)
@@ -1154,30 +1157,42 @@ export class Battle {
         this.log(gt`Enemy announced ${card.getName()} at slot ${slot + 1}.`)
     }
 
-    runCommand(
-        command: Command,
-        onResolveCallback: () => void = () => {},
-        onFailureCallback: (error: string) => void = () => {},
-    ) {
-        command.onResolveCallback = async () => {
-            let result = await this.runHiddenCommand(command.template)
-            if (result.exit_code === 0) {
-                onResolveCallback()
-            } else {
-                onFailureCallback(result.output)
+    runCommand(command: Command): Promise<CommandResult> {
+        console.log("runCommand called", command)
+        return new Promise((resolve, reject) => {
+            command.onResolveCallback = async () => {
+                this.log(gt`Running "${command.template}"`)
+                let result = await this.runHiddenCommand(command.template)
+                if (result.exit_code === 0) {
+                    resolve(result)
+                } else {
+                    this.log(
+                        gt`Command failed: ${result.output}`,
+                        LogType.Error,
+                    )
+                    reject(result)
+                }
+                this.state = new PlayerTurnState()
             }
-            this.state = new PlayerTurnState()
-        }
-        if (command.placeholders.length === 0) {
-            command.onResolveCallback(command)
-        } else {
-            this.state = new RequirePlaceholderState(command.placeholders)
-        }
+            if (command.placeholders.length === 0) {
+                command.onResolveCallback(command)
+            } else {
+                this.state = new RequirePlaceholderState(command.placeholders)
+                this.sideeffect(new BattleUpdatedSideEffect())
+                console.log("set state to", this.state)
+            }
+        })
     }
 
-    autoCommit() {
+    async autoCommit() {
         this.log(gt`Automatically creating a commit.`)
-        this.runCommand(new Command("git commit -m'Automatic commit'"))
+        try {
+            await this.runCommand(
+                new Command("git commit -m'Automatic commit'"),
+            )
+        } catch (_) {
+            // Do nothing.
+        }
     }
 
     fight() {

@@ -18,6 +18,7 @@
         SideEffect,
         CommandSideEffect,
         SyncGameToDiskSideEffect,
+        BattleUpdatedSideEffect,
         PlayerTurnState,
         RequirePlaceholderState,
         FreeStringPlaceholder,
@@ -92,6 +93,8 @@
             updateACoupleOfTimes()
         } else if (effect instanceof SyncGameToDiskSideEffect) {
             await syncGameToDisk()
+        } else if (effect instanceof BattleUpdatedSideEffect) {
+            battle = battle
         } else {
             throw new Error("Unknown sideeffect type")
         }
