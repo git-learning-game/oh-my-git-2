@@ -61,26 +61,25 @@
                 ><EmojiNumber number={card.energy} emoji="🔷" /></span
             >
         {/if}
+
         <div class="card-header">
-            <div id="name" style="font-size: {fontSize}%">{card.getName()}</div>
+            <div id="name" style="font-size: {fontSize}%">
+                {#if card instanceof CommandCard}
+                    <code>{card.getName()}</code>
+                {:else}
+                    {card.getName()}
+                {/if}
+            </div>
+        </div>
+        <div class="card-body">
+            {card.getDescription()}
         </div>
         {#if card instanceof CreatureCard}
-            <div class="card-body">
-                {card.effectDescription()}
-            </div>
             <div class="attack">
                 <EmojiNumber number={card.attack} emoji={"⚔️"} color="black" />
             </div>
             <div class="health">
                 <EmojiNumber number={card.health} emoji={"🩸"} />
-            </div>
-        {:else if card instanceof CommandCard}
-            <div class="card-body">
-                <code>{card.command.template}</code>
-            </div>
-        {:else if card instanceof EffectCard}
-            <div class="card-body">
-                {card.effectDescription()}
             </div>
         {/if}
     {:else if placeholderEmoji}
@@ -99,6 +98,12 @@
         flex-direction: column;
         position: relative;
         user-select: none;
+    }
+    code {
+        background: #111;
+        color: white;
+        padding: 0.3em 0.6em;
+        border-radius: 0.3em;
     }
     .energy {
         position: absolute;
@@ -135,6 +140,7 @@
         display: flex;
         align-items: center;
         margin-bottom: 1em;
+        overflow-wrap: anywhere;
     }
     #name {
         font-size: 150%;

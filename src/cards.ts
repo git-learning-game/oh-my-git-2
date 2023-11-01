@@ -2,7 +2,7 @@ import {cloneDeep} from "lodash"
 import * as YAML from "yaml"
 import {gt, gPlural} from "svelte-i18n-lingui"
 
-export class Card {
+export abstract class Card {
     constructor(
         public id: CardID,
         public name: string,
@@ -12,6 +12,8 @@ export class Card {
     getName(): string {
         return allCards()[this.id].name
     }
+
+    abstract getDescription(): string
 }
 
 export class CreatureCard extends Card {
@@ -56,7 +58,7 @@ export class CreatureCard extends Card {
         return card
     }
 
-    effectDescription(): string {
+    getDescription(): string {
         const triggerDescriptions: Record<Trigger, string> = {
             [Trigger.Played]: gt`when this card is played`,
             [Trigger.Dies]: gt`when this card dies`,
@@ -96,6 +98,14 @@ export class CommandCard extends Card {
     ) {
         super(id, name, energy)
     }
+
+    getName(): string {
+        return this.command.template
+    }
+
+    getDescription(): string {
+        return ""
+    }
 }
 
 export class EffectCard extends Card {
@@ -107,7 +117,7 @@ export class EffectCard extends Card {
     ) {
         super(id, name, energy)
     }
-    effectDescription(): string {
+    getDescription(): string {
         let description = this.effect.getDescription()
         return description.charAt(0).toUpperCase() + description.slice(1) + "."
     }

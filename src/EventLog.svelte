@@ -17,6 +17,7 @@
     #wrapper {
         background: lightgrey;
         padding: 0.5em;
+        min-height: 100%;
     }
     ul {
         list-style: none;
