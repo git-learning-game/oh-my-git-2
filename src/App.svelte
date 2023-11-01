@@ -73,6 +73,7 @@
             <BattleSvelte battle={adventure.state} {shell} />
         {:else if adventure.state instanceof Decision}
             <DecisionSvelte
+                message={adventure.state.message}
                 choices={adventure.state.choices}
                 deck={adventure.deck}
                 on:choice={decisionMade}

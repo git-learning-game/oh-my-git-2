@@ -828,15 +828,17 @@ class RandomEnemy extends Enemy {
     }
 }
 
+type AdventureState = Battle | Decision
+
 //I'm going on an adventure!
 export class Adventure {
     deck: Card[] = []
     //battle: Battle
-    state: Battle | Decision | null
+    state: AdventureState | null
 
     path: Event[]
 
-    constructor(public onNextEvent: (e: Battle | Decision | null) => void) {
+    constructor(public onNextEvent: (e: AdventureState | null) => void) {
         let cards = [
             CardID.Inspiration,
             CardID.Inspiration,
@@ -864,11 +866,11 @@ export class Adventure {
             //new BattleEvent(BluePrintEnemy),
             //new DecisionEvent(),
             //new BattleEvent(BluePrintEnemy),
-            new DecisionEvent(),
+            new CardRemovalEvent(),
             new BattleEvent(RandomEnemy),
-            new DecisionEvent(),
+            new NewCardEvent(),
             new BattleEvent(RandomEnemy),
-            new DecisionEvent(),
+            new NewCardEvent(),
             new BattleEvent(OPEnemy),
         ]
 
@@ -890,19 +892,33 @@ export class Adventure {
                     alert("GAME OVER")
                 }
             })
-        } else if (nextEvent instanceof DecisionEvent) {
-            this.startNewDecision()
+        } else if (nextEvent instanceof NewCardEvent) {
+            this.startNewCardEvent()
+        } else if (nextEvent instanceof CardRemovalEvent) {
+            this.startCardRemovalEvent()
         } else {
             throw new Error(`Unknown event type: ${nextEvent}`)
         }
         this.onNextEvent(this.state)
     }
 
-    startNewDecision() {
+    startNewCardEvent() {
         this.state = new Decision(
+            gt`Add a card to your deck!`,
             [randomCard(), randomCard(), randomCard()],
             (card) => {
                 this.deck.push(card)
+                this.enterNextEvent()
+            },
+        )
+    }
+
+    startCardRemovalEvent() {
+        this.state = new Decision(
+            gt`You may remove a card from your deck!`,
+            this.deck,
+            (card) => {
+                this.deck = this.deck.filter((c) => c !== card)
                 this.enterNextEvent()
             },
         )
@@ -911,6 +927,7 @@ export class Adventure {
 
 export class Decision {
     constructor(
+        public message: string,
         public choices: Card[],
         public onChoice: (a: Card) => void,
     ) {}
@@ -928,7 +945,13 @@ class BattleEvent extends Event {
     }
 }
 
-class DecisionEvent extends Event {
+class NewCardEvent extends Event {
+    constructor() {
+        super()
+    }
+}
+
+class CardRemovalEvent extends Event {
     constructor() {
         super()
     }

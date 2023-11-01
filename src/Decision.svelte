@@ -5,12 +5,13 @@
     import {Card} from "./cards"
     import {t} from "svelte-i18n-lingui"
 
+    export let message: string
     export let choices: Card[]
     export let deck: Card[]
 </script>
 
 <div id="decision-container">
-    <h1>{$t`Pick a card!`}</h1>
+    <h1>{message}</h1>
     <div class="cards">
         {#each choices as card}
             <div
