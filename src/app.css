@@ -30,3 +30,22 @@ h6 {
     font-family: "Fira Sans", sans-serif;
     font-weight: bold;
 }
+
+button {
+    padding: 0.4em 0.8em;
+    border-radius: 99em;
+    border: none;
+    background: white;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 60%;
+    position: relative;
+    top: -0.3em;
+    margin: 0 0.5em;
+    display: inline-block;
+    font-family: "Fira Sans", sans-serif;
+}
+
+button:hover {
+    background: gray;
+}

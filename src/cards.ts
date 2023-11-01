@@ -387,7 +387,7 @@ class GiveFriendsEffect extends Effect {
     }
 
     getDescription(): string {
-        return gt`give all friends +${this.attack}/${this.health}`
+        return gt`give all allies +${this.attack}/${this.health}`
     }
 
     async apply(battle: Battle, source: CardSource) {
@@ -437,9 +437,10 @@ enum DynamicValueType {
 type NumericValue = number | DynamicNumericValue
 
 enum CardID {
+    TimeSnail = "TimeSnail",
+    RepoRaven = "RepoRaven",
     GraphGnome = "GraphGnome",
     BlobEater = "BlobEater",
-    TimeSnail = "TimeSnail",
     CloneWarrior = "CloneWarrior",
     MergeMonster = "MergeMonster",
     DetachedHead = "DetachedHead",
@@ -452,14 +453,14 @@ enum CardID {
     Restore = "Restore",
     RestoreAll = "RestoreAll",
     RestoreS = "RestoreS",
-    RestoreStaged = "RestoreStaged",
-    RestoreStagedS = "RestoreStagedS",
-    Commit = "Commit",
-    CommitAll = "CommitAll",
+    //RestoreStaged = "RestoreStaged",
+    //RestoreStagedS = "RestoreStagedS",
+    //Commit = "Commit",
+    //CommitAll = "CommitAll",
     Copy = "Copy",
     Move = "Move",
     Branch = "Branch",
-    Switch = "Switch",
+    //Switch = "Switch",
     Checkout = "Checkout",
     Stash = "Stash",
     StashPop = "StashPop",
@@ -477,7 +478,7 @@ function allCards(): Record<CardID, Card> {
             gt`Graph Gnome`,
             2,
             1,
-            2,
+            4,
         ).addEffect(
             Trigger.Played,
             new GiveSelfEffect(
@@ -488,9 +489,9 @@ function allCards(): Record<CardID, Card> {
         [CardID.BlobEater]: new CreatureCard(
             CardID.BlobEater,
             gt`Blob Eater`,
-            3,
+            4,
             2,
-            2,
+            6,
         ).addEffect(Trigger.Played, new DeleteRandomEnemyEffect()),
         [CardID.TimeSnail]: new CreatureCard(
             CardID.TimeSnail,
@@ -498,6 +499,13 @@ function allCards(): Record<CardID, Card> {
             1,
             1,
             1,
+        ),
+        [CardID.RepoRaven]: new CreatureCard(
+            CardID.RepoRaven,
+            gt`Repo Raven`,
+            2,
+            2,
+            2,
         ),
         [CardID.CloneWarrior]: new CreatureCard(
             CardID.CloneWarrior,
@@ -510,20 +518,20 @@ function allCards(): Record<CardID, Card> {
             CardID.MergeMonster,
             gt`Merge Monster`,
             4,
-            4,
-            4,
+            8,
+            8,
         ),
         [CardID.DetachedHead]: new CreatureCard(
             CardID.DetachedHead,
             gt`Detached Head`,
             0,
             0,
-            2,
+            4,
         ),
         [CardID.RubberDuck]: new CreatureCard(
             CardID.RubberDuck,
             gt`Rubber Duck`,
-            1,
+            2,
             1,
             1,
         ).addEffect(Trigger.Played, new DrawCardEffect(1)),
@@ -531,14 +539,14 @@ function allCards(): Record<CardID, Card> {
             CardID.CollabCentaur,
             gt`Collab Centaur`,
             1,
-            1,
-            1,
+            2,
+            2,
         ).addEffect(Trigger.Played, new GiveFriendsEffect(1, 1)),
         [CardID.TagTroll]: new CreatureCard(
             CardID.TagTroll,
             gt`Tag Troll`,
             2,
-            3,
+            5,
             1,
         ).addEffect(
             Trigger.Played,
@@ -581,7 +589,7 @@ function allCards(): Record<CardID, Card> {
             2,
             new Command("git restore -s REF SLOT"),
         ),
-        [CardID.RestoreStaged]: new CommandCard(
+        /*[CardID.RestoreStaged]: new CommandCard(
             CardID.RestoreStaged,
             gt`Restore staged`,
             2,
@@ -605,6 +613,7 @@ function allCards(): Record<CardID, Card> {
             3,
             new Command("git add .; git commit -m 'Commit'"),
         ),
+        */
         [CardID.Copy]: new CommandCard(
             CardID.Copy,
             gt`Copy`,
@@ -620,27 +629,27 @@ function allCards(): Record<CardID, Card> {
         [CardID.Stash]: new CommandCard(
             CardID.Stash,
             gt`Stash`,
-            3,
+            1,
             new Command("git stash"),
         ),
         [CardID.StashPop]: new CommandCard(
             CardID.StashPop,
             gt`Pop stash`,
-            2,
+            0,
             new Command("git stash pop"),
         ),
         [CardID.Branch]: new CommandCard(
             CardID.Branch,
             gt`Branch`,
-            1,
+            0,
             new Command("git branch STRING"),
         ),
-        [CardID.Switch]: new CommandCard(
+        /*[CardID.Switch]: new CommandCard(
             CardID.Switch,
             gt`Switch`,
             1,
             new Command("git switch -f REF"),
-        ),
+        ),*/
         [CardID.Checkout]: new CommandCard(
             CardID.Checkout,
             gt`Checkout`,
@@ -653,13 +662,19 @@ function allCards(): Record<CardID, Card> {
             2,
             new Command("git merge REF"),
         ),
-        [CardID.HealthPotion]: new CommandCard(
+        //[CardID.HealthPotion]: new CommandCard(
+        //    CardID.HealthPotion,
+        //    gt`Health potion`,
+        //    1,
+        //    new Command(
+        //        `slot=SLOT; health=$(cat $slot | grep health | cut -d':' -f2); health=$((health+2)); sed -i "s/health: .*/health: $health/" $slot`,
+        //    ),
+        //),
+        [CardID.HealthPotion]: new EffectCard(
             CardID.HealthPotion,
             gt`Health potion`,
             1,
-            new Command(
-                `slot=SLOT; health=$(cat $slot | grep health | cut -d':' -f2); health=$((health+2)); sed -i "s/health: .*/health: $health/" $slot`,
-            ),
+            new GiveFriendsEffect(0, 2),
         ),
         [CardID.DrawCard]: new EffectCard(
             CardID.DrawCard,
@@ -670,7 +685,7 @@ function allCards(): Record<CardID, Card> {
         [CardID.Bandaid]: new EffectCard(
             CardID.Bandaid,
             gt`Bandaid`,
-            2,
+            1,
             new HealPlayerEffect(
                 new DynamicNumericValue(DynamicValueType.TagCount),
             ),
@@ -855,14 +870,26 @@ export class Adventure {
     path: Event[]
 
     constructor(public onNextEvent: (e: AdventureState | null) => void) {
-        let cards = [CardID.BlobEater, CardID.BlobEater, CardID.BlobEater]
+        let cards = [
+            CardID.TimeSnail,
+            CardID.TimeSnail,
+            CardID.TimeSnail,
+            CardID.RepoRaven,
+            CardID.RubberDuck,
+            CardID.GraphGnome,
+            //CardID.BlobEater,
+            CardID.Add,
+            CardID.Add,
+            CardID.Restore,
+            CardID.RestoreAll,
+        ]
 
         this.deck = cards.map((id) => buildCard(id))
 
-        let deckSize = 15
-        for (let i = 0; i < deckSize; i++) {
-            this.deck.push(randomCard())
-        }
+        //let deckSize = 15
+        //for (let i = 0; i < deckSize; i++) {
+        //    this.deck.push(randomCard())
+        //}
 
         //for (let card of Object.values(allCards())) {
         //    this.deck.push(cloneDeep(card))
@@ -871,13 +898,15 @@ export class Adventure {
         this.state = null
 
         this.path = [
-            //new BattleEvent(SnailEnemy),
-            //new DecisionEvent(),
-            //new BattleEvent(BluePrintEnemy),
-            //new DecisionEvent(),
-            //new BattleEvent(BluePrintEnemy),
-            //new CardRemovalEvent(),
+            new BattleEvent(BluePrintEnemy),
+            new NewCardEvent(),
             new BattleEvent(RandomEnemy),
+            new NewCardEvent(),
+            new BattleEvent(BluePrintEnemy),
+            new CardRemovalEvent(),
+            new BattleEvent(RandomEnemy),
+            new NewCardEvent(),
+            new BattleEvent(BluePrintEnemy),
             new NewCardEvent(),
             new BattleEvent(RandomEnemy),
             new NewCardEvent(),
@@ -917,7 +946,9 @@ export class Adventure {
             gt`Add a card to your deck!`,
             [randomCard(), randomCard(), randomCard()],
             (card) => {
-                this.deck.push(card)
+                if (card) {
+                    this.deck.push(card)
+                }
                 this.enterNextEvent()
             },
         )
@@ -939,10 +970,10 @@ export class Decision {
     constructor(
         public message: string,
         public choices: Card[],
-        public onChoice: (a: Card) => void,
+        public onChoice: (a: Card | null) => void,
     ) {}
 
-    choose(card: Card) {
+    choose(card: Card | null) {
         this.onChoice(card)
     }
 }
@@ -1006,11 +1037,11 @@ export class Battle {
 
     eventLog: [string, LogType][] = []
 
-    health = 10
+    health = 20
     energy = 1
     maxEnergy = 1
 
-    enemyHealth = 1
+    enemyHealth = 20
 
     drawPile: Card[] = []
     hand: Card[] = []

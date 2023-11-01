@@ -8,10 +8,14 @@
     export let message: string
     export let choices: Card[]
     export let deck: Card[]
+
+    function skip() {
+        dispatch("choice", null)
+    }
 </script>
 
 <div id="decision-container">
-    <h1>{message}</h1>
+    <h1>{message} <button on:click={skip}>↪️ {$t`Skip`}</button></h1>
     <div class="cards">
         {#each choices as card}
             <div
@@ -31,6 +35,7 @@
             </div>
         {/each}
     </div>
+
     <h2>{$t`Your current deck`}</h2>
 
     <div class="cards">
@@ -53,12 +58,17 @@
         color: white;
         text-align: center;
         font-size: 300%;
-        margin-top: 1em;
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
     }
     .cards {
         display: flex;
         justify-content: space-around;
         flex-wrap: wrap;
         gap: 1em;
+        min-height: 15em;
+        max-height: 34em;
+        overflow: auto;
+        padding: 1em 0;
     }
 </style>

@@ -13,11 +13,11 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/cards.ts:1150
+#: src/cards.ts:1267
 msgid "{0} dealt {1} damage to the enemy player."
 msgstr "{0} dealt {1} damage to the enemy player."
 
-#: src/cards.ts:227
+#: src/cards.ts:237
 msgid "{0} equal to {1}"
 msgstr "{0} equal to {1}"
 
@@ -25,75 +25,83 @@ msgstr "{0} equal to {1}"
 #~ msgid "{0}, {1}."
 #~ msgstr "{0}, {1}."
 
-#: src/cards.ts:328
+#: src/cards.ts:342
 msgid "{num, plural, one {draw a card} other {draw # cards}}"
 msgstr "{num, plural, one {draw a card} other {draw # cards}}"
 
-#: src/cards.ts:536
+#: src/cards.ts:558
 msgid "Add"
 msgstr "Add"
 
-#: src/cards.ts:285
+#: src/cards.ts:297
 msgid "add a {0} to your hand"
 msgstr "add a {0} to your hand"
 
-#: src/cards.ts:542
+#: src/cards.ts:947
+msgid "Add a card to your deck!"
+msgstr "Add a card to your deck!"
+
+#: src/cards.ts:564
 msgid "Add all"
 msgstr "Add all"
 
-#: src/cards.ts:292
+#: src/cards.ts:304
 msgid "Added a {0} to your hand."
 msgstr "Added a {0} to your hand."
 
-#: src/cards.ts:1117
+#: src/cards.ts:1228
 msgid "Automatically creating a commit."
 msgstr "Automatically creating a commit."
 
-#: src/cards.ts:658
+#: src/cards.ts:687
 msgid "Bandaid"
 msgstr "Bandaid"
 
-#: src/cards.ts:476
+#: src/cards.ts:491
 msgid "Blob Eater"
 msgstr "Blob Eater"
 
-#: src/cards.ts:620
+#: src/cards.ts:643
 msgid "Branch"
 msgstr "Branch"
 
-#: src/cards.ts:632
+#: src/cards.ts:655
 msgid "Checkout"
 msgstr "Checkout"
 
-#: src/cards.ts:490
+#: src/cards.ts:512
 msgid "Clone Warrior"
 msgstr "Clone Warrior"
 
-#: src/cards.ts:518
+#: src/cards.ts:540
 msgid "Collab Centaur"
 msgstr "Collab Centaur"
 
+#: src/cards.ts:1210
+msgid "Command failed: {0}"
+msgstr "Command failed: {0}"
+
 #: src/cards.ts:584
-msgid "Commit"
-msgstr "Commit"
+#~ msgid "Commit"
+#~ msgstr "Commit"
 
 #: src/cards.ts:590
-msgid "Commit all"
-msgstr "Commit all"
+#~ msgid "Commit all"
+#~ msgstr "Commit all"
 
 #: src/Hand.svelte:53
 msgid "Commit!"
 msgstr "Commit!"
 
-#: src/cards.ts:596
+#: src/cards.ts:619
 msgid "Copy"
 msgstr "Copy"
 
-#: src/cards.ts:304
+#: src/cards.ts:316
 msgid "delete a random enemy"
 msgstr "delete a random enemy"
 
-#: src/cards.ts:504
+#: src/cards.ts:526
 msgid "Detached Head"
 msgstr "Detached Head"
 
@@ -113,11 +121,11 @@ msgstr "Detached Head"
 msgid "Enemy"
 msgstr "Enemy"
 
-#: src/cards.ts:1129
+#: src/cards.ts:1246
 msgid "Enemy {0} dealt {1} damage to {2}."
 msgstr "Enemy {0} dealt {1} damage to {2}."
 
-#: src/cards.ts:1161
+#: src/cards.ts:1278
 msgid "Enemy {0} dealt {1} damage to you."
 msgstr "Enemy {0} dealt {1} damage to you."
 
@@ -125,7 +133,7 @@ msgstr "Enemy {0} dealt {1} damage to you."
 #~ msgid "Enemy {0} died."
 #~ msgstr "Enemy {0} died."
 
-#: src/cards.ts:1100
+#: src/cards.ts:1197
 msgid "Enemy announced {0} at slot {1}."
 msgstr "Enemy announced {0} at slot {1}."
 
@@ -141,7 +149,7 @@ msgstr "Enemy announced {0} at slot {1}."
 #~ msgid "Enemy played {0} to slot {1}."
 #~ msgstr "Enemy played {0} to slot {1}."
 
-#: src/cards.ts:255
+#: src/cards.ts:265
 msgid "energy"
 msgstr "energy"
 
@@ -149,7 +157,7 @@ msgstr "energy"
 #~ msgid "Energy"
 #~ msgstr "Energy"
 
-#: src/StateIndicator.svelte:25
+#: src/StateIndicator.svelte:28
 msgid "Enter text: "
 msgstr "Enter text: "
 
@@ -157,27 +165,31 @@ msgstr "Enter text: "
 #~ msgid "Event log"
 #~ msgstr "Event log"
 
-#: src/cards.ts:255
+#: src/cards.ts:265
 msgid "gain {0}"
 msgstr "gain {0}"
 
-#: src/cards.ts:260
+#: src/cards.ts:270
 msgid "Gain {0} energy"
 msgstr "Gain {0} energy"
 
-#: src/cards.ts:376
-msgid "give all friends +{0}/{1}"
-msgstr "give all friends +{0}/{1}"
+#: src/cards.ts:390
+msgid "give all allies +{0}/{1}"
+msgstr "give all allies +{0}/{1}"
 
-#: src/cards.ts:463
+#: src/cards.ts:376
+#~ msgid "give all friends +{0}/{1}"
+#~ msgstr "give all friends +{0}/{1}"
+
+#: src/cards.ts:478
 msgid "Graph Gnome"
 msgstr "Graph Gnome"
 
-#: src/cards.ts:239
+#: src/cards.ts:249
 msgid "heal yourself by {0}"
 msgstr "heal yourself by {0}"
 
-#: src/cards.ts:244
+#: src/cards.ts:254
 msgid "Healed for {0}"
 msgstr "Healed for {0}"
 
@@ -189,11 +201,11 @@ msgstr "Healed for {0}"
 #~ msgid "Health"
 #~ msgstr "Health"
 
-#: src/cards.ts:644
+#: src/cards.ts:675
 msgid "Health potion"
 msgstr "Health potion"
 
-#: src/cards.ts:352
+#: src/cards.ts:366
 msgid "increase its own attack by {0} and health by {1}"
 msgstr "increase its own attack by {0} and health by {1}"
 
@@ -201,11 +213,11 @@ msgstr "increase its own attack by {0} and health by {1}"
 #~ msgid "Index"
 #~ msgstr "Index"
 
-#: src/cards.ts:666
+#: src/cards.ts:695
 msgid "Inspiration"
 msgstr "Inspiration"
 
-#: src/cards.ts:652
+#: src/cards.ts:681
 msgid "Library"
 msgstr "Library"
 
@@ -213,74 +225,83 @@ msgstr "Library"
 #~ msgid "Make copies"
 #~ msgstr "Make copies"
 
-#: src/cards.ts:638
+#: src/cards.ts:661
 msgid "Merge"
 msgstr "Merge"
 
-#: src/cards.ts:497
+#: src/cards.ts:519
 msgid "Merge Monster"
 msgstr "Merge Monster"
 
-#: src/cards.ts:602
+#: src/cards.ts:625
 msgid "Move"
 msgstr "Move"
 
-#: src/cards.ts:1056
+#: src/cards.ts:1148
 msgid "Not enough energy to play {0}."
 msgstr "Not enough energy to play {0}."
 
 #: src/Decision.svelte:11
-msgid "Pick a card!"
-msgstr "Pick a card!"
+#~ msgid "Pick a card!"
+#~ msgstr "Pick a card!"
 
-#: src/cards.ts:1066
+#: src/cards.ts:1160
 msgid "Played {0} to slot {1}."
 msgstr "Played {0} to slot {1}."
 
-#: src/cards.ts:1081
-#: src/cards.ts:1086
+#: src/cards.ts:1176
+#: src/cards.ts:1183
 msgid "Played {0}."
 msgstr "Played {0}."
 
-#: src/cards.ts:614
+#: src/cards.ts:637
 msgid "Pop stash"
 msgstr "Pop stash"
 
-#: src/cards.ts:548
+#: src/cards.ts:570
 msgid "Remove"
 msgstr "Remove"
 
-#: src/cards.ts:554
-#: src/cards.ts:566
+#: src/cards.ts:505
+msgid "Repo Raven"
+msgstr "Repo Raven"
+
+#: src/cards.ts:576
+#: src/cards.ts:588
 msgid "Restore"
 msgstr "Restore"
 
-#: src/cards.ts:560
+#: src/cards.ts:582
 msgid "Restore All"
 msgstr "Restore All"
 
 #: src/cards.ts:572
 #: src/cards.ts:578
-msgid "Restore staged"
-msgstr "Restore staged"
+#~ msgid "Restore staged"
+#~ msgstr "Restore staged"
 
-#: src/cards.ts:511
+#: src/cards.ts:533
 msgid "Rubber Duck"
 msgstr "Rubber Duck"
 
-#: src/cards.ts:271
+#: src/cards.ts:281
 msgid "run \"{0}\""
 msgstr "run \"{0}\""
+
+#: src/cards.ts:1131
+#: src/cards.ts:1204
+msgid "Running \"{0}\""
+msgstr "Running \"{0}\""
 
 #: src/Battle.svelte:26
 #~ msgid "Select {0} targets"
 #~ msgstr "Select {0} targets"
 
-#: src/StateIndicator.svelte:22
+#: src/StateIndicator.svelte:25
 msgid "Select ref"
 msgstr "Select ref"
 
-#: src/StateIndicator.svelte:19
+#: src/StateIndicator.svelte:22
 msgid "Select slot"
 msgstr "Select slot"
 
@@ -288,51 +309,51 @@ msgstr "Select slot"
 #~ msgid "Select target"
 #~ msgstr "Select target"
 
-#: src/cards.ts:1220
+#: src/cards.ts:1337
 msgid "Shuffled discard pile into draw pile."
 msgstr "Shuffled discard pile into draw pile."
 
-#: src/cards.ts:608
+#: src/cards.ts:631
 msgid "Stash"
 msgstr "Stash"
 
 #: src/cards.ts:626
-msgid "Switch"
-msgstr "Switch"
+#~ msgid "Switch"
+#~ msgstr "Switch"
 
-#: src/cards.ts:525
+#: src/cards.ts:547
 msgid "Tag Troll"
 msgstr "Tag Troll"
 
-#: src/cards.ts:409
+#: src/cards.ts:423
 msgid "the length of the current branch"
 msgstr "the length of the current branch"
 
-#: src/cards.ts:410
+#: src/cards.ts:424
 msgid "the number of branches in your repository"
 msgstr "the number of branches in your repository"
 
-#: src/cards.ts:408
+#: src/cards.ts:422
 msgid "the number of commits in your repository"
 msgstr "the number of commits in your repository"
 
-#: src/cards.ts:407
+#: src/cards.ts:421
 msgid "the number of tags in your repository"
 msgstr "the number of tags in your repository"
 
-#: src/cards.ts:483
+#: src/cards.ts:498
 msgid "Time Snail"
 msgstr "Time Snail"
 
-#: src/cards.ts:1212
+#: src/cards.ts:1329
 msgid "Tried to draw a card, but both draw and discard pile are empty."
 msgstr "Tried to draw a card, but both draw and discard pile are empty."
 
-#: src/StateIndicator.svelte:32
+#: src/StateIndicator.svelte:35
 msgid "Unknown placeholder"
 msgstr "Unknown placeholder"
 
-#: src/StateIndicator.svelte:36
+#: src/StateIndicator.svelte:39
 msgid "Unknown state :("
 msgstr "Unknown state :("
 
@@ -340,11 +361,15 @@ msgstr "Unknown state :("
 #~ msgid "Upcoming enemy cards"
 #~ msgstr "Upcoming enemy cards"
 
-#: src/cards.ts:62
+#: src/StateIndicator.svelte:16
+msgid "Waiting..."
+msgstr "Waiting..."
+
+#: src/cards.ts:64
 msgid "when this card dies"
 msgstr "when this card dies"
 
-#: src/cards.ts:61
+#: src/cards.ts:63
 msgid "when this card is played"
 msgstr "when this card is played"
 
@@ -356,15 +381,19 @@ msgstr "when this card is played"
 msgid "You"
 msgstr "You"
 
-#: src/cards.ts:1225
+#: src/cards.ts:1342
 msgid "You drew {0}."
 msgstr "You drew {0}."
 
-#: src/cards.ts:1191
+#: src/cards.ts:1308
 msgid "You ended your turn"
 msgstr "You ended your turn"
 
-#: src/cards.ts:1136
+#: src/cards.ts:958
+msgid "You may remove a card from your deck!"
+msgstr "You may remove a card from your deck!"
+
+#: src/cards.ts:1253
 msgid "Your {0} dealt {1} damage to {2}."
 msgstr "Your {0} dealt {1} damage to {2}."
 
@@ -372,7 +401,7 @@ msgstr "Your {0} dealt {1} damage to {2}."
 #~ msgid "Your {0} died."
 #~ msgstr "Your {0} died."
 
-#: src/Decision.svelte:31
+#: src/Decision.svelte:32
 msgid "Your current deck"
 msgstr "Your current deck"
 

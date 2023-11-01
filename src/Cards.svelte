@@ -71,6 +71,7 @@
                             on:dragover={(e) => e.preventDefault()}
                             on:drop={(e) => drop(e, index)}
                             on:click={(e) => clickSlot(e, index)}
+                            placeholderEmoji={["1️⃣", "2️⃣", "3️⃣"][index]}
                         />
                     {/each}
                 </div>
