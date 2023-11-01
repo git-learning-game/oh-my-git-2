@@ -2,11 +2,12 @@
     import {GitCommit, GitTree, GitBlob} from "./repository.ts"
     import {CreatureCard, Card} from "./cards.ts"
     import CardSvelte from "./Card.svelte"
+    import Head from "./Head.svelte"
     import {Repository} from "./repository.ts"
-    import * as YAML from "yaml"
 
     export let commit: GitCommit
     export let repo: Repository
+    export let head = false
 
     let cards: (Card | null)[] = [null, null, null]
 
@@ -42,6 +43,9 @@
             <CardSvelte {card} />
         {/each}
     </div>
+    {#if head}
+        <Head />
+    {/if}
 </div>
 
 <style>
@@ -54,6 +58,7 @@
         background: #cacc41;
         padding: 1em;
         border-radius: 1em;
+        position: relative;
     }
     .cards {
         display: flex;

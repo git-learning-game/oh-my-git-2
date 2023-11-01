@@ -813,14 +813,15 @@ export class Adventure {
             CardID.Checkout,
             CardID.RestoreS,
             CardID.Branch,
+            CardID.Switch,
         ]
 
-        //this.deck = cards.map((id) => buildCard(id))
+        this.deck = cards.map((id) => buildCard(id))
 
-        let deckSize = 15
-        for (let i = 0; i < deckSize; i++) {
-            this.deck.push(randomCard())
-        }
+        //let deckSize = 15
+        //for (let i = 0; i < deckSize; i++) {
+        //    this.deck.push(randomCard())
+        //}
 
         //for (let card of Object.values(allCards())) {
         //    this.deck.push(cloneDeep(card))

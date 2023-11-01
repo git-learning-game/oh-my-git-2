@@ -3,9 +3,11 @@
     import {CreatureCard, Card} from "./cards.ts"
     import CardSvelte from "./Card.svelte"
     import {Repository} from "./repository.ts"
+    import Head from "./Head.svelte"
 
     export let ref: GitRef
     export let repo: Repository
+    export let head: boolean = false
 
     let name: string
 
@@ -16,8 +18,11 @@
     }
 </script>
 
-<div class="ref">
+<div class="ref" class:tag={ref.id().startsWith("refs/tags")}>
     <h2>{name}</h2>
+    {#if head}
+        <Head />
+    {/if}
 </div>
 
 <style>
@@ -27,8 +32,12 @@
     }
     .ref {
         font-size: 70%;
-        background: blue;
+        background: #225cba;
         padding: 1em;
         border-radius: 1em;
+        position: relative;
+    }
+    .tag {
+        background: green;
     }
 </style>
