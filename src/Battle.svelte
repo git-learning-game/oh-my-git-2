@@ -252,7 +252,7 @@
         position: absolute;
         left: 50%;
         transform: translateX(-50%);
-        bottom: 15.3em;
+        bottom: 14.3em;
     }
 
     #topdown {

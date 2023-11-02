@@ -66,6 +66,7 @@
 <style>
     div {
         font-size: 200%;
+        font-family: var(--title-font);
     }
     span {
         font-weight: bold;

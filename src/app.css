@@ -14,6 +14,7 @@
 body {
     font-family: sans-serif;
     overflow: hidden;
+    --title-font: "Fira Sans", sans-serif;
 }
 
 svg {
@@ -27,7 +28,7 @@ h3,
 h4,
 h5,
 h6 {
-    font-family: "Fira Sans", sans-serif;
+    font-family: var(--title-font);
     font-weight: bold;
 }
 
@@ -43,7 +44,7 @@ button {
     top: -0.3em;
     margin: 0 0.5em;
     display: inline-block;
-    font-family: "Fira Sans", sans-serif;
+    font-family: var(--title-font);
 }
 
 button:hover {

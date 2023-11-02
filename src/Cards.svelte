@@ -42,7 +42,7 @@
 <div id="wrapper">
     {#if battle}
         <div class="group">
-            <h2></h2>
+            <div class="column-title"></div>
 
             <div class="cards">
                 {#each battle.enemyUpcomingSlots as slot}
@@ -53,6 +53,7 @@
 
         <div id="arena">
             <div class="group">
+                <div class="column-title"></div>
                 <div class="cards">
                     {#each battle.enemySlots as slot}
                         <CardSvelte card={slot} />
@@ -63,6 +64,7 @@
             <div id="separator">⚡</div>
 
             <div class="group">
+                <div class="column-title">Working directory</div>
                 <div class="cards">
                     {#each battle.slots as slot, index}
                         <CardSvelte
@@ -79,6 +81,7 @@
         </div>
 
         <div class="group">
+            <div class="column-title">Index</div>
             <div class="cards">
                 {#each indexSlots as slot, index}
                     <CardSvelte
@@ -112,7 +115,9 @@
         align-items: center;
         justify-content: center;
     }
-    .group {
+    .player {
+        font-size: 100%;
+        font-family: var(--title-font);
     }
     .cards {
         display: flex;
@@ -149,5 +154,12 @@
 
     #separator:not(:empty)::after {
         margin-top: 0.25em;
+    }
+    .column-title {
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 0.5em;
+        height: 1.5em;
+        font-size: 120%;
     }
 </style>
