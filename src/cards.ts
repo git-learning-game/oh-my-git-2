@@ -58,7 +58,7 @@ export class CreatureCard extends Card {
     }
 
     getTitle(): string {
-        return this.name
+        return (allCards()[this.id] as CreatureCard).name
     }
 
     getDescription(): string {
@@ -104,11 +104,11 @@ export class CommandCard extends Card {
     }
 
     getTitle(): string {
-        return this.command.template
+        return (allCards()[this.id] as CommandCard).command.template
     }
 
     getDescription(): string {
-        return this.description
+        return (allCards()[this.id] as CommandCard).description
     }
 }
 
@@ -124,7 +124,7 @@ export class EffectCard extends Card {
     }
 
     getTitle(): string {
-        return this.name
+        return (allCards()[this.id] as EffectCard).name
     }
 
     getDescription(): string {
