@@ -67,6 +67,9 @@
     tabindex="0"
 >
     {#if card}
+        {#if card.emoji}
+            <span class="background">{card.emoji}</span>
+        {/if}
         {#if showCost}
             <span class="emoji energy"
                 ><EmojiNumber number={card.energy} emoji="🔷" /></span
@@ -109,6 +112,16 @@
         flex-direction: column;
         position: relative;
         user-select: none;
+    }
+    .background {
+        position: absolute;
+        top: 0.2em;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        font-size: 700%;
+        opacity: 0.15;
+        text-align: center;
     }
     code {
         background: #111;

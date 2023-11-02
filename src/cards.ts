@@ -6,6 +6,7 @@ export abstract class Card {
     constructor(
         public id: CardID,
         public energy: number,
+        public emoji?: string,
     ) {}
 
     abstract getTitle(): string
@@ -22,8 +23,9 @@ export class CreatureCard extends Card {
         public name: string,
         public attack: number,
         public health: number,
+        emoji?: string,
     ) {
-        super(id, energy)
+        super(id, energy, emoji)
     }
 
     stringify(): string {
@@ -96,8 +98,9 @@ export class CommandCard extends Card {
         energy: number,
         public description: string,
         public command: Command,
+        emoji?: string,
     ) {
-        super(id, energy)
+        super(id, energy, emoji)
     }
 
     getTitle(): string {
@@ -115,8 +118,9 @@ export class EffectCard extends Card {
         energy: number,
         public name: string,
         public effect: Effect,
+        emoji?: string,
     ) {
-        super(id, energy)
+        super(id, energy, emoji)
     }
 
     getTitle(): string {
@@ -488,6 +492,7 @@ function allCards(): Record<CardID, Card> {
             gt`Graph Gnome`,
             1,
             4,
+            "👺",
         ).addEffect(
             Trigger.Played,
             new GiveSelfEffect(
@@ -501,6 +506,7 @@ function allCards(): Record<CardID, Card> {
             gt`Blob Eater`,
             2,
             6,
+            "🐡",
         ).addEffect(Trigger.Played, new DeleteRandomEnemyEffect()),
         [CardID.TimeSnail]: new CreatureCard(
             CardID.TimeSnail,
@@ -508,6 +514,7 @@ function allCards(): Record<CardID, Card> {
             gt`Time Snail`,
             1,
             1,
+            "🐌",
         ),
         [CardID.RepoRaven]: new CreatureCard(
             CardID.RepoRaven,
@@ -515,6 +522,7 @@ function allCards(): Record<CardID, Card> {
             gt`Repo Raven`,
             2,
             2,
+            "🐦",
         ),
         [CardID.CloneWarrior]: new CreatureCard(
             CardID.CloneWarrior,
@@ -522,6 +530,7 @@ function allCards(): Record<CardID, Card> {
             gt`Clone Warrior`,
             2,
             5,
+            "🪖",
         ).addEffect(Trigger.Dies, new AddCardToHandEffect(CardID.TimeSnail)),
         [CardID.MergeMonster]: new CreatureCard(
             CardID.MergeMonster,
@@ -529,6 +538,7 @@ function allCards(): Record<CardID, Card> {
             gt`Merge Monster`,
             8,
             8,
+            "🧌",
         ),
         [CardID.DetachedHead]: new CreatureCard(
             CardID.DetachedHead,
@@ -536,6 +546,7 @@ function allCards(): Record<CardID, Card> {
             gt`Detached Head`,
             0,
             4,
+            "👤",
         ),
         [CardID.RubberDuck]: new CreatureCard(
             CardID.RubberDuck,
@@ -543,6 +554,7 @@ function allCards(): Record<CardID, Card> {
             gt`Rubber Duck`,
             1,
             1,
+            "🦆",
         ).addEffect(Trigger.Played, new DrawCardEffect(1)),
         [CardID.CollabCentaur]: new CreatureCard(
             CardID.CollabCentaur,
@@ -550,6 +562,7 @@ function allCards(): Record<CardID, Card> {
             gt`Collab Centaur`,
             2,
             2,
+            "🐴",
         ).addEffect(Trigger.Played, new GiveFriendsEffect(1, 1)),
         [CardID.TagTroll]: new CreatureCard(
             CardID.TagTroll,
@@ -557,6 +570,7 @@ function allCards(): Record<CardID, Card> {
             gt`Tag Troll`,
             5,
             1,
+            "👿",
         ).addEffect(
             Trigger.Played,
             new CommandEffect(new Command("git tag $RANDOM")),
@@ -567,12 +581,14 @@ function allCards(): Record<CardID, Card> {
             4,
             gt`Joker! Run an arbitrary command.`,
             new Command("STRING"),
+            "🃏",
         ),
         [CardID.Add]: new CommandCard(
             CardID.Add,
             1,
             gt`Copy a card from the working directory to the index.`,
             new Command("git add SLOT"),
+            "➕",
         ),
         [CardID.AddAll]: new CommandCard(
             CardID.AddAll,
@@ -585,6 +601,7 @@ function allCards(): Record<CardID, Card> {
             0,
             gt`Remove a card in the working directory.`,
             new Command("rm SLOT"),
+            "➖",
         ),
         [CardID.Restore]: new CommandCard(
             CardID.Restore,
@@ -665,6 +682,7 @@ function allCards(): Record<CardID, Card> {
             0,
             gt`Create a new branch at the HEAD commit.`,
             new Command("git branch STRING"),
+            "🫒",
         ),
         [CardID.Switch]: new CommandCard(
             CardID.Switch,
@@ -703,12 +721,14 @@ function allCards(): Record<CardID, Card> {
             1,
             gt`Health potion`,
             new GiveFriendsEffect(0, 2),
+            "💊",
         ),
         [CardID.DrawCard]: new EffectCard(
             CardID.DrawCard,
             1,
             gt`Library`,
             new DrawCardEffect(2),
+            "📚",
         ),
         [CardID.Bandaid]: new EffectCard(
             CardID.Bandaid,
@@ -717,6 +737,7 @@ function allCards(): Record<CardID, Card> {
             new HealPlayerEffect(
                 new DynamicNumericValue(DynamicValueType.TagCount),
             ),
+            "🩹",
         ),
         [CardID.Inspiration]: new EffectCard(
             CardID.Inspiration,
@@ -725,6 +746,7 @@ function allCards(): Record<CardID, Card> {
             new GainEnergyEffect(
                 new DynamicNumericValue(DynamicValueType.BranchCount),
             ),
+            "💡",
         ),
     }
 }
@@ -921,13 +943,14 @@ export class Adventure {
         //    this.deck.push(randomCard())
         //}
 
-        //for (let card of Object.values(allCards())) {
-        //    this.deck.push(cloneDeep(card))
-        //}
+        for (let card of Object.values(allCards())) {
+            this.deck.push(cloneDeep(card))
+        }
 
         this.state = null
 
         this.path = [
+            new NewCardEvent(),
             new BattleEvent(BluePrintEnemy),
             new NewCardEvent(),
             new BattleEvent(RandomEnemy),

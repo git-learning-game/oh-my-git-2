@@ -68,7 +68,8 @@
         gap: 1em;
         min-height: 15em;
         max-height: 34em;
-        overflow: auto;
+        overflow-y: auto;
+        overflow-x: hidden;
         padding: 1em 0;
     }
 </style>
