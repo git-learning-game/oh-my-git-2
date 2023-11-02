@@ -213,11 +213,14 @@ class WebShell {
         })
     }
 
-    boot(): Promise<void> {
+    boot(
+        progressCallback: (e: CustomEvent) => void = (_) => {},
+    ): Promise<void> {
         return new Promise((resolve, _) => {
-            // Start the this.emulator!
+            // Start the emulator!
             //@ts-ignore
             this.emulator = new V86Starter(this.config)
+            this.emulator.add_listener("download-progress", progressCallback)
 
             // Wait for the this.emulator to start, then resolve the promise.
             var interval = setInterval(async () => {

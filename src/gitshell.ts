@@ -5,8 +5,8 @@ export class GitShell extends WebShell {
         super()
     }
 
-    async boot() {
-        await super.boot()
+    async boot(progressCallback: (e: CustomEvent) => void = (_) => {}) {
+        await super.boot(progressCallback)
         //this.shell.type("stty rows 15\n")
         //this.shell.type("clear\n")
         //this..setKeyboardActive(false)

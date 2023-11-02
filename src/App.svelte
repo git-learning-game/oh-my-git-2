@@ -12,13 +12,21 @@
     let shell: GitShell
     let adventure: Adventure
 
+    let loadingProgress = 0
+
+    function updateProgress(e: any) {
+        console.log(e)
+        loadingProgress = (e.loaded / e.total) * 95
+    }
+
     onMount(() => {
         transformToFitScreen()
 
         shell = new GitShell()
         ;(window as any)["shell"] = shell
 
-        shell.boot().then(() => {
+        shell.boot(updateProgress).then(() => {
+            loadingProgress = 100
             shell.setKeyboardActive(false)
             adventure = new Adventure((_) => {
                 // The next event was entered!
@@ -70,24 +78,28 @@
 </script>
 
 <div id="container">
-    <LanguageSwitcher />
-    {#if adventure}
-        {#if adventure.state instanceof Battle}
-            <BattleSvelte battle={adventure.state} {shell} />
-        {:else if adventure.state instanceof Decision}
-            <DecisionSvelte
-                message={adventure.state.message}
-                choices={adventure.state.choices}
-                deck={adventure.deck}
-                on:choice={decisionMade}
-            />
-        {:else if adventure.state instanceof Adventure}
-            <Path {adventure} />
-        {:else if adventure.state instanceof Win}
-            <WinSvelte {adventure} />
-        {/if}
+    {#if loadingProgress < 100}
+        <div id="progress"><span>{Math.round(loadingProgress)}%</span></div>
     {:else}
-        Starting game...
+        <LanguageSwitcher />
+        {#if adventure}
+            {#if adventure.state instanceof Battle}
+                <BattleSvelte battle={adventure.state} {shell} />
+            {:else if adventure.state instanceof Decision}
+                <DecisionSvelte
+                    message={adventure.state.message}
+                    choices={adventure.state.choices}
+                    deck={adventure.deck}
+                    on:choice={decisionMade}
+                />
+            {:else if adventure.state instanceof Adventure}
+                <Path {adventure} />
+            {:else if adventure.state instanceof Win}
+                <WinSvelte {adventure} />
+            {/if}
+        {:else}
+            Starting game...
+        {/if}
     {/if}
 </div>
 
@@ -100,5 +112,14 @@
     #container {
         width: 1920px;
         height: 1080px;
+    }
+    #progress {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 500%;
+        color: white;
     }
 </style>
