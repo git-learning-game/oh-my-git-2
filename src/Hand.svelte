@@ -60,7 +60,7 @@
 
 <style>
     #wrapper {
-        background: lightgreen;
+        background: #b59e77;
         padding: 0.5em;
         position: relative;
         height: 14em;

@@ -259,6 +259,7 @@
         display: flex;
         flex-direction: column;
         height: 100%;
+        background: #f0e2b9;
     }
 
     #columns {
@@ -269,18 +270,12 @@
     }
 
     #graph {
-        background: peachpuff;
         flex: 1;
         overflow: auto;
         width: 36em;
     }
 
-    #screen {
-        width: 35em;
-    }
-
     #cards {
-        background: lightblue;
         width: 48em;
         overflow: auto;
     }

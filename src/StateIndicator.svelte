@@ -22,7 +22,7 @@
     $: {
         showInput = false
         if (battle.state instanceof PlayerTurnState) {
-            stateMessage = $t`Your turn`
+            stateMessage = ""
         } else if (battle.state instanceof WaitingState) {
             stateMessage = $t`Waiting...`
         } else if (battle.state instanceof RequirePlaceholderState) {
@@ -47,26 +47,33 @@
     }
 </script>
 
-<div>
-    <span>{stateMessage}</span>
-    <input
-        type="text"
-        bind:value={inputText}
-        bind:this={input}
-        style="display: {showInput ? 'inline' : 'none'}"
-        on:keydown={(e) => {
-            if (e.key === "Enter") {
-                dispatch("textEntered", inputText)
-                inputText = ""
-            }
-        }}
-    />
-</div>
+{#if stateMessage != ""}
+    <div>
+        <span>{stateMessage}</span>
+        <input
+            type="text"
+            bind:value={inputText}
+            bind:this={input}
+            style="display: {showInput ? 'inline' : 'none'}"
+            on:keydown={(e) => {
+                if (e.key === "Enter") {
+                    dispatch("textEntered", inputText)
+                    inputText = ""
+                }
+            }}
+        />
+    </div>
+{/if}
 
 <style>
     div {
-        font-size: 200%;
+        font-size: 180%;
         font-family: var(--title-font);
+        background: #227a38;
+        padding: 0.1em 0.3em;
+        color: white;
+        border-radius: 0.5em;
+        z-index: 100;
     }
     span {
         font-weight: bold;

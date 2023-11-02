@@ -63,7 +63,7 @@
     .cards {
         display: flex;
         flex-direction: column;
-        gap: 0.5em;
+        gap: 1em;
         justify-content: center;
     }
 </style>

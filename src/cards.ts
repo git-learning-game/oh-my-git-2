@@ -965,7 +965,7 @@ class RandomEnemy extends Enemy {
     makeMove() {
         this.turn += 1
 
-        if (this.turn % 2 == 1) {
+        if (Math.random() < 0.5) {
             return
         }
 
@@ -1021,7 +1021,6 @@ export class Adventure {
         //}
 
         this.path = [
-            new NewCardEvent(),
             new BattleEvent(BluePrintEnemy),
             new NewCardEvent(),
             new BattleEvent(RandomEnemy),

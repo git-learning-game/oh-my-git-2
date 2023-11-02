@@ -130,7 +130,8 @@
         overflow: auto;
         display: flex;
         align-items: end;
-        padding-bottom: 3em;
+        justify-content: flex-end;
+        padding-bottom: 9em;
         gap: 1em;
     }
     #topdown {
