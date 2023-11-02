@@ -239,7 +239,11 @@ abstract class Effect {
 
     describeAmount(value: NumericValue, unit?: string): string {
         if (typeof value === "number") {
-            return `${value} ${unit}`
+            if (unit === undefined) {
+                return `${value}`
+            } else {
+                return `${value} ${unit}`
+            }
         } else {
             if (unit === undefined) {
                 return value.getDescription()
@@ -373,9 +377,22 @@ class GiveSelfEffect extends Effect {
     }
 
     getDescription(): string {
-        return gt`increase its own attack by ${this.describeAmount(
-            this.attack,
-        )} and health by ${this.describeAmount(this.health)}`
+        let description = []
+        if (typeof this.attack !== "number" || this.attack !== 0) {
+            description.push(
+                gt`increase its own attack by ${this.describeAmount(
+                    this.attack,
+                )}`,
+            )
+        }
+        if (typeof this.health !== "number" || this.health !== 0) {
+            description.push(
+                gt`increase its own health by ${this.describeAmount(
+                    this.health,
+                )}`,
+            )
+        }
+        return description.join(gt` and `)
     }
 
     async apply(battle: Battle, source: CardSource) {
