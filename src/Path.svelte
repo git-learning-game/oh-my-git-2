@@ -12,7 +12,7 @@
     export let adventure: Adventure
 
     function isPickable(event: AdventureEvent) {
-        return true // hack!
+        //return true // hack!
         let indexOfCurrentEvent = adventure.path.indexOf(adventure.currentEvent)
         let indexOfEvent = adventure.path.indexOf(event)
 

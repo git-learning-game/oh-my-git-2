@@ -75,7 +75,8 @@
     }
     .can-overflow {
         overflow-y: auto;
-        overflow-x: hidden;
+        justify-content: flex-start;
+        margin: 0 2em;
     }
     .choice {
         display: flex;
