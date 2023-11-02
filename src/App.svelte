@@ -84,7 +84,7 @@
         {:else if adventure.state instanceof Adventure}
             <Path {adventure} />
         {:else if adventure.state instanceof Win}
-            okkkkkkkkkkkkkkkkkk<WinSvelte {adventure} />
+            <WinSvelte {adventure} />
         {/if}
     {:else}
         Starting game...

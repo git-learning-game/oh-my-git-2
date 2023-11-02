@@ -5,6 +5,10 @@
     export let adventure: Adventure
 
     let date = new Date().toISOString().split("T")[0]
+
+    function print() {
+        window.print()
+    }
 </script>
 
 <div id="wrapper">
@@ -43,6 +47,7 @@
             </p>
         </div>
     </div>
+    <button id="print" on:click={print}>🖨️ {$t`Print`}</button>
 </div>
 
 <style>
@@ -53,6 +58,7 @@
         height: 100%;
         width: 100%;
         background: #ddd;
+        position: relative;
     }
 
     #diploma {
@@ -102,5 +108,20 @@
         justify-content: space-between;
         align-items: center;
         width: 100%;
+    }
+    #print {
+        font-size: 200%;
+        position: absolute;
+        right: 1em;
+        top: 2em;
+    }
+    @media print {
+        @page {
+            size: landscape;
+        }
+        #print,
+        :global(#lang-switch) {
+            display: none;
+        }
     }
 </style>
