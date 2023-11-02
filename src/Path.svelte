@@ -71,8 +71,8 @@
         text-align: center;
     }
     h1 {
-        font-size: 600%;
-        margin-bottom: 1em;
+        font-size: 900%;
+        margin-bottom: 0.2em;
         margin-top: 1em;
     }
     h2 {

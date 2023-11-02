@@ -22,10 +22,14 @@
 
 <style>
     #lang-switch {
-        font-size: 120%;
+        font-size: 150%;
         position: absolute;
         top: 10px;
         left: 10px;
         z-index: 10;
+    }
+    select {
+        padding: 0.2em;
+        border-radius: 0.7em;
     }
 </style>
