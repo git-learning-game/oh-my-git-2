@@ -13,67 +13,67 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: Poedit 3.3.2\n"
 
-#: src/cards.ts:1267
+#: src/cards.ts:1324
 msgid "{0} dealt {1} damage to the enemy player."
 msgstr "{0} fügte dem gegnerischen Spieler {1} Schaden zu."
 
-#: src/cards.ts:237
+#: src/cards.ts:247
 msgid "{0} equal to {1}"
 msgstr "soviel {0} wie {1}"
 
-#: src/cards.ts:342
+#: src/cards.ts:352
 msgid "{num, plural, one {draw a card} other {draw # cards}}"
 msgstr "{num, plural, one {ziehe eine Karte} other {ziehe # Karten}}"
 
 #: src/cards.ts:558
-msgid "Add"
-msgstr "Hinzufügen"
+#~ msgid "Add"
+#~ msgstr "Hinzufügen"
 
-#: src/cards.ts:297
+#: src/cards.ts:307
 msgid "add a {0} to your hand"
 msgstr "füge {0} deiner Hand hinzu"
 
-#: src/cards.ts:947
+#: src/cards.ts:999
 msgid "Add a card to your deck!"
 msgstr "Füge deinem Deck eine Karte hinzu!"
 
 #: src/cards.ts:564
-msgid "Add all"
-msgstr "Alle hinzufügen"
+#~ msgid "Add all"
+#~ msgstr "Alle hinzufügen"
 
-#: src/cards.ts:304
+#: src/cards.ts:314
 msgid "Added a {0} to your hand."
 msgstr "{0} wurde deiner Hand hinzugefügt."
 
-#: src/cards.ts:1228
+#: src/cards.ts:1285
 msgid "Automatically creating a commit."
 msgstr "Erstelle automatisch einen Commit."
 
-#: src/cards.ts:687
+#: src/cards.ts:736
 msgid "Bandaid"
 msgstr "Pflaster"
 
-#: src/cards.ts:491
+#: src/cards.ts:506
 msgid "Blob Eater"
 msgstr "Blobfresser"
 
 #: src/cards.ts:643
-msgid "Branch"
-msgstr "Branch"
+#~ msgid "Branch"
+#~ msgstr "Branch"
 
 #: src/cards.ts:655
-msgid "Checkout"
-msgstr "Checkout"
+#~ msgid "Checkout"
+#~ msgstr "Checkout"
 
-#: src/cards.ts:512
+#: src/cards.ts:530
 msgid "Clone Warrior"
 msgstr "Klonkrieger"
 
-#: src/cards.ts:540
+#: src/cards.ts:562
 msgid "Collab Centaur"
 msgstr "Zusammenarbeitszentaur"
 
-#: src/cards.ts:1210
+#: src/cards.ts:1267
 msgid "Command failed: {0}"
 msgstr "Befehl fehlgeschlagen: {0}"
 
@@ -89,15 +89,55 @@ msgstr "Befehl fehlgeschlagen: {0}"
 msgid "Commit!"
 msgstr "Commit!"
 
-#: src/cards.ts:619
-msgid "Copy"
-msgstr "Kopieren"
+#: src/cards.ts:671
+msgid "Convert working directory and index into stash commits. Then, reset them to the HEAD commit."
+msgstr "Verwandele Arbeitsverzeichnis und Index in Stash-Commits. Setze sie dann auf den HEAD-Commit zurück."
 
-#: src/cards.ts:316
+#: src/cards.ts:619
+#~ msgid "Copy"
+#~ msgstr "Kopieren"
+
+#: src/cards.ts:653
+msgid "Copy a card from one working directory slot to another."
+msgstr "Kopiere eine Karte von einem Arbeitsverzeichnis-Slot zu einem anderen."
+
+#: src/cards.ts:627
+msgid "Copy a card from the HEAD commit to the index."
+msgstr "Kopiere eine Karte aus dem HEAD-Commit in den Index."
+
+#: src/cards.ts:609
+msgid "Copy a card from the index to the working directory."
+msgstr "Kopiere eine Karte aus dem Index ins Arbeitsverzeichnis."
+
+#: src/cards.ts:633
+msgid "Copy a card from the specified commit to the index."
+msgstr "Kopiere eine Karte aus dem angegebenen Commit in den Index."
+
+#: src/cards.ts:621
+msgid "Copy a card from the specified commit to the working directory."
+msgstr "Kopiere eine Karte aus dem angegebenen Commit ins Arbeitsverzeichnis."
+
+#: src/cards.ts:589
+msgid "Copy a card from the working directory to the index."
+msgstr "Kopiere eine Karte aus dem Arbeitsverzeichnis in den Index."
+
+#: src/cards.ts:615
+msgid "Copy all cards from the index to the working directory."
+msgstr "Kopiere alle Karten aus dem Index ins Arbeitsverzeichnis."
+
+#: src/cards.ts:596
+msgid "Copy all cards from the working directory to the index."
+msgstr "Kopiere alle Karten aus dem Arbeitsverzeichnis in den Index."
+
+#: src/cards.ts:683
+msgid "Create a new branch at the HEAD commit."
+msgstr "Erstelle am HEAD-Commit einen neuen Branch."
+
+#: src/cards.ts:326
 msgid "delete a random enemy"
 msgstr "lösche einen zufälligen Gegner"
 
-#: src/cards.ts:526
+#: src/cards.ts:546
 msgid "Detached Head"
 msgstr "Abgetrennter Kopf"
 
@@ -113,15 +153,15 @@ msgstr "Abgetrennter Kopf"
 msgid "Enemy"
 msgstr "Gegner"
 
-#: src/cards.ts:1246
+#: src/cards.ts:1303
 msgid "Enemy {0} dealt {1} damage to {2}."
 msgstr "Gegner {0} fügte {2} {1} Schaden zu."
 
-#: src/cards.ts:1278
+#: src/cards.ts:1335
 msgid "Enemy {0} dealt {1} damage to you."
 msgstr "Gegner {0} fügte dir {1} Schaden zu."
 
-#: src/cards.ts:1197
+#: src/cards.ts:1254
 msgid "Enemy announced {0} at slot {1}."
 msgstr "Der Gegner hat {0} auf Slot {1} angekündigt."
 
@@ -133,7 +173,7 @@ msgstr "Der Gegner hat {0} auf Slot {1} angekündigt."
 #~ msgid "enemy health"
 #~ msgstr "Gesundheit des Gegners"
 
-#: src/cards.ts:265
+#: src/cards.ts:275
 msgid "energy"
 msgstr "Energie"
 
@@ -149,15 +189,15 @@ msgstr "Gib Text ein: "
 #~ msgid "Event log"
 #~ msgstr "Ereignisprotokoll"
 
-#: src/cards.ts:265
+#: src/cards.ts:275
 msgid "gain {0}"
 msgstr "erhalte {0}"
 
-#: src/cards.ts:270
+#: src/cards.ts:280
 msgid "Gain {0} energy"
 msgstr "Erhalte {0} Energie"
 
-#: src/cards.ts:390
+#: src/cards.ts:400
 msgid "give all allies +{0}/{1}"
 msgstr "gib allen Verbündeten +{0}/{1}"
 
@@ -165,15 +205,15 @@ msgstr "gib allen Verbündeten +{0}/{1}"
 #~ msgid "give all friends +{0}/{1}"
 #~ msgstr "gib allen Freunden +{0}/{1}"
 
-#: src/cards.ts:478
+#: src/cards.ts:492
 msgid "Graph Gnome"
 msgstr "Graphgnom"
 
-#: src/cards.ts:249
+#: src/cards.ts:259
 msgid "heal yourself by {0}"
 msgstr "heile dich um {0}"
 
-#: src/cards.ts:254
+#: src/cards.ts:264
 msgid "Healed for {0}"
 msgstr "Geheilt um {0}"
 
@@ -185,11 +225,11 @@ msgstr "Geheilt um {0}"
 #~ msgid "Health"
 #~ msgstr "Gesundheit"
 
-#: src/cards.ts:675
+#: src/cards.ts:722
 msgid "Health potion"
 msgstr "Heiltrank"
 
-#: src/cards.ts:366
+#: src/cards.ts:376
 msgid "increase its own attack by {0} and health by {1}"
 msgstr "erhöhe den Angriff der Karte um {0}, und die Gesundheit um {1}"
 
@@ -197,27 +237,47 @@ msgstr "erhöhe den Angriff der Karte um {0}, und die Gesundheit um {1}"
 #~ msgid "Index"
 #~ msgstr "Index"
 
-#: src/cards.ts:695
+#: src/cards.ts:745
 msgid "Inspiration"
 msgstr "Inspiration"
 
-#: src/cards.ts:681
+#: src/cards.ts:582
+msgid "Joker! Run an arbitrary command."
+msgstr "Joker! Führe einen beliebigen Befehl aus."
+
+#: src/cards.ts:729
 msgid "Library"
 msgstr "Bibliothek"
 
 #: src/cards.ts:661
-msgid "Merge"
-msgstr "Merge"
+#~ msgid "Merge"
+#~ msgstr "Merge"
 
-#: src/cards.ts:519
+#: src/cards.ts:538
 msgid "Merge Monster"
 msgstr "Merge-Monster"
 
-#: src/cards.ts:625
-msgid "Move"
-msgstr "Verschieben"
+#: src/cards.ts:677
+msgid "Merge the last working directory stash commit into the working directory."
+msgstr "Merge den letzten Stash-Commit des Arbeitsverzeichnisses ins Arbeitsverzeichnis."
 
-#: src/cards.ts:1148
+#: src/cards.ts:708
+msgid "Merge the specified commit into the current HEAD commit, and set index and working directory to the result. Does nothing if the specified commit is already an ancestor of HEAD."
+msgstr "Merge den angegebenen Commit in den aktuellen HEAD-Commit, und setze Index und Arbeitsverzeichnis auf das Ergebnis. Tut nichts, wenn der angegebene Commit bereits ein Vorfahre von HEAD ist."
+
+#: src/cards.ts:625
+#~ msgid "Move"
+#~ msgstr "Verschieben"
+
+#: src/cards.ts:665
+msgid "Move a card from one slot to another in both the working directory and index."
+msgstr "Verschiebe eine Karte im Arbeitsverzeichnis und Index von einem Slot zu einem anderen."
+
+#: src/cards.ts:659
+msgid "Move a card from one working directory slot to another."
+msgstr "Verschiebe eine Karte im Arbeitsverzeichnis von einem Slot zu einem anderen."
+
+#: src/cards.ts:1205
 msgid "Not enough energy to play {0}."
 msgstr "Nicht genug Energie, um {0} zu spielen."
 
@@ -225,51 +285,55 @@ msgstr "Nicht genug Energie, um {0} zu spielen."
 #~ msgid "Pick a card!"
 #~ msgstr "Wähle eine Karte!"
 
-#: src/cards.ts:1160
+#: src/cards.ts:1217
 msgid "Played {0} to slot {1}."
 msgstr "Du hast {0} auf Slot {1} gespielt."
 
-#: src/cards.ts:1176
-#: src/cards.ts:1183
+#: src/cards.ts:1233
+#: src/cards.ts:1240
 msgid "Played {0}."
 msgstr "{0} gespielt."
 
 #: src/cards.ts:637
-msgid "Pop stash"
-msgstr "Stash poppen"
+#~ msgid "Pop stash"
+#~ msgstr "Stash poppen"
 
 #: src/cards.ts:570
-msgid "Remove"
-msgstr "Entfernen"
+#~ msgid "Remove"
+#~ msgstr "Entfernen"
 
-#: src/cards.ts:505
+#: src/cards.ts:602
+msgid "Remove a card in the working directory."
+msgstr "Entferne eine Karte im Arbeitsverzeichnis."
+
+#: src/cards.ts:522
 msgid "Repo Raven"
 msgstr "Repo-Rabe"
 
 #: src/cards.ts:576
 #: src/cards.ts:588
-msgid "Restore"
-msgstr "Wiederherstellen"
+#~ msgid "Restore"
+#~ msgstr "Wiederherstellen"
 
 #: src/cards.ts:582
-msgid "Restore All"
-msgstr "Alles wiederherstellen"
+#~ msgid "Restore All"
+#~ msgstr "Alles wiederherstellen"
 
 #: src/cards.ts:572
 #: src/cards.ts:578
 #~ msgid "Restore staged"
 #~ msgstr "Index wiederherstellen"
 
-#: src/cards.ts:533
+#: src/cards.ts:554
 msgid "Rubber Duck"
 msgstr "Gummiente"
 
-#: src/cards.ts:281
+#: src/cards.ts:291
 msgid "run \"{0}\""
 msgstr "führe \"{0}\" aus"
 
-#: src/cards.ts:1131
-#: src/cards.ts:1204
+#: src/cards.ts:1188
+#: src/cards.ts:1261
 msgid "Running \"{0}\""
 msgstr "Führe \"{0}\" aus"
 
@@ -281,43 +345,55 @@ msgstr "Klick auf einen Ref"
 msgid "Select slot"
 msgstr "Klick auf einen Slot"
 
-#: src/cards.ts:1337
+#: src/cards.ts:690
+msgid "Set HEAD to a branch, and reset the working directory and index to that commit."
+msgstr "Setze HEAD auf den angegebenen Branch, und setze Arbeitsverzeichnis und Index auf diesen Commit zurück."
+
+#: src/cards.ts:696
+msgid "Set HEAD to a commit, and reset the working directory and index to that commit."
+msgstr "Setze HEAD auf den angegebenen Commit, und setze Arbeitsverzeichnis und Index auf diesen zurück."
+
+#: src/cards.ts:1394
 msgid "Shuffled discard pile into draw pile."
 msgstr "Ablagestapel wurde in Zugstapel gemischt."
 
+#: src/Decision.svelte:15
+msgid "Skip"
+msgstr "Überspringen"
+
 #: src/cards.ts:631
-msgid "Stash"
-msgstr "Stash"
+#~ msgid "Stash"
+#~ msgstr "Stash"
 
 #: src/cards.ts:626
 #~ msgid "Switch"
 #~ msgstr "Switch"
 
-#: src/cards.ts:547
+#: src/cards.ts:570
 msgid "Tag Troll"
 msgstr "Tag-Troll"
 
-#: src/cards.ts:423
+#: src/cards.ts:433
 msgid "the length of the current branch"
 msgstr "die Länge des aktuellen Branches"
 
-#: src/cards.ts:424
+#: src/cards.ts:434
 msgid "the number of branches in your repository"
 msgstr "die Anzahl von Branches in deinem Repository"
 
-#: src/cards.ts:422
+#: src/cards.ts:432
 msgid "the number of commits in your repository"
 msgstr "die Anzahl von Commits in deinem Repository"
 
-#: src/cards.ts:421
+#: src/cards.ts:431
 msgid "the number of tags in your repository"
 msgstr "die Anzahl von Tags in deinem Repository"
 
-#: src/cards.ts:498
+#: src/cards.ts:514
 msgid "Time Snail"
 msgstr "Zeitschnecke"
 
-#: src/cards.ts:1329
+#: src/cards.ts:1386
 msgid "Tried to draw a card, but both draw and discard pile are empty."
 msgstr "Versuchte, eine Karte zu ziehen, aber Nachzieh- und Ablagestapel sind beide leer."
 
@@ -337,11 +413,11 @@ msgstr "Unbekannter Zustand :("
 msgid "Waiting..."
 msgstr "Warte..."
 
-#: src/cards.ts:64
+#: src/cards.ts:67
 msgid "when this card dies"
 msgstr "wenn diese Karte stirbt"
 
-#: src/cards.ts:63
+#: src/cards.ts:66
 msgid "when this card is played"
 msgstr "wenn diese Karte gespielt wird"
 
@@ -353,23 +429,23 @@ msgstr "wenn diese Karte gespielt wird"
 msgid "You"
 msgstr "Du"
 
-#: src/cards.ts:1342
+#: src/cards.ts:1399
 msgid "You drew {0}."
 msgstr "Du hast {0} gezogen."
 
-#: src/cards.ts:1308
+#: src/cards.ts:1365
 msgid "You ended your turn"
 msgstr "Du hast deinen Zug beendet"
 
-#: src/cards.ts:958
+#: src/cards.ts:1012
 msgid "You may remove a card from your deck!"
 msgstr "Entferne eine Karte aus deinem Deck, wenn du möchtest!"
 
-#: src/cards.ts:1253
+#: src/cards.ts:1310
 msgid "Your {0} dealt {1} damage to {2}."
 msgstr "Dein {0} hat {2} {1} Schaden zugefügt."
 
-#: src/Decision.svelte:32
+#: src/Decision.svelte:36
 msgid "Your current deck"
 msgstr "Dein aktuelles Deck"
 
