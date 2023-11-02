@@ -2,6 +2,8 @@
     import {Card, CreatureCard, CommandCard, EffectCard} from "./cards.ts"
     import EmojiNumber from "./EmojiNumber.svelte"
     import {t} from "svelte-i18n-lingui"
+    import {fade} from "svelte/transition"
+    import {send, receive} from "./transition.js"
 
     export let card: Card | null = null
     export let index: number | null = null
@@ -66,38 +68,45 @@
     role="button"
     tabindex="0"
 >
-    {#if card}
-        {#if card.emoji}
-            <span class="background">{card.emoji}</span>
-        {/if}
-        {#if showCost}
-            <span class="emoji energy"
-                ><EmojiNumber number={card.energy} emoji="🔷" /></span
-            >
-        {/if}
-
-        <div class="card-header">
-            <div id="name" style="font-size: {fontSize}%">
-                {#if card instanceof CommandCard}
-                    <code>{card.getTitle()}</code>
-                {:else}
-                    {card.getTitle()}
-                {/if}
-            </div>
-        </div>
-        <div class="card-body" style="font-size: {descriptionFontSize}%">
-            {card.getDescription()}
-        </div>
-        {#if card instanceof CreatureCard}
-            <div class="attack">
-                <EmojiNumber number={card.attack} emoji={"⚔️"} color="black" />
-            </div>
-            <div class="health">
-                <EmojiNumber number={card.health} emoji={"🩸"} />
-            </div>
-        {/if}
-    {:else if placeholderEmoji}
+    {#if placeholderEmoji}
         <span class="placeholder">{placeholderEmoji}</span>
+    {/if}
+    {#if card}
+        <div transition:fade>
+            {#if card.emoji}
+                <span class="background">{card.emoji}</span>
+            {/if}
+            {#if showCost}
+                <span class="emoji energy"
+                    ><EmojiNumber number={card.energy} emoji="🔷" /></span
+                >
+            {/if}
+
+            <div class="card-header">
+                <div id="name" style="font-size: {fontSize}%">
+                    {#if card instanceof CommandCard}
+                        <code>{card.getTitle()}</code>
+                    {:else}
+                        {card.getTitle()}
+                    {/if}
+                </div>
+            </div>
+            <div class="card-body" style="font-size: {descriptionFontSize}%">
+                {card.getDescription()}
+            </div>
+            {#if card instanceof CreatureCard}
+                <div class="attack">
+                    <EmojiNumber
+                        number={card.attack}
+                        emoji={"⚔️"}
+                        color="black"
+                    />
+                </div>
+                <div class="health">
+                    <EmojiNumber number={card.health} emoji={"🩸"} />
+                </div>
+            {/if}
+        </div>
     {/if}
 </div>
 
@@ -193,6 +202,9 @@
         max-height: 10em;
     }
     .placeholder {
+        position: absolute;
+        width: 100%;
+        height: 100%;
         font-size: 600%;
         flex: 1;
         display: flex;
@@ -200,5 +212,6 @@
         justify-content: center;
         filter: grayscale(100%);
         opacity: 0.5;
+        z-index: -1;
     }
 </style>

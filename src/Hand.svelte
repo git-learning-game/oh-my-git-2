@@ -2,6 +2,8 @@
     import {Battle} from "./cards.ts"
     import CardSvelte from "./Card.svelte"
     import {createEventDispatcher} from "svelte"
+    import {flip} from "svelte/animate"
+    import {fly} from "svelte/transition"
     import {t} from "svelte-i18n-lingui"
     const dispatch = createEventDispatcher()
 
@@ -28,17 +30,23 @@
                 .length}
         </h2>-->
         <div class="cards">
-            {#each battle.hand as card, index}
-                <CardSvelte
-                    {card}
-                    {index}
-                    hand={true}
-                    playable={card.energy <= battle.energy}
-                    showCost={true}
-                    on:click={() => {
-                        dispatch("playCard", {index})
-                    }}
-                />
+            {#each battle.hand as card, index (card)}
+                <div
+                    animate:flip
+                    in:fly={{x: 100, duration: 1000}}
+                    out:fly={{y: -100, duration: 500}}
+                >
+                    <CardSvelte
+                        {card}
+                        {index}
+                        hand={true}
+                        playable={card.energy <= battle.energy}
+                        showCost={true}
+                        on:click={() => {
+                            dispatch("playCard", {index})
+                        }}
+                    />
+                </div>
             {/each}
         </div>
 

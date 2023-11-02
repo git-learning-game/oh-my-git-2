@@ -1,5 +1,7 @@
 <script lang="ts">
     import {onMount} from "svelte"
+    import {fly} from "svelte/transition"
+    import {flip} from "svelte/animate"
     import {Repository, GitCommit, GitObject, GitRef} from "./repository.ts"
     import {createEventDispatcher} from "svelte"
     const dispatch = createEventDispatcher()
@@ -70,9 +72,9 @@
 </script>
 
 <div id="graph" bind:this={graph}>
-    {#each slots as slot}
+    {#each slots as slot (slot.commit.id())}
         {@const commit = slot.commit}
-        <div id="topdown">
+        <div id="topdown" animate:flip in:fly={{x: 50, duration: 500}}>
             <div class="refs">
                 {#each slot.refs as ref}
                     <div
