@@ -27,7 +27,8 @@
 </script>
 
 <div id="wrapper">
-    <h1>{$t`Make it all the way to the end to get your Git diploma!`}</h1>
+    <h1>Oh My Git 2.0</h1>
+    <h2>{$t`Make it all the way to the end to get your Git diploma!`}</h2>
     <div id="path">
         {#each adventure.path as event}
             <div
@@ -64,11 +65,21 @@
         width: 100%;
         height: 100%;
     }
+    h1,
+    h2 {
+        color: white;
+        text-align: center;
+    }
     h1 {
+        font-size: 600%;
+        margin-bottom: 1em;
+        margin-top: 1em;
+    }
+    h2 {
         color: white;
         font-size: 400%;
         text-align: center;
-        margin: 3em 0;
+        margin-bottom: 3em;
     }
     #path {
         display: flex;
