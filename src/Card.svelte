@@ -23,12 +23,23 @@
 
     let fontSize: number
     $: if (card) {
-        if (card.getName().length > 15) {
+        if (card.getTitle().length > 15) {
             fontSize = 80
-        } else if (card.getName().length > 10) {
+        } else if (card.getTitle().length > 10) {
             fontSize = 100
         } else {
             fontSize = 130
+        }
+    }
+
+    let descriptionFontSize: number
+    $: if (card) {
+        if (card.getDescription().length > 130) {
+            descriptionFontSize = 70
+        } else if (card.getDescription().length > 100) {
+            descriptionFontSize = 80
+        } else {
+            descriptionFontSize = 100
         }
     }
 </script>
@@ -65,13 +76,13 @@
         <div class="card-header">
             <div id="name" style="font-size: {fontSize}%">
                 {#if card instanceof CommandCard}
-                    <code>{card.getName()}</code>
+                    <code>{card.getTitle()}</code>
                 {:else}
-                    {card.getName()}
+                    {card.getTitle()}
                 {/if}
             </div>
         </div>
-        <div class="card-body">
+        <div class="card-body" style="font-size: {descriptionFontSize}%">
             {card.getDescription()}
         </div>
         {#if card instanceof CreatureCard}
@@ -166,8 +177,7 @@
         right: -0.5em;
     }
     .card-body {
-        max-height: 8em;
-        overflow: auto;
+        max-height: 10em;
     }
     .placeholder {
         font-size: 600%;

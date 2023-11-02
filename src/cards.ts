@@ -5,13 +5,10 @@ import {gt, gPlural} from "svelte-i18n-lingui"
 export abstract class Card {
     constructor(
         public id: CardID,
-        public name: string,
         public energy: number,
     ) {}
 
-    getName(): string {
-        return allCards()[this.id].name
-    }
+    abstract getTitle(): string
 
     abstract getDescription(): string
 }
@@ -21,12 +18,12 @@ export class CreatureCard extends Card {
 
     constructor(
         id: CardID,
-        name: string,
         energy: number,
+        public name: string,
         public attack: number,
         public health: number,
     ) {
-        super(id, name, energy)
+        super(id, energy)
     }
 
     stringify(): string {
@@ -56,6 +53,10 @@ export class CreatureCard extends Card {
         }
 
         return card
+    }
+
+    getTitle(): string {
+        return this.name
     }
 
     getDescription(): string {
@@ -92,31 +93,36 @@ export class CreatureCard extends Card {
 export class CommandCard extends Card {
     constructor(
         id: CardID,
-        name: string,
         energy: number,
+        public description: string,
         public command: Command,
     ) {
-        super(id, name, energy)
+        super(id, energy)
     }
 
-    getName(): string {
+    getTitle(): string {
         return this.command.template
     }
 
     getDescription(): string {
-        return ""
+        return this.description
     }
 }
 
 export class EffectCard extends Card {
     constructor(
         id: CardID,
-        name: string,
         energy: number,
+        public name: string,
         public effect: Effect,
     ) {
-        super(id, name, energy)
+        super(id, energy)
     }
+
+    getTitle(): string {
+        return this.name
+    }
+
     getDescription(): string {
         let description = this.effect.getDescription()
         return description.charAt(0).toUpperCase() + description.slice(1) + "."
@@ -208,7 +214,7 @@ class CardSource {
         public card: Card,
     ) {}
     sourceDescription(): string {
-        return this.card.getName()
+        return this.card.getTitle()
     }
 }
 
@@ -294,14 +300,14 @@ class AddCardToHandEffect extends Effect {
     }
 
     getDescription(): string {
-        return gt`add a ${allCards()[this.cardID].getName()} to your hand`
+        return gt`add a ${allCards()[this.cardID].getTitle()} to your hand`
     }
 
     async apply(battle: Battle, source: CardSource) {
         if (source.player) {
             battle.hand.push(buildCard(this.cardID))
             battle.log(
-                gt`Added a ${allCards()[this.cardID].getName()} to your hand.`,
+                gt`Added a ${allCards()[this.cardID].getTitle()} to your hand.`,
             )
         }
     }
@@ -400,7 +406,7 @@ class GiveFriendsEffect extends Effect {
                 card.attack += this.attack
                 card.health += this.health
                 battle.log(
-                    `${source.sourceDescription()} gave ${card.getName()} +${
+                    `${source.sourceDescription()} gave ${card.getTitle()} +${
                         this.attack
                     }/${this.health}.`,
                 )
@@ -453,15 +459,16 @@ enum CardID {
     Restore = "Restore",
     RestoreAll = "RestoreAll",
     RestoreS = "RestoreS",
-    //RestoreStaged = "RestoreStaged",
-    //RestoreStagedS = "RestoreStagedS",
+    RestoreStaged = "RestoreStaged",
+    RestoreStagedS = "RestoreStagedS",
     //Commit = "Commit",
     //CommitAll = "CommitAll",
     Copy = "Copy",
     Move = "Move",
     Branch = "Branch",
-    //Switch = "Switch",
-    Checkout = "Checkout",
+    Switch = "Switch",
+    SwitchDetach = "SwitchDetach",
+    //Checkout = "Checkout",
     Stash = "Stash",
     StashPop = "StashPop",
     Merge = "Merge",
@@ -475,8 +482,8 @@ function allCards(): Record<CardID, Card> {
     return {
         [CardID.GraphGnome]: new CreatureCard(
             CardID.GraphGnome,
-            gt`Graph Gnome`,
             2,
+            gt`Graph Gnome`,
             1,
             4,
         ).addEffect(
@@ -488,64 +495,64 @@ function allCards(): Record<CardID, Card> {
         ),
         [CardID.BlobEater]: new CreatureCard(
             CardID.BlobEater,
-            gt`Blob Eater`,
             4,
+            gt`Blob Eater`,
             2,
             6,
         ).addEffect(Trigger.Played, new DeleteRandomEnemyEffect()),
         [CardID.TimeSnail]: new CreatureCard(
             CardID.TimeSnail,
-            gt`Time Snail`,
             1,
+            gt`Time Snail`,
             1,
             1,
         ),
         [CardID.RepoRaven]: new CreatureCard(
             CardID.RepoRaven,
-            gt`Repo Raven`,
             2,
+            gt`Repo Raven`,
             2,
             2,
         ),
         [CardID.CloneWarrior]: new CreatureCard(
             CardID.CloneWarrior,
-            gt`Clone Warrior`,
             4,
+            gt`Clone Warrior`,
             2,
             5,
         ).addEffect(Trigger.Dies, new AddCardToHandEffect(CardID.TimeSnail)),
         [CardID.MergeMonster]: new CreatureCard(
             CardID.MergeMonster,
-            gt`Merge Monster`,
             4,
+            gt`Merge Monster`,
             8,
             8,
         ),
         [CardID.DetachedHead]: new CreatureCard(
             CardID.DetachedHead,
-            gt`Detached Head`,
             0,
+            gt`Detached Head`,
             0,
             4,
         ),
         [CardID.RubberDuck]: new CreatureCard(
             CardID.RubberDuck,
-            gt`Rubber Duck`,
             2,
+            gt`Rubber Duck`,
             1,
             1,
         ).addEffect(Trigger.Played, new DrawCardEffect(1)),
         [CardID.CollabCentaur]: new CreatureCard(
             CardID.CollabCentaur,
-            gt`Collab Centaur`,
             1,
+            gt`Collab Centaur`,
             2,
             2,
         ).addEffect(Trigger.Played, new GiveFriendsEffect(1, 1)),
         [CardID.TagTroll]: new CreatureCard(
             CardID.TagTroll,
-            gt`Tag Troll`,
             2,
+            gt`Tag Troll`,
             5,
             1,
         ).addEffect(
@@ -555,111 +562,118 @@ function allCards(): Record<CardID, Card> {
         //new CommandCard(gt`Init`, 0, new Command("git init")),
         [CardID.Add]: new CommandCard(
             CardID.Add,
-            gt`Add`,
             1,
+            gt`Copy a card from the working directory to the index.`,
             new Command("git add SLOT"),
         ),
         [CardID.AddAll]: new CommandCard(
             CardID.AddAll,
-            gt`Add all`,
             2,
+            gt`Copy all cards from the working directory to the index.`,
             new Command("git add ."),
         ),
         [CardID.Remove]: new CommandCard(
             CardID.Remove,
-            gt`Remove`,
             0,
+            gt`Remove a card in the working directory.`,
             new Command("rm SLOT"),
         ),
         [CardID.Restore]: new CommandCard(
             CardID.Restore,
-            gt`Restore`,
             2,
+            gt`Copy a card from the index to the working directory.`,
             new Command("git restore SLOT"),
         ),
         [CardID.RestoreAll]: new CommandCard(
             CardID.RestoreAll,
-            gt`Restore All`,
             3,
+            gt`Copy all cards from the index to the working directory.`,
             new Command("git restore ."),
         ),
         [CardID.RestoreS]: new CommandCard(
             CardID.RestoreS,
-            gt`Restore`,
             2,
+            gt`Copy a card from the specified commit to the working directory.`,
             new Command("git restore -s REF SLOT"),
         ),
-        /*[CardID.RestoreStaged]: new CommandCard(
+        [CardID.RestoreStaged]: new CommandCard(
             CardID.RestoreStaged,
-            gt`Restore staged`,
             2,
+            gt`Copy a card from the HEAD commit to the index.`,
             new Command("git restore --staged SLOT"),
         ),
         [CardID.RestoreStagedS]: new CommandCard(
             CardID.RestoreStagedS,
-            gt`Restore staged`,
             2,
+            gt`Copy a card from the specified commit to the index.`,
             new Command("git restore --staged -s REF SLOT"),
         ),
+        /*
         [CardID.Commit]: new CommandCard(
             CardID.Commit,
-            gt`Commit`,
             2,
+            gt`Commit`,
             new Command("git commit -m 'Commit'"),
         ),
         [CardID.CommitAll]: new CommandCard(
             CardID.CommitAll,
-            gt`Commit all`,
             3,
+            gt`Commit all`,
             new Command("git add .; git commit -m 'Commit'"),
         ),
         */
         [CardID.Copy]: new CommandCard(
             CardID.Copy,
-            gt`Copy`,
             3,
+            gt`Copy a card from one working directory slot to another.`,
             new Command("cp SLOT SLOT"),
         ),
         [CardID.Move]: new CommandCard(
             CardID.Move,
-            gt`Move`,
             3,
+            gt`Move a card from one working directory slot to another.`,
             new Command("mv SLOT SLOT"),
         ),
         [CardID.Stash]: new CommandCard(
             CardID.Stash,
-            gt`Stash`,
             1,
-            new Command("git stash"),
+            gt`Convert working directory and index into stash commits. Then, reset them to the HEAD commit.`,
+            new Command("git stash -u"),
         ),
         [CardID.StashPop]: new CommandCard(
             CardID.StashPop,
-            gt`Pop stash`,
             0,
+            gt`Merge the last working directory stash commit into the working directory.`,
             new Command("git stash pop"),
         ),
         [CardID.Branch]: new CommandCard(
             CardID.Branch,
-            gt`Branch`,
             0,
+            gt`Create a new branch at the HEAD commit.`,
             new Command("git branch STRING"),
         ),
-        /*[CardID.Switch]: new CommandCard(
+        [CardID.Switch]: new CommandCard(
             CardID.Switch,
-            gt`Switch`,
             1,
+            gt`Set HEAD to a branch, and reset the working directory and index to that commit.`,
             new Command("git switch -f REF"),
-        ),*/
-        [CardID.Checkout]: new CommandCard(
-            CardID.Checkout,
-            gt`Checkout`,
-            1,
-            new Command("git checkout -f REF"),
         ),
+        [CardID.SwitchDetach]: new CommandCard(
+            CardID.SwitchDetach,
+            1,
+            gt`Set HEAD to a commit, and reset the working directory and index to that commit.`,
+            new Command("git switch -f --detach REF"),
+        ),
+        /*[CardID.Checkout]: new CommandCard(
+            CardID.Checkout,
+            1,
+            gt`Checkout`,
+            new Command("git checkout -f REF"),
+        ),*/
         [CardID.Merge]: new CommandCard(
             CardID.Merge,
-            gt`Merge`,
             2,
+            gt`Merge the specified commit into the current HEAD commit, and set index and working directory to the result. Does nothing if the specified commit is already an ancestor of HEAD.`,
             new Command("git merge REF"),
         ),
         //[CardID.HealthPotion]: new CommandCard(
@@ -672,28 +686,28 @@ function allCards(): Record<CardID, Card> {
         //),
         [CardID.HealthPotion]: new EffectCard(
             CardID.HealthPotion,
-            gt`Health potion`,
             1,
+            gt`Health potion`,
             new GiveFriendsEffect(0, 2),
         ),
         [CardID.DrawCard]: new EffectCard(
             CardID.DrawCard,
-            gt`Library`,
             1,
+            gt`Library`,
             new DrawCardEffect(2),
         ),
         [CardID.Bandaid]: new EffectCard(
             CardID.Bandaid,
-            gt`Bandaid`,
             1,
+            gt`Bandaid`,
             new HealPlayerEffect(
                 new DynamicNumericValue(DynamicValueType.TagCount),
             ),
         ),
         [CardID.Inspiration]: new EffectCard(
             CardID.Inspiration,
-            gt`Inspiration`,
             0,
+            gt`Inspiration`,
             new GainEnergyEffect(
                 new DynamicNumericValue(DynamicValueType.BranchCount),
             ),
@@ -877,11 +891,11 @@ export class Adventure {
             CardID.RepoRaven,
             CardID.RubberDuck,
             CardID.GraphGnome,
-            //CardID.BlobEater,
             CardID.Add,
             CardID.Add,
             CardID.Restore,
             CardID.RestoreAll,
+            CardID.Stash,
         ]
 
         this.deck = cards.map((id) => buildCard(id))
@@ -1030,7 +1044,8 @@ export enum LogType {
 
 export class Battle {
     state: BattleState
-    onSideeffectCallback: (sideEffect: SideEffect) => void = () => {}
+    onSideeffectCallback: (sideEffect: SideEffect) => Promise<void> =
+        async () => {}
     onHiddenCommandCallback:
         | undefined
         | ((command: string) => Promise<CommandResult>)
@@ -1081,6 +1096,8 @@ export class Battle {
         this.slots[0] = buildCard(CardID.TimeSnail) as CreatureCard
         this.slots[1] = buildCard(CardID.GraphGnome) as CreatureCard
         await this.sideeffect(new SyncGameToDiskSideEffect())
+        console.log("sync done")
+        console.log(await this.runHiddenCommand("ls"))
         await this.runCommand(
             new Command(
                 "git commit --allow-empty -m 'Empty';git branch second;git add 1; git commit -m'Snail'; git tag test;git switch second;mv 2 1;git add 1; git commit -m'Gnome'",
@@ -1092,7 +1109,7 @@ export class Battle {
         this.eventLog.push([event, type])
     }
 
-    onSideEffect(callback: (sideEffect: SideEffect) => void) {
+    onSideEffect(callback: (sideEffect: SideEffect) => Promise<void>) {
         this.onSideeffectCallback = callback
     }
 
@@ -1133,7 +1150,7 @@ export class Battle {
             let result = await this.runHiddenCommand(sideEffect.command)
             this.log(`Output was: ${result}`)
         } else {
-            this.onSideeffectCallback(sideEffect)
+            await this.onSideeffectCallback(sideEffect)
         }
     }
 
@@ -1146,7 +1163,7 @@ export class Battle {
 
         if (card.energy > this.energy) {
             this.log(
-                gt`Not enough energy to play ${card.getName()}.`,
+                gt`Not enough energy to play ${card.getTitle()}.`,
                 LogType.Error,
             )
             return
@@ -1158,7 +1175,7 @@ export class Battle {
                 this.energy -= card.energy
                 let newCard = cloneDeep(card)
                 this.slots[slot - 1] = newCard
-                this.log(gt`Played ${card.getName()} to slot ${slotString}.`)
+                this.log(gt`Played ${card.getTitle()} to slot ${slotString}.`)
                 newCard.triggerEffects(
                     this,
                     Trigger.Played,
@@ -1174,14 +1191,14 @@ export class Battle {
             try {
                 await this.runCommand(command)
                 this.energy -= card.energy
-                this.log(gt`Played ${card.getName()}.`)
+                this.log(gt`Played ${card.getTitle()}.`)
                 this.discardHandCard(i)
             } catch (_) {
                 // Playing the card failed, do nothing.
             }
         } else if (card instanceof EffectCard) {
             this.energy -= card.energy
-            this.log(gt`Played ${card.getName()}.`)
+            this.log(gt`Played ${card.getTitle()}.`)
             await card.effect.apply(this, new CardSource(true, card))
             this.discardHandCard(i)
         } else {
@@ -1195,7 +1212,7 @@ export class Battle {
             throw new Error(`Card ${cardID} is not a creature card.`)
         }
         this.enemyUpcomingSlots[slot] = card
-        this.log(gt`Enemy announced ${card.getName()} at slot ${slot + 1}.`)
+        this.log(gt`Enemy announced ${card.getTitle()} at slot ${slot + 1}.`)
     }
 
     runCommand(command: Command): Promise<CommandResult> {
@@ -1244,16 +1261,16 @@ export class Battle {
                 // Both players have a card in this slot. They fight!
                 playerCard.health -= enemyCard.attack
                 this.log(
-                    gt`Enemy ${enemyCard.getName()} dealt ${
+                    gt`Enemy ${enemyCard.getTitle()} dealt ${
                         enemyCard.attack
-                    } damage to ${playerCard.getName()}.`,
+                    } damage to ${playerCard.getTitle()}.`,
                 )
 
                 enemyCard.health -= playerCard.attack
                 this.log(
-                    gt`Your ${playerCard.getName()} dealt ${
+                    gt`Your ${playerCard.getTitle()} dealt ${
                         playerCard.attack
-                    } damage to ${enemyCard.getName()}.`,
+                    } damage to ${enemyCard.getTitle()}.`,
                 )
                 if (playerCard.health <= 0) {
                     this.kill(true, i, new CardSource(true, enemyCard))
@@ -1265,7 +1282,7 @@ export class Battle {
                 // Only the player has a card in this slot. It attacks the enemy player.
                 this.enemyHealth -= playerCard.attack
                 this.log(
-                    gt`${playerCard.getName()} dealt ${
+                    gt`${playerCard.getTitle()} dealt ${
                         playerCard.attack
                     } damage to the enemy player.`,
                 )
@@ -1276,7 +1293,7 @@ export class Battle {
                 // Only the enemy has a card in this slot. It attacks the player.
                 this.health -= enemyCard.attack
                 this.log(
-                    gt`Enemy ${enemyCard.getName()} dealt ${
+                    gt`Enemy ${enemyCard.getTitle()} dealt ${
                         enemyCard.attack
                     } damage to you.`,
                 )
@@ -1340,7 +1357,7 @@ export class Battle {
         const card = this.drawPile.pop()
         if (card) {
             this.hand.push(card)
-            this.log(gt`You drew ${card.getName()}.`)
+            this.log(gt`You drew ${card.getTitle()}.`)
         }
     }
 
@@ -1356,7 +1373,7 @@ export class Battle {
                 new CardSource(playerSideToKill, card),
             )
             targetSideCreatures[slot] = null
-            this.log(`${source.sourceDescription()} killed ${card.getName()}.`)
+            this.log(`${source.sourceDescription()} killed ${card.getTitle()}.`)
         } else {
             throw new Error("Target of a random enemy deletion was null.")
         }
