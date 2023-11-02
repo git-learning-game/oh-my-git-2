@@ -472,6 +472,7 @@ enum CardID {
     Move = "Move",
     GitMove = "GitMove",
     Branch = "Branch",
+    Tag = "Tag",
     Switch = "Switch",
     SwitchDetach = "SwitchDetach",
     //Checkout = "Checkout",
@@ -681,8 +682,15 @@ function allCards(): Record<CardID, Card> {
             CardID.Branch,
             0,
             gt`Create a new branch at the HEAD commit.`,
-            new Command("git branch STRING"),
+            new Command("git branch $RANDOM"),
             "🫒",
+        ),
+        [CardID.Tag]: new CommandCard(
+            CardID.Tag,
+            0,
+            gt`Create a new tag at the HEAD commit.`,
+            new Command("git tag $RANDOM"),
+            "🏷️",
         ),
         [CardID.Switch]: new CommandCard(
             CardID.Switch,
@@ -773,6 +781,50 @@ function randomCreatureCardID(): CardID {
 
 function randomCard(): Card {
     return buildCard(randomCardID())
+}
+
+function randomGift(currentDeck: Card[]): Card[] {
+    // Cards on the first side need one of the other to make sense.
+    let requirements = [
+        [[CardID.Bandaid], [CardID.Tag, CardID.TagTroll]],
+        [[CardID.Tag], [CardID.Bandaid]],
+        [[CardID.Inspiration], [CardID.Branch]],
+        [[CardID.Switch], [CardID.Branch]],
+        [[CardID.Branch], [CardID.Switch]],
+        [
+            [CardID.Restore, CardID.RestoreAll],
+            [CardID.Add, CardID.AddAll],
+        ],
+    ]
+
+    let gift
+    while (!gift) {
+        //let card = buildCard(CardID.Tag)
+        let card = randomCard()
+
+        // Check if this card is any where in the requirements list, and compile a list of required cards.
+        let requiredCards: CardID[] = []
+        for (let requirement of requirements) {
+            if (requirement[0].includes(card.id)) {
+                requiredCards = requirement[1]
+            }
+        }
+
+        // Does our deck already have one of them?
+        if (requiredCards.some((id) => currentDeck.some((c) => c.id === id))) {
+            // If so, we're good!
+            requiredCards = []
+        }
+
+        if (requiredCards.length > 0) {
+            // Add one of them to a bundle! :sparkles:
+            gift = [buildCard(randomPick(requiredCards)), card]
+        } else {
+            // Otherwise, it's fine!
+            gift = [card]
+        }
+    }
+    return gift
 }
 
 function buildCard(id: CardID): Card {
@@ -943,9 +995,9 @@ export class Adventure {
         //    this.deck.push(randomCard())
         //}
 
-        for (let card of Object.values(allCards())) {
-            this.deck.push(cloneDeep(card))
-        }
+        //for (let card of Object.values(allCards())) {
+        //    this.deck.push(cloneDeep(card))
+        //}
 
         this.state = null
 
@@ -995,13 +1047,14 @@ export class Adventure {
     }
 
     startNewCardEvent() {
+        let options = Array(3)
+            .fill(0)
+            .map(() => randomGift(this.deck))
         this.state = new Decision(
             gt`Add a card to your deck!`,
-            [randomCard(), randomCard(), randomCard()],
-            (card) => {
-                if (card) {
-                    this.deck.push(card)
-                }
+            options,
+            (cards) => {
+                this.deck.push(...cards)
                 this.enterNextEvent()
             },
         )
@@ -1010,9 +1063,9 @@ export class Adventure {
     startCardRemovalEvent() {
         this.state = new Decision(
             gt`You may remove a card from your deck!`,
-            this.deck,
-            (card) => {
-                this.deck = this.deck.filter((c) => c !== card)
+            this.deck.map((card) => [card]),
+            (cards) => {
+                this.deck = this.deck.filter((c) => !cards.includes(c))
                 this.enterNextEvent()
             },
         )
@@ -1022,12 +1075,12 @@ export class Adventure {
 export class Decision {
     constructor(
         public message: string,
-        public choices: Card[],
-        public onChoice: (a: Card | null) => void,
+        public choices: Card[][],
+        public onChoice: (cards: Card[]) => void,
     ) {}
 
-    choose(card: Card | null) {
-        this.onChoice(card)
+    choose(cards: Card[]) {
+        this.onChoice(cards)
     }
 }
 

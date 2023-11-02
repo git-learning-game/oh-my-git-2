@@ -17,6 +17,7 @@
         ;(window as any)["shell"] = shell
 
         shell.boot().then(() => {
+            shell.setKeyboardActive(false)
             adventure = new Adventure((a) => {
                 // The next event was entered!
                 adventure = adventure
