@@ -10,7 +10,7 @@
     export let deck: Card[]
 
     function skip() {
-        dispatch("choice", null)
+        dispatch("choice", [])
     }
 </script>
 

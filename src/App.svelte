@@ -3,9 +3,11 @@
     import LanguageSwitcher from "./LanguageSwitcher.svelte"
     import DecisionSvelte from "./Decision.svelte"
     import BattleSvelte from "./Battle.svelte"
+    import Path from "./Path.svelte"
+    import WinSvelte from "./Win.svelte"
     import {GitShell} from "./gitshell.ts"
 
-    import {Battle, Adventure, Decision} from "./cards.ts"
+    import {Battle, Adventure, Decision, Win} from "./cards.ts"
 
     let shell: GitShell
     let adventure: Adventure
@@ -18,10 +20,10 @@
 
         shell.boot().then(() => {
             shell.setKeyboardActive(false)
-            adventure = new Adventure((a) => {
+            adventure = new Adventure((_) => {
                 // The next event was entered!
                 adventure = adventure
-                console.log("The next event was entered:", a)
+                console.log("The next event was entered:", adventure.state)
             })
         })
     })
@@ -79,6 +81,10 @@
                 deck={adventure.deck}
                 on:choice={decisionMade}
             />
+        {:else if adventure.state instanceof Adventure}
+            <Path {adventure} />
+        {:else if adventure.state instanceof Win}
+            okkkkkkkkkkkkkkkkkk<WinSvelte {adventure} />
         {/if}
     {:else}
         Starting game...

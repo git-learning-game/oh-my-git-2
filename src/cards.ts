@@ -961,7 +961,10 @@ class RandomEnemy extends Enemy {
     }
 }
 
-type AdventureState = Battle | Decision
+// Hm.
+export class Win {}
+
+type AdventureState = Battle | Decision | Adventure | Win
 
 //I'm going on an adventure!
 export class Adventure {
@@ -969,7 +972,8 @@ export class Adventure {
     //battle: Battle
     state: AdventureState | null
 
-    path: Event[]
+    path: AdventureEvent[]
+    currentEvent: AdventureEvent | null = null
 
     constructor(public onNextEvent: (e: AdventureState | null) => void) {
         let cards = [
@@ -999,8 +1003,6 @@ export class Adventure {
         //    this.deck.push(cloneDeep(card))
         //}
 
-        this.state = null
-
         this.path = [
             new NewCardEvent(),
             new BattleEvent(BluePrintEnemy),
@@ -1016,32 +1018,51 @@ export class Adventure {
             new BattleEvent(RandomEnemy),
             new NewCardEvent(),
             new BattleEvent(OPEnemy),
+            new WinEvent(),
         ]
 
-        //this.battle = new Battle(this.deck)
-        this.enterNextEvent()
+        this.state = this
+    }
+
+    openPath() {
+        this.state = this
+        this.onNextEvent(this.state)
     }
 
     enterNextEvent() {
-        if (this.path.length === 0) {
-            alert("You are a beautiful aweome person and you win!")
-            return
-        }
-        let nextEvent = this.path.shift()
-        if (nextEvent instanceof BattleEvent) {
-            this.state = new Battle(this.deck, nextEvent.enemy, (won) => {
-                if (won) {
-                    this.enterNextEvent()
-                } else {
-                    alert("GAME OVER")
-                }
-            })
-        } else if (nextEvent instanceof NewCardEvent) {
-            this.startNewCardEvent()
-        } else if (nextEvent instanceof CardRemovalEvent) {
-            this.startCardRemovalEvent()
+        if (this.currentEvent === null) {
+            this.currentEvent = this.path[0]
         } else {
-            throw new Error(`Unknown event type: ${nextEvent}`)
+            if (this.currentEvent === this.path[this.path.length - 1]) {
+                alert("You are a beautiful aweome person and you win!")
+                return
+            }
+            this.enterEvent(this.path[this.path.indexOf(this.currentEvent) + 1])
+        }
+    }
+
+    enterEvent(event: AdventureEvent) {
+        this.currentEvent = event
+        if (this.currentEvent instanceof BattleEvent) {
+            this.state = new Battle(
+                this.deck,
+                this.currentEvent.enemy,
+                (won) => {
+                    if (won) {
+                        this.openPath()
+                    } else {
+                        alert("GAME OVER")
+                    }
+                },
+            )
+        } else if (this.currentEvent instanceof NewCardEvent) {
+            this.startNewCardEvent()
+        } else if (this.currentEvent instanceof CardRemovalEvent) {
+            this.startCardRemovalEvent()
+        } else if (this.currentEvent instanceof WinEvent) {
+            this.state = new Win()
+        } else {
+            throw new Error(`Unknown event type: ${this.currentEvent}`)
         }
         this.onNextEvent(this.state)
     }
@@ -1055,7 +1076,7 @@ export class Adventure {
             options,
             (cards) => {
                 this.deck.push(...cards)
-                this.enterNextEvent()
+                this.openPath()
             },
         )
     }
@@ -1066,7 +1087,7 @@ export class Adventure {
             this.deck.map((card) => [card]),
             (cards) => {
                 this.deck = this.deck.filter((c) => !cards.includes(c))
-                this.enterNextEvent()
+                this.openPath()
             },
         )
     }
@@ -1084,21 +1105,27 @@ export class Decision {
     }
 }
 
-class Event {}
+export class AdventureEvent {}
 
-class BattleEvent extends Event {
+export class BattleEvent extends AdventureEvent {
     constructor(public enemy: typeof Enemy) {
         super()
     }
 }
 
-class NewCardEvent extends Event {
+export class NewCardEvent extends AdventureEvent {
     constructor() {
         super()
     }
 }
 
-class CardRemovalEvent extends Event {
+export class CardRemovalEvent extends AdventureEvent {
+    constructor() {
+        super()
+    }
+}
+
+export class WinEvent extends AdventureEvent {
     constructor() {
         super()
     }

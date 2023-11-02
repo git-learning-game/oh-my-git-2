@@ -45,8 +45,9 @@ button {
     margin: 0 0.5em;
     display: inline-block;
     font-family: var(--title-font);
+    transition: transform 0.1s ease-in-out;
 }
 
 button:hover {
-    background: gray;
+    transform: scale(1.05);
 }
