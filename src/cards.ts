@@ -453,6 +453,7 @@ enum CardID {
     RubberDuck = "RubberDuck",
     CollabCentaur = "CollabCentaur",
     TagTroll = "TagTroll",
+    Joker = "Joker",
     Add = "Add",
     AddAll = "AddAll",
     Remove = "Remove",
@@ -465,6 +466,7 @@ enum CardID {
     //CommitAll = "CommitAll",
     Copy = "Copy",
     Move = "Move",
+    GitMove = "GitMove",
     Branch = "Branch",
     Switch = "Switch",
     SwitchDetach = "SwitchDetach",
@@ -560,6 +562,12 @@ function allCards(): Record<CardID, Card> {
             new CommandEffect(new Command("git tag $RANDOM")),
         ),
         //new CommandCard(gt`Init`, 0, new Command("git init")),
+        [CardID.Joker]: new CommandCard(
+            CardID.Joker,
+            4,
+            gt`Joker! Run an arbitrary command.`,
+            new Command("STRING"),
+        ),
         [CardID.Add]: new CommandCard(
             CardID.Add,
             1,
@@ -633,6 +641,12 @@ function allCards(): Record<CardID, Card> {
             3,
             gt`Move a card from one working directory slot to another.`,
             new Command("mv SLOT SLOT"),
+        ),
+        [CardID.GitMove]: new CommandCard(
+            CardID.GitMove,
+            3,
+            gt`Move a card from one slot to another in both the working directory and index.`,
+            new Command("git mv SLOT SLOT"),
         ),
         [CardID.Stash]: new CommandCard(
             CardID.Stash,
@@ -896,6 +910,8 @@ export class Adventure {
             CardID.Restore,
             CardID.RestoreAll,
             CardID.Stash,
+            CardID.Joker,
+            CardID.Joker,
         ]
 
         this.deck = cards.map((id) => buildCard(id))
