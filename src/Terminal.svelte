@@ -15,6 +15,9 @@
                     10,
                 ) / 2,
             ) * 2
+        // TODO meh hack
+        width = 25
+        height = 50
         shell.type(`stty rows ${width} cols ${height}\n`)
     }
 
