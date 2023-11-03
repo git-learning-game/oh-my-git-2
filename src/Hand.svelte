@@ -45,6 +45,10 @@
                         on:click={() => {
                             dispatch("playCard", {index})
                         }}
+                        on:drop={(_) => {
+                            console.log("drop on card", card)
+                            return false
+                        }}
                     />
                 </div>
             {/each}

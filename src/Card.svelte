@@ -13,14 +13,94 @@
     export let placeholderEmoji: string | null = null
     export let showCost = false
 
+    // Image preloader
+    const dragImage = "/images/blob.png"
+    new Image().src = dragImage
+
     // When language is switched, re-render card.
     $: $t, (card = card)
 
+    let beingDragged = false
+    let startDragOffsetX = 0
+    let startDragOffsetY = 0
+
     function dragStart(e: DragEvent) {
-        if (index != null) {
-            e.dataTransfer?.setData("text/plain", index.toString())
-            console.log("drag", index)
+        if (index != null && e.dataTransfer) {
+            e.dataTransfer.setData("text/plain", index.toString())
+            const img = new Image()
+            //img.src = dragImage
+            e.dataTransfer.setDragImage(img, 0, 0)
+            beingDragged = true
+            console.log("drag start")
+
+            startDragOffsetX = e.clientX
+            startDragOffsetY = e.clientY
         }
+    }
+
+    function drag(e: DragEvent) {
+        if (e.target && e.target instanceof HTMLElement) {
+            // Calculate position. x and y are relative to the elements regular position, and have the transformation applied to the screen be applied in reverse.
+            const container = document.getElementById("container")!
+            const containerTransform = container.style.transform
+            // has the form translate(xpx, ypx) scale(s)
+            let translation = containerTransform.match(
+                /translate\((.*), (.*)\)/,
+            )
+            let scale = containerTransform.match(/scale\((.*)\)/)
+            if (!translation || !scale) {
+                console.error("Could not parse transform")
+                return
+            }
+            let scaleValue = parseFloat(scale[1])
+            let translationX = parseInt(translation[1])
+            let translationY = parseInt(translation[2])
+
+            // calculate transformed mouse position
+            const mx = (e.clientX - translationX) / scaleValue
+            const my = (e.clientY - translationY) / scaleValue
+
+            const x =
+                mx - startDragOffsetX / scaleValue + translationX / scaleValue
+            const y =
+                my - startDragOffsetY / scaleValue + translationY / scaleValue
+
+            if (x && y) {
+                e.target.style.left = `${x}px`
+                e.target.style.top = `${y}px`
+            }
+        }
+    }
+
+    function dragEnd(e: DragEvent) {
+        beingDragged = false
+        console.log("drag end")
+
+        let target = document.elementFromPoint(e.clientX, e.clientY)
+        // walk up until we find a ancestor with the class "slot"
+        while (target && !target.classList.contains("slot")) {
+            target = target.parentElement
+        }
+        console.log(target)
+        // trigger a proper drop event on the target
+        if (target) {
+            console.log(index)
+            e.dataTransfer.setData("text/plain", index.toString())
+            let dt = new DataTransfer()
+            dt.setData("text/plain", index.toString())
+            target.dispatchEvent(
+                new DragEvent("drop", {
+                    dataTransfer: dt,
+                }),
+            )
+        }
+
+        e.target.style.left = ""
+        e.target.style.top = ""
+    }
+
+    function mouseup(e: MouseEvent) {
+        console.log("mouseup")
     }
 
     let fontSize: number
@@ -46,6 +126,8 @@
     }
 </script>
 
+<svelte:body on:mouseup={mouseup} />
+
 <div
     class="slot"
     draggable={playable}
@@ -54,7 +136,10 @@
     class:playable
     class:clickable
     class:show-cost={showCost}
-    on:dragstart={(e) => dragStart(e)}
+    class:dragged={beingDragged}
+    on:dragstart={dragStart}
+    on:dragend={dragEnd}
+    on:drag={drag}
     on:dragover
     on:drop
     on:click
@@ -143,6 +228,11 @@
         top: -0.8em;
         left: -0.5em;
         font-weight: bold;
+    }
+    .dragged {
+        opacity: 0.5;
+        transform: scale(1) !important;
+        z-index: 99;
     }
     .slot:not(.card) {
         opacity: 0.5;
