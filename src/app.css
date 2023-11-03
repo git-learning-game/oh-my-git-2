@@ -37,6 +37,7 @@ body {
     font-family: Roboto, sans-serif, "Noto Color Emoji";
     overflow: hidden;
     --title-font: "Fira Sans", "Noto Color Emoji", sans-serif;
+    --code-font: "Iosevka", monospace;
 }
 
 svg {

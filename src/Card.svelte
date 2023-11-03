@@ -133,8 +133,6 @@
     class="slot"
     draggable={playable}
     class:hand
-    class:card
-    class:playable
     class:clickable
     class:active
     class:show-cost={showCost}
@@ -159,7 +157,7 @@
         <span class="placeholder">{placeholderEmoji}</span>
     {/if}
     {#if card}
-        <div transition:fade>
+        <div class="card" transition:fade={{duration: 100}} class:playable>
             {#if card.emoji}
                 <span class="background">{card.emoji}</span>
             {/if}
@@ -169,13 +167,9 @@
                 >
             {/if}
 
-            <div class="card-header">
+            <div class="card-header" class:code={card instanceof CommandCard}>
                 <div id="name" style="font-size: {fontSize}%">
-                    {#if card instanceof CommandCard}
-                        <code>{card.getTitle()}</code>
-                    {:else}
-                        {card.getTitle()}
-                    {/if}
+                    {card.getTitle()}
                 </div>
             </div>
             <div class="card-body" style="font-size: {descriptionFontSize}%">
@@ -203,7 +197,6 @@
         height: 13em;
         background: #aaa;
         border-radius: 1em;
-        padding: 0.5em;
         display: inline-flex;
         flex-direction: column;
         position: relative;
@@ -219,11 +212,15 @@
         opacity: 0.15;
         text-align: center;
     }
-    code {
-        background: #111;
-        color: white;
-        padding: 0.3em 0.6em;
-        border-radius: 0.3em;
+    .card {
+        display: flex;
+        flex-direction: column;
+        background: white;
+        color: black;
+        position: relative;
+        box-shadow: 0 0 0.5em rgba(0, 0, 0, 0.2);
+        flex: 1;
+        border-radius: 1em;
     }
     .energy {
         position: absolute;
@@ -233,32 +230,29 @@
     }
     .dragged {
         opacity: 0.5;
-        transform: scale(1.3) !important;
         z-index: 99;
     }
-    .slot:not(.card) {
-        opacity: 0.5;
+    .dragged .card {
+        transform: scale(1.3) !important;
     }
+    .hand .card,
     .hand {
         transition: transform 0.1s;
     }
-    .hand.playable:hover {
+    .card.playable:hover {
         transition-timing-function: ease-out;
         transform: scale(1.3);
         transform-origin: center bottom;
         z-index: 10;
     }
-    .card {
-        background: white;
-        color: black;
-        position: relative;
-        box-shadow: 0 0 0.5em rgba(0, 0, 0, 0.2);
-    }
     .emoji {
         font-size: 150%;
     }
-    .card.show-cost .card-header {
-        margin-left: 1.5em;
+    #name {
+        margin-left: 0.5rem;
+    }
+    .slot.show-cost .card-header #name {
+        margin-left: 2rem;
     }
     .card-header {
         font-weight: bold;
@@ -266,11 +260,21 @@
         align-items: center;
         margin-bottom: 1em;
         overflow-wrap: anywhere;
+        min-height: 2em;
+    }
+    .card-header.code {
+        background: #111;
+        color: white;
+        border-radius: 0.3em;
+        margin: 0.2em;
+        border-radius: 0.8em;
+        padding: 0.1em 0.2em;
+        font-family: var(--code-font);
     }
     #name {
         font-size: 150%;
     }
-    .playable {
+    .card.playable {
         border: solid #225cba 5px;
         cursor: move;
     }
@@ -294,7 +298,7 @@
         right: -0.5em;
     }
     .card-body {
-        max-height: 10em;
+        padding: 0.5em;
     }
     .placeholder {
         position: absolute;
