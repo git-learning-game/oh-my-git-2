@@ -91,13 +91,14 @@
     #path {
         display: flex;
         gap: 2em;
+        margin-top: 1.5em;
         justify-content: center;
         align-items: center;
         flex-wrap: wrap;
     }
     #player {
         position: absolute;
-        top: -1.2em;
+        top: -1.1em;
         left: 50%;
         transform: translateX(-50%);
         font-size: 500%;

@@ -35,9 +35,15 @@
     let indexSlots: (CreatureCard | null)[]
 
     function keydown(e: KeyboardEvent) {
-        if (!shell.getKeyboardActive()) {
+        if (shell.getKeyboardActive()) {
             if (e.key == "Enter") {
-                endTurn()
+                updateACoupleOfTimes()
+            }
+        } else {
+            if (e.key == "Enter") {
+                if (battle.state instanceof PlayerTurnState) {
+                    endTurn()
+                }
             }
             if (e.key == "Escape") {
                 battle.cancelAction()
@@ -49,11 +55,16 @@
                     battle.playCardFromHand(parseInt(e.key) - 1)
                     battle = battle
                 } else if (battle.state instanceof RequirePlaceholderState) {
-                    if (parseInt(e.key) > 3) {
-                        return
+                    if (
+                        battle.state.currentPlaceholder() instanceof
+                        SlotPlaceholder
+                    ) {
+                        if (parseInt(e.key) > 3) {
+                            return
+                        }
+                        battle.state.resolveNext(e.key)
+                        battle = battle
                     }
-                    battle.state.resolveNext(e.key)
-                    battle = battle
                 }
             }
         }

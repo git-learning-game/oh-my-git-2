@@ -77,6 +77,7 @@
         overflow-y: auto;
         justify-content: flex-start;
         margin: 0 2em;
+        min-height: 16em;
     }
     .choice {
         display: flex;

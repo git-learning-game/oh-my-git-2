@@ -506,7 +506,7 @@ function allCards(): Record<CardID, Card> {
     return {
         [CardID.GraphGnome]: new CreatureCard(
             CardID.GraphGnome,
-            2,
+            3,
             gt`Graph Gnome`,
             1,
             4,
@@ -560,7 +560,7 @@ function allCards(): Record<CardID, Card> {
         ),
         [CardID.DetachedHead]: new CreatureCard(
             CardID.DetachedHead,
-            0,
+            1,
             gt`Detached Head`,
             0,
             4,
@@ -568,7 +568,7 @@ function allCards(): Record<CardID, Card> {
         ),
         [CardID.RubberDuck]: new CreatureCard(
             CardID.RubberDuck,
-            2,
+            1,
             gt`Rubber Duck`,
             1,
             1,
@@ -576,7 +576,7 @@ function allCards(): Record<CardID, Card> {
         ).addEffect(Trigger.Played, new DrawCardEffect(1)),
         [CardID.CollabCentaur]: new CreatureCard(
             CardID.CollabCentaur,
-            1,
+            3,
             gt`Collab Centaur`,
             2,
             2,
@@ -584,7 +584,7 @@ function allCards(): Record<CardID, Card> {
         ).addEffect(Trigger.Played, new GiveFriendsEffect(1, 1)),
         [CardID.TagTroll]: new CreatureCard(
             CardID.TagTroll,
-            2,
+            3,
             gt`Tag Troll`,
             5,
             1,
@@ -792,6 +792,7 @@ function randomCreatureCardID(): CardID {
         CardID.DetachedHead,
         CardID.RubberDuck,
         CardID.CollabCentaur,
+        CardID.RepoRaven,
     ]
     return randomPick(options)
 }
@@ -812,17 +813,25 @@ function randomGift(currentDeck: Card[]): Card[] {
             [CardID.Restore, CardID.RestoreAll],
             [CardID.Add, CardID.AddAll],
         ],
+        [[CardID.Merge], [CardID.SwitchDetach]],
+        [[CardID.StashPop], [CardID.Stash]],
     ]
 
     let gift
     while (!gift) {
         //let card = buildCard(CardID.Tag)
-        let card = randomCard()
+        let card: CardID
+
+        if (Math.random() < 0.4) {
+            card = randomCreatureCardID()
+        } else {
+            card = randomCardID()
+        }
 
         // Check if this card is any where in the requirements list, and compile a list of required cards.
         let requiredCards: CardID[] = []
         for (let requirement of requirements) {
-            if (requirement[0].includes(card.id)) {
+            if (requirement[0].includes(card)) {
                 requiredCards = requirement[1]
             }
         }
@@ -835,10 +844,10 @@ function randomGift(currentDeck: Card[]): Card[] {
 
         if (requiredCards.length > 0) {
             // Add one of them to a bundle! :sparkles:
-            gift = [buildCard(randomPick(requiredCards)), card]
+            gift = [buildCard(randomPick(requiredCards)), buildCard(card)]
         } else {
             // Otherwise, it's fine!
-            gift = [card]
+            gift = [buildCard(card)]
         }
     }
     return gift
@@ -1013,6 +1022,9 @@ export class Adventure {
             CardID.Add,
             CardID.Restore,
             CardID.Joker,
+
+            CardID.Tag,
+            CardID.Bandaid,
         ]
 
         this.deck = cards.map((id) => buildCard(id))
@@ -1032,6 +1044,8 @@ export class Adventure {
             new BattleEvent(BluePrintEnemy),
             new CardRemovalEvent(),
             new BattleEvent(BluePrintEnemy),
+            new NewCardEvent(),
+            new BattleEvent(RandomEnemy),
             new NewCardEvent(),
             new BattleEvent(RandomEnemy),
             new NewCardEvent(),
@@ -1086,7 +1100,7 @@ export class Adventure {
     }
 
     startNewCardEvent() {
-        let options = Array(3)
+        let options = Array(4)
             .fill(0)
             .map(() => randomGift(this.deck))
         this.state = new Decision(
@@ -1219,6 +1233,7 @@ export class Battle {
             this.drawPile.push(card)
         }
         shuffle(this.drawPile)
+
         const handSize = 5
         for (let i = 0; i < handSize; i++) {
             this.drawCard()
@@ -1474,12 +1489,27 @@ export class Battle {
 
         this.enemy.makeMove()
 
-        this.drawCard()
+        this.drawCardStep()
 
         if (this.maxEnergy < 5) {
             this.maxEnergy += 1
         }
         this.energy = this.maxEnergy
+    }
+
+    drawCardStep() {
+        // Discard all cards in hand.
+        //while (this.hand.length > 0) {
+        //    this.discardHandCard(0)
+        //}
+
+        // Draw at least 1 card.
+        this.drawCard()
+
+        // Draw more cards so player has at least 3 in hand.
+        while (this.hand.length < 3) {
+            this.drawCard()
+        }
     }
 
     drawCard() {
