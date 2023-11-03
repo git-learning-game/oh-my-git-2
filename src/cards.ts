@@ -1198,6 +1198,7 @@ export class Battle {
     drawPile: Card[] = []
     hand: Card[] = []
     discardPile: Card[] = []
+    activeCard?: Card
 
     slots: (CreatureCard | null)[] = [null, null, null]
 
@@ -1295,6 +1296,8 @@ export class Battle {
         if (i < 0 || i >= this.hand.length) {
             throw new Error(`Invalid hand index: ${i}`)
         }
+
+        this.activeCard = this.hand[i]
 
         const card = cloneDeep(this.hand[i])
 
@@ -1519,6 +1522,9 @@ export class Battle {
     discardHandCard(i: number) {
         if (i < 0 || i >= this.hand.length) {
             throw new Error(`Invalid hand index: ${i}`)
+        }
+        if (this.activeCard === this.hand[i]) {
+            this.activeCard = undefined
         }
         const card = this.hand.splice(i, 1)[0]
         this.discardPile.push(card)

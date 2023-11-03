@@ -34,6 +34,24 @@
 
     let indexSlots: (CreatureCard | null)[]
 
+    window.addEventListener("keydown", (e) => {
+        if (e.key == "Enter") {
+            if (!shell.getKeyboardActive()) {
+                endTurn()
+            }
+        }
+        // if any number, play from hand, or resolve slot, depending on mode
+        if (e.key.match(/[1-9]/)) {
+            if (battle.state instanceof PlayerTurnState) {
+                battle.playCardFromHand(parseInt(e.key) - 1)
+                battle = battle
+            } else if (battle.state instanceof RequirePlaceholderState) {
+                battle.state.resolveNext(e.key)
+                battle = battle
+            }
+        }
+    })
+
     onMount(async () => {
         await shell.enterNewGitRepo()
         repo = new Repository("/root/repo", shell)
@@ -42,12 +60,6 @@
         battle.onHiddenCommand(runCommand)
 
         //await battle.devSetup()
-
-        window.addEventListener("keydown", (e) => {
-            if (e.key == "Enter") {
-                updateACoupleOfTimes()
-            }
-        })
     })
 
     async function update() {

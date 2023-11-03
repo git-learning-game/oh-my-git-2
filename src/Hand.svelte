@@ -42,6 +42,7 @@
                         hand={true}
                         playable={card.energy <= battle.energy}
                         showCost={true}
+                        active={battle.activeCard === card}
                         on:click={() => {
                             dispatch("playCard", {index})
                         }}

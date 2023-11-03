@@ -261,6 +261,10 @@ class WebShell {
     setKeyboardActive(active: boolean): void {
         this.emulator.keyboard_set_status(active)
     }
+
+    getKeyboardActive(): boolean {
+        return this.emulator.keyboard_adapter.emu_enabled
+    }
 }
 
 export default WebShell

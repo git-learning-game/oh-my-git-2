@@ -12,6 +12,7 @@
     export let hand = false
     export let placeholderEmoji: string | null = null
     export let showCost = false
+    export let active = false
 
     // Image preloader
     const dragImage = "/images/blob.png"
@@ -135,6 +136,7 @@
     class:card
     class:playable
     class:clickable
+    class:active
     class:show-cost={showCost}
     class:dragged={beingDragged}
     on:dragstart={dragStart}
@@ -274,6 +276,9 @@
     }
     .clickable {
         cursor: pointer;
+    }
+    .active {
+        transform: scale(1.1);
     }
     .attack,
     .health {
