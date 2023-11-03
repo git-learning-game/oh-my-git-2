@@ -1030,10 +1030,10 @@ export class Adventure {
             new BattleEvent(EasyEnemy),
             new NewCardEvent(),
             new BattleEvent(BluePrintEnemy),
-            new NewCardEvent(),
-            new BattleEvent(RandomEnemy),
             new CardRemovalEvent(),
             new BattleEvent(BluePrintEnemy),
+            new NewCardEvent(),
+            new BattleEvent(RandomEnemy),
             new NewCardEvent(),
             new BattleEvent(OPEnemy),
             new WinEvent(),
@@ -1297,8 +1297,6 @@ export class Battle {
             throw new Error(`Invalid hand index: ${i}`)
         }
 
-        this.activeCard = this.hand[i]
-
         const card = cloneDeep(this.hand[i])
 
         if (card.energy > this.energy) {
@@ -1308,6 +1306,8 @@ export class Battle {
             )
             return
         }
+
+        this.activeCard = this.hand[i]
 
         if (card instanceof CreatureCard) {
             let placeholder = new SlotPlaceholder(async (_, slotString) => {
@@ -1334,7 +1334,8 @@ export class Battle {
                 this.log(gt`Played ${card.getTitle()}.`)
                 this.discardHandCard(i)
             } catch (_) {
-                // Playing the card failed, do nothing.
+                // Playing the card failed.
+                this.activeCard = undefined
             }
         } else if (card instanceof EffectCard) {
             this.energy -= card.energy
