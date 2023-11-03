@@ -110,14 +110,15 @@
         right: 1em;
         top: -2.5em;
         box-sizing: content-box;
-        border: 4px solid transparent;
         box-shadow: 0 0 0.2em rgba(0, 0, 0, 0.2);
+        transition: transform 0.1s ease-in-out;
     }
     .button:hover {
         cursor: pointer;
         box-shadow: 0 1px 0.2em rgba(0, 0, 0, 0.2);
-        border: 4px solid red;
-        background-color: darkorange;
+        /* orange-red diagonal gradient */
+        background: linear-gradient(45deg, #e4d80a 0%, #f83d6c 100%);
+        transform: scale(1.1);
     }
     .button:active {
         background-color: #ddd;

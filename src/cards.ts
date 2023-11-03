@@ -896,13 +896,19 @@ class AlwaysPassingEnemy extends Enemy {
     }
 }
 
-class SnailEnemy extends Enemy {
+class EasyEnemy extends Enemy {
     makeMove() {
         if (this.freeSlots().length === 0) {
             return
         }
         let randomSlot = randomPick(this.freeSlots())
-        this.battle.playCardAsEnemy(CardID.TimeSnail, randomSlot)
+        if (Math.random() < 0.33) {
+            this.battle.playCardAsEnemy(CardID.TimeSnail, randomSlot)
+        } else if (Math.random() < 0.66) {
+            this.battle.playCardAsEnemy(CardID.DetachedHead, randomSlot)
+        } else {
+            // pass
+        }
     }
 }
 
@@ -934,6 +940,9 @@ class BluePrintEnemy extends Enemy {
             }
             nextCard = randomPick(nextCardOptions)
         } else {
+            if (Math.random() > 0.5) {
+                return
+            }
             let nextCardOptions = randomPick(this.blueprint)
             if (nextCardOptions.length === 0) {
                 return
@@ -996,16 +1005,13 @@ export class Adventure {
         let cards = [
             CardID.TimeSnail,
             CardID.TimeSnail,
-            CardID.TimeSnail,
             CardID.RepoRaven,
             CardID.RubberDuck,
             CardID.GraphGnome,
             CardID.Add,
             CardID.Add,
+            CardID.Add,
             CardID.Restore,
-            CardID.RestoreAll,
-            CardID.Stash,
-            CardID.Joker,
             CardID.Joker,
         ]
 
@@ -1021,17 +1027,13 @@ export class Adventure {
         //}
 
         this.path = [
+            new BattleEvent(EasyEnemy),
+            new NewCardEvent(),
             new BattleEvent(BluePrintEnemy),
             new NewCardEvent(),
             new BattleEvent(RandomEnemy),
-            new NewCardEvent(),
-            new BattleEvent(BluePrintEnemy),
             new CardRemovalEvent(),
-            new BattleEvent(RandomEnemy),
-            new NewCardEvent(),
             new BattleEvent(BluePrintEnemy),
-            new NewCardEvent(),
-            new BattleEvent(RandomEnemy),
             new NewCardEvent(),
             new BattleEvent(OPEnemy),
             new WinEvent(),

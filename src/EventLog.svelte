@@ -31,7 +31,7 @@
         background: rgba(255, 255, 255, 0.5);
     }
     .error {
-        background: red !important;
+        background: #e74c3c !important;
         color: white;
     }
 </style>

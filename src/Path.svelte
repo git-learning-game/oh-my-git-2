@@ -8,6 +8,7 @@
         CardRemovalEvent,
         WinEvent,
     } from "./cards.ts"
+    import CardSvelte from "./Card.svelte"
 
     export let adventure: Adventure
 
@@ -27,7 +28,6 @@
 </script>
 
 <div id="wrapper">
-    <h1>Oh My Git 2.0</h1>
     <h2>{$t`Make it all the way to the end to get your Git diploma!`}</h2>
     <div id="path">
         {#each adventure.path as event}
@@ -56,6 +56,12 @@
             </div>
         {/each}
     </div>
+    <h2>{$t`Your current deck:`}</h2>
+    <div class="cards">
+        {#each adventure.deck as card}
+            <CardSvelte {card} showCost={true} />
+        {/each}
+    </div>
 </div>
 
 <style>
@@ -79,7 +85,8 @@
         color: white;
         font-size: 400%;
         text-align: center;
-        margin-bottom: 3em;
+        margin-bottom: 1em;
+        margin-top: 1em;
     }
     #path {
         display: flex;
@@ -117,5 +124,11 @@
     }
     .icon {
         font-size: 350%;
+    }
+    .cards {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1em;
+        padding: 0 5em;
     }
 </style>

@@ -73,7 +73,7 @@
         padding: 0.1em 0.3em;
         color: white;
         border-radius: 0.5em;
-        z-index: 100;
+        z-index: 1000;
     }
     span {
         font-weight: bold;

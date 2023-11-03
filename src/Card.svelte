@@ -231,7 +231,7 @@
     }
     .dragged {
         opacity: 0.5;
-        transform: scale(1) !important;
+        transform: scale(1.3) !important;
         z-index: 99;
     }
     .slot:not(.card) {
@@ -240,7 +240,7 @@
     .hand {
         transition: transform 0.1s;
     }
-    .hand:hover {
+    .hand.playable:hover {
         transition-timing-function: ease-out;
         transform: scale(1.3);
         transform-origin: center bottom;
