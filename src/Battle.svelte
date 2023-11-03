@@ -34,23 +34,30 @@
 
     let indexSlots: (CreatureCard | null)[]
 
-    window.addEventListener("keydown", (e) => {
-        if (e.key == "Enter") {
-            if (!shell.getKeyboardActive()) {
+    function keydown(e: KeyboardEvent) {
+        if (!shell.getKeyboardActive()) {
+            if (e.key == "Enter") {
                 endTurn()
             }
-        }
-        // if any number, play from hand, or resolve slot, depending on mode
-        if (e.key.match(/[1-9]/)) {
-            if (battle.state instanceof PlayerTurnState) {
-                battle.playCardFromHand(parseInt(e.key) - 1)
-                battle = battle
-            } else if (battle.state instanceof RequirePlaceholderState) {
-                battle.state.resolveNext(e.key)
+            if (e.key == "Escape") {
+                battle.cancelAction()
                 battle = battle
             }
+            // if any number, play from hand, or resolve slot, depending on mode
+            if (e.key.match(/^[1-9]$/)) {
+                if (battle.state instanceof PlayerTurnState) {
+                    battle.playCardFromHand(parseInt(e.key) - 1)
+                    battle = battle
+                } else if (battle.state instanceof RequirePlaceholderState) {
+                    if (parseInt(e.key) > 3) {
+                        return
+                    }
+                    battle.state.resolveNext(e.key)
+                    battle = battle
+                }
+            }
         }
-    })
+    }
 
     onMount(async () => {
         await shell.enterNewGitRepo()
@@ -217,6 +224,8 @@
 <div id="state">
     <StateIndicator {battle} on:textEntered={textEntered} />
 </div>
+
+<svelte:window on:keydown={keydown} />
 
 <div id="topdown">
     <div id="columns">

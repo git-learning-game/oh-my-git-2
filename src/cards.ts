@@ -902,9 +902,9 @@ class EasyEnemy extends Enemy {
             return
         }
         let randomSlot = randomPick(this.freeSlots())
-        if (Math.random() < 0.33) {
+        if (Math.random() < 0.5) {
             this.battle.playCardAsEnemy(CardID.TimeSnail, randomSlot)
-        } else if (Math.random() < 0.66) {
+        } else if (Math.random() < 0.6) {
             this.battle.playCardAsEnemy(CardID.DetachedHead, randomSlot)
         } else {
             // pass
@@ -1500,6 +1500,11 @@ export class Battle {
             this.hand.push(card)
             this.log(gt`You drew ${card.getTitle()}.`)
         }
+    }
+
+    cancelAction() {
+        this.activeCard = undefined
+        this.state = new PlayerTurnState()
     }
 
     kill(playerSideToKill: boolean, slot: number, source: CardSource) {
