@@ -285,6 +285,7 @@
         left: 50%;
         transform: translateX(-50%);
         bottom: 14.3em;
+        z-index: 999;
     }
 
     #topdown {

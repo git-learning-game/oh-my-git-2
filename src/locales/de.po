@@ -17,7 +17,7 @@ msgstr ""
 msgid " and "
 msgstr " und "
 
-#: src/cards.ts:1421
+#: src/cards.ts:1441
 msgid "{0} dealt {1} damage to the enemy player."
 msgstr "{0} fügte dem gegnerischen Spieler {1} Schaden zu."
 
@@ -37,7 +37,7 @@ msgstr "{num, plural, one {ziehe eine Karte} other {ziehe # Karten}}"
 msgid "add a {0} to your hand"
 msgstr "füge {0} deiner Hand hinzu"
 
-#: src/cards.ts:1092
+#: src/cards.ts:1107
 msgid "Add a card to your deck!"
 msgstr "Füge deinem Deck eine Karte hinzu!"
 
@@ -49,11 +49,11 @@ msgstr "Füge deinem Deck eine Karte hinzu!"
 msgid "Added a {0} to your hand."
 msgstr "{0} wurde deiner Hand hinzugefügt."
 
-#: src/Win.svelte:25
+#: src/Win.svelte:28
 msgid "Advanced Git magic"
 msgstr "Fortgeschrittene Git-Magie"
 
-#: src/cards.ts:1382
+#: src/cards.ts:1402
 msgid "Automatically creating a commit."
 msgstr "Erstelle automatisch einen Commit."
 
@@ -61,7 +61,7 @@ msgstr "Erstelle automatisch einen Commit."
 msgid "Bandaid"
 msgstr "Pflaster"
 
-#: src/Win.svelte:39
+#: src/Win.svelte:42
 msgid "bleeptrack & blinry"
 msgstr "bleeptrack & blinry"
 
@@ -77,7 +77,7 @@ msgstr "Blobfresser"
 #~ msgid "Checkout"
 #~ msgstr "Checkout"
 
-#: src/Win.svelte:24
+#: src/Win.svelte:27
 msgid "Cleaning up after yourself"
 msgstr "Hinter sich aufräümen"
 
@@ -89,7 +89,7 @@ msgstr "Klonkrieger"
 msgid "Collab Centaur"
 msgstr "Zusammenarbeitszentaur"
 
-#: src/cards.ts:1364
+#: src/cards.ts:1384
 msgid "Command failed: {0}"
 msgstr "Befehl fehlgeschlagen: {0}"
 
@@ -101,7 +101,7 @@ msgstr "Befehl fehlgeschlagen: {0}"
 #~ msgid "Commit all"
 #~ msgstr "Alles committen"
 
-#: src/Hand.svelte:53
+#: src/Hand.svelte:66
 msgid "Commit!"
 msgstr "Commit!"
 
@@ -153,11 +153,11 @@ msgstr "Erstelle am HEAD-Commit einen neuen Branch."
 msgid "Create a new tag at the HEAD commit."
 msgstr "Erstelle am HEAD-Commit einen neuen Tag."
 
-#: src/Win.svelte:21
+#: src/Win.svelte:24
 msgid "Creating and cloning repositories"
 msgstr "Erstellen und Klonen von Repositories"
 
-#: src/Win.svelte:40
+#: src/Win.svelte:43
 msgid "Date: {0}"
 msgstr "Datum: {0}"
 
@@ -169,7 +169,7 @@ msgstr "lösche einen zufälligen Gegner"
 msgid "Detached Head"
 msgstr "Abgetrennter Kopf"
 
-#: src/Win.svelte:22
+#: src/Win.svelte:25
 msgid "Detaching HEADs"
 msgstr "HEADs detachen"
 
@@ -185,15 +185,15 @@ msgstr "HEADs detachen"
 msgid "Enemy"
 msgstr "Gegner"
 
-#: src/cards.ts:1400
+#: src/cards.ts:1420
 msgid "Enemy {0} dealt {1} damage to {2}."
 msgstr "Gegner {0} fügte {2} {1} Schaden zu."
 
-#: src/cards.ts:1432
+#: src/cards.ts:1452
 msgid "Enemy {0} dealt {1} damage to you."
 msgstr "Gegner {0} fügte dir {1} Schaden zu."
 
-#: src/cards.ts:1351
+#: src/cards.ts:1371
 msgid "Enemy announced {0} at slot {1}."
 msgstr "Der Gegner hat {0} auf Slot {1} angekündigt."
 
@@ -221,7 +221,7 @@ msgstr "Gib Text ein: "
 #~ msgid "Event log"
 #~ msgstr "Ereignisprotokoll"
 
-#: src/Win.svelte:19
+#: src/Win.svelte:22
 msgid "For mastering the following skills:"
 msgstr "Für das Meistern der folgenden Skills:"
 
@@ -233,11 +233,11 @@ msgstr "erhalte {0}"
 msgid "Gain {0} energy"
 msgstr "Erhalte {0} Energie"
 
-#: src/Win.svelte:29
+#: src/Win.svelte:32
 msgid "Game was finished with {0} cards in the deck:"
 msgstr "Das Spiel wurde mit {0} Karten im Deck abgeschlossen:"
 
-#: src/Win.svelte:11
+#: src/Win.svelte:14
 msgid "Git Diploma"
 msgstr "Git-Diplom"
 
@@ -281,9 +281,9 @@ msgstr "erhöhe den Angriff der Karte um {0}"
 msgid "increase its own health by {0}"
 msgstr "erhöhe die Gesundheit der Karte um {0}"
 
-#: src/Cards.svelte:71
-#~ msgid "Index"
-#~ msgstr "Index"
+#: src/Cards.svelte:80
+msgid "Index"
+msgstr "Index"
 
 #: src/cards.ts:770
 msgid "Inspiration"
@@ -297,7 +297,7 @@ msgstr "Joker! Führe einen beliebigen Befehl aus."
 msgid "Library"
 msgstr "Bibliothek"
 
-#: src/Path.svelte:18
+#: src/Path.svelte:19
 msgid "Make it all the way to the end to get your Git diploma!"
 msgstr "Schaff es ganz bis zum Ende, um dein Git-Diplom zu erhalten!"
 
@@ -329,11 +329,11 @@ msgstr "Verschiebe eine Karte im Arbeitsverzeichnis und Index von einem Slot zu 
 msgid "Move a card from one working directory slot to another."
 msgstr "Verschiebe eine Karte im Arbeitsverzeichnis von einem Slot zu einem anderen."
 
-#: src/cards.ts:1302
+#: src/cards.ts:1319
 msgid "Not enough energy to play {0}."
 msgstr "Nicht genug Energie, um {0} zu spielen."
 
-#: src/Win.svelte:12
+#: src/Win.svelte:15
 msgid "On completing Oh My Git 2.0!"
 msgstr "Für das Abschließen von Oh My Git 2.0!"
 
@@ -341,12 +341,12 @@ msgstr "Für das Abschließen von Oh My Git 2.0!"
 #~ msgid "Pick a card!"
 #~ msgstr "Wähle eine Karte!"
 
-#: src/cards.ts:1314
+#: src/cards.ts:1333
 msgid "Played {0} to slot {1}."
 msgstr "Du hast {0} auf Slot {1} gespielt."
 
-#: src/cards.ts:1330
-#: src/cards.ts:1337
+#: src/cards.ts:1349
+#: src/cards.ts:1357
 msgid "Played {0}."
 msgstr "{0} gespielt."
 
@@ -354,11 +354,15 @@ msgstr "{0} gespielt."
 #~ msgid "Pop stash"
 #~ msgstr "Stash poppen"
 
-#: src/Win.svelte:16
+#: src/Win.svelte:19
 msgid "Presented to:"
 msgstr "Überreicht an:"
 
-#: src/Win.svelte:23
+#: src/Win.svelte:47
+msgid "Print"
+msgstr "Drucken"
+
+#: src/Win.svelte:26
 msgid "Rebasing and cherry-picking"
 msgstr "Rebasen und Cherry-Picking"
 
@@ -396,8 +400,8 @@ msgstr "Gummiente"
 msgid "run \"{0}\""
 msgstr "führe \"{0}\" aus"
 
-#: src/cards.ts:1285
-#: src/cards.ts:1358
+#: src/cards.ts:1302
+#: src/cards.ts:1378
 msgid "Running \"{0}\""
 msgstr "Führe \"{0}\" aus"
 
@@ -417,11 +421,11 @@ msgstr "Setze HEAD auf den angegebenen Branch, und setze Arbeitsverzeichnis und 
 msgid "Set HEAD to a commit, and reset the working directory and index to that commit."
 msgstr "Setze HEAD auf den angegebenen Commit, und setze Arbeitsverzeichnis und Index auf diesen zurück."
 
-#: src/cards.ts:1491
+#: src/cards.ts:1526
 msgid "Shuffled discard pile into draw pile."
 msgstr "Ablagestapel wurde in Zugstapel gemischt."
 
-#: src/Win.svelte:39
+#: src/Win.svelte:42
 msgid "Signed: {0}"
 msgstr "Unterschrift: {0}"
 
@@ -461,7 +465,7 @@ msgstr "die Anzahl von Tags in deinem Repository"
 msgid "Time Snail"
 msgstr "Zeitschnecke"
 
-#: src/cards.ts:1483
+#: src/cards.ts:1518
 msgid "Tried to draw a card, but both draw and discard pile are empty."
 msgstr "Versuchte, eine Karte zu ziehen, aber Nachzieh- und Ablagestapel sind beide leer."
 
@@ -489,27 +493,27 @@ msgstr "wenn diese Karte stirbt"
 msgid "when this card is played"
 msgstr "wenn diese Karte gespielt wird"
 
-#: src/Cards.svelte:56
-#~ msgid "Working directory"
-#~ msgstr "Arbeitsverzeichnis"
+#: src/Cards.svelte:63
+msgid "Working directory"
+msgstr "Arbeitsverzeichnis"
 
 #: src/Cards.svelte:27
 msgid "You"
 msgstr "Du"
 
-#: src/cards.ts:1496
+#: src/cards.ts:1531
 msgid "You drew {0}."
 msgstr "Du hast {0} gezogen."
 
-#: src/cards.ts:1462
+#: src/cards.ts:1482
 msgid "You ended your turn"
 msgstr "Du hast deinen Zug beendet"
 
-#: src/cards.ts:1103
+#: src/cards.ts:1118
 msgid "You may remove a card from your deck!"
 msgstr "Entferne eine Karte aus deinem Deck, wenn du möchtest!"
 
-#: src/cards.ts:1407
+#: src/cards.ts:1427
 msgid "Your {0} dealt {1} damage to {2}."
 msgstr "Dein {0} hat {2} {1} Schaden zugefügt."
 
@@ -517,6 +521,10 @@ msgstr "Dein {0} hat {2} {1} Schaden zugefügt."
 msgid "Your current deck"
 msgstr "Dein aktuelles Deck"
 
+#: src/Path.svelte:47
+msgid "Your current deck:"
+msgstr "Dein aktuelles Deck:"
+
 #: src/StateIndicator.svelte:13
-msgid "Your turn"
-msgstr "Du bist dran"
+#~ msgid "Your turn"
+#~ msgstr "Du bist dran"

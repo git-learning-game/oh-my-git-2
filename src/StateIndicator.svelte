@@ -80,7 +80,7 @@
     }
     input {
         border: none;
-        border-radius: 99em;
+        border-radius: 0.2em;
         padding: 0.1em 0.5em;
         font-weight: normal;
     }

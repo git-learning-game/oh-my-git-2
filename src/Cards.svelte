@@ -64,7 +64,7 @@
             <div id="separator">⚡</div>
 
             <div class="group">
-                <div class="column-title">Working directory</div>
+                <div class="column-title">{$t`Working directory`}</div>
                 <div class="cards">
                     {#each battle.slots as slot, index}
                         <CardSvelte
@@ -81,7 +81,7 @@
         </div>
 
         <div class="group">
-            <div class="column-title">Index</div>
+            <div class="column-title">{$t`Index`}</div>
             <div class="cards">
                 {#each indexSlots as slot, index}
                     <CardSvelte

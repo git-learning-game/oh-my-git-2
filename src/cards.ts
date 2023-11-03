@@ -606,7 +606,6 @@ function allCards(): Record<CardID, Card> {
             1,
             gt`Copy a card from the working directory to the index.`,
             new Command("git add SLOT"),
-            "➕",
         ),
         [CardID.AddAll]: new CommandCard(
             CardID.AddAll,
@@ -619,7 +618,6 @@ function allCards(): Record<CardID, Card> {
             0,
             gt`Remove a card in the working directory.`,
             new Command("rm SLOT"),
-            "➖",
         ),
         [CardID.Restore]: new CommandCard(
             CardID.Restore,
@@ -700,14 +698,12 @@ function allCards(): Record<CardID, Card> {
             0,
             gt`Create a new branch at the HEAD commit.`,
             new Command("git branch $RANDOM"),
-            "🫒",
         ),
         [CardID.Tag]: new CommandCard(
             CardID.Tag,
             0,
             gt`Create a new tag at the HEAD commit.`,
             new Command("git tag $RANDOM"),
-            "🏷️",
         ),
         [CardID.Switch]: new CommandCard(
             CardID.Switch,
@@ -746,7 +742,7 @@ function allCards(): Record<CardID, Card> {
             1,
             gt`Health potion`,
             new GiveFriendsEffect(0, 2),
-            "💊",
+            "🧪",
         ),
         [CardID.DrawCard]: new EffectCard(
             CardID.DrawCard,
