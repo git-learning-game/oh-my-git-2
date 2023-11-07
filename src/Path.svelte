@@ -89,12 +89,18 @@
         margin-top: 1em;
     }
     #path {
-        display: flex;
+        display: inline-flex;
         gap: 2em;
         margin-top: 1.5em;
         justify-content: center;
         align-items: center;
         flex-wrap: wrap;
+        border-bottom: 10px solid #555;
+        height: 3.2em;
+    }
+    #path .event:last-child {
+        background: gold;
+        transform: scale(1.1);
     }
     #player {
         position: absolute;
