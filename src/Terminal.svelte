@@ -16,9 +16,10 @@
                 ) / 2,
             ) * 2
         // TODO meh hack
-        width = 25
+        width = 21
         height = 50
-        shell.type(`stty rows ${width} cols ${height}\n`)
+        console.warn("Resizing terminal")
+        shell.type(`stty rows 20 cols 20\nstty rows ${width} cols ${height}\n`)
     }
 
     function enable() {

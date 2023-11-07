@@ -606,7 +606,7 @@ function allCards(): Record<CardID, Card> {
             1,
             gt`Detached Head`,
             0,
-            4,
+            3,
             "👤",
         ),
         [CardID.RubberDuck]: new CreatureCard(
@@ -1372,7 +1372,7 @@ export class Battle {
             let placeholder = new SlotPlaceholder(async (_, slotString) => {
                 let slot = parseInt(slotString)
                 this.energy -= card.energy
-                this.slots[slot - 1] = card
+                this.slots[slot - 1] = cloneDeep(card)
                 this.log(gt`Played ${card.getTitle()} to slot ${slotString}.`)
                 await card.triggerEffects(
                     this,
