@@ -1067,7 +1067,6 @@ export class Adventure {
             CardID.Add,
             CardID.Restore,
             CardID.Joker,
-            CardID.HealthPotion,
         ]
 
         this.deck = cards.map((id) => buildCard(id))
