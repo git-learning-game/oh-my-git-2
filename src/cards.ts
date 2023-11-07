@@ -1015,11 +1015,15 @@ class OPEnemy extends Enemy {
         let randomSlot = randomPick(this.freeSlots())
         let card: CardID
         if (Math.random() < 0.5) {
-            card = randomCreatureCardID()
+            if (Math.random() < 0.5) {
+                card = randomCreatureCardID()
+            } else {
+                card = CardID.MergeMonster
+            }
+            this.battle.playCardAsEnemy(card, randomSlot)
         } else {
-            card = CardID.MergeMonster
+            // pass
         }
-        this.battle.playCardAsEnemy(card, randomSlot)
     }
 }
 
