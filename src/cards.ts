@@ -83,10 +83,10 @@ export class CreatureCard extends Card {
         return this
     }
 
-    triggerEffects(battle: Battle, trigger: Trigger, source: CardSource) {
+    async triggerEffects(battle: Battle, trigger: Trigger, source: CardSource) {
         for (let [t, effect] of this.effects) {
             if (t === trigger) {
-                effect.apply(battle, source)
+                await effect.apply(battle, source)
             }
         }
     }
@@ -1372,10 +1372,9 @@ export class Battle {
             let placeholder = new SlotPlaceholder(async (_, slotString) => {
                 let slot = parseInt(slotString)
                 this.energy -= card.energy
-                let newCard = cloneDeep(card)
-                this.slots[slot - 1] = newCard
+                this.slots[slot - 1] = card
                 this.log(gt`Played ${card.getTitle()} to slot ${slotString}.`)
-                newCard.triggerEffects(
+                await card.triggerEffects(
                     this,
                     Trigger.Played,
                     new CardSource(true, this.slots[slot - 1] as CreatureCard),
