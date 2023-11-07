@@ -222,20 +222,32 @@ class CardSource {
     }
 }
 
+async function evalNumber(
+    value: NumericValue,
+    battle: Battle,
+): Promise<number> {
+    if (typeof value === "number") {
+        return value
+    } else {
+        let result = await value.eval(battle)
+        console.log(`Evaluated ${value} to ${result}`)
+        return result
+    }
+}
+
+function describeNumber(value: NumericValue): string {
+    if (typeof value === "number") {
+        return `${value}`
+    } else {
+        let result = value.getDescription()
+        return result
+    }
+}
+
 abstract class Effect {
     constructor() {}
     abstract getDescription(): string
     abstract apply(battle: Battle, source: CardSource): Promise<void>
-
-    async eval(value: NumericValue, battle: Battle): Promise<number> {
-        if (typeof value === "number") {
-            return value
-        } else {
-            let result = await value.eval(battle)
-            console.log(`Evaluated ${value} to ${result}`)
-            return result
-        }
-    }
 
     describeAmount(value: NumericValue, unit?: string): string {
         if (typeof value === "number") {
@@ -264,7 +276,7 @@ class HealPlayerEffect extends Effect {
     }
 
     async apply(battle: Battle, _source: CardSource) {
-        let amount = await this.eval(this.amount, battle)
+        let amount = await evalNumber(this.amount, battle)
         battle.log(gt`Healed for ${amount}`)
         battle.health += amount
     }
@@ -280,7 +292,7 @@ class GainEnergyEffect extends Effect {
     }
 
     async apply(battle: Battle, _source: CardSource) {
-        let amount = await this.eval(this.amount, battle)
+        let amount = await evalNumber(this.amount, battle)
         battle.log(gt`Gain ${amount} energy`)
         battle.energy += amount
     }
@@ -396,8 +408,8 @@ class GiveSelfEffect extends Effect {
     }
 
     async apply(battle: Battle, source: CardSource) {
-        let a = await this.eval(this.attack, battle)
-        let h = await this.eval(this.health, battle)
+        let a = await evalNumber(this.attack, battle)
+        let h = await evalNumber(this.health, battle)
         let card = source.card as CreatureCard
         card.attack += a
         card.health += h
@@ -407,14 +419,16 @@ class GiveSelfEffect extends Effect {
 
 class GiveFriendsEffect extends Effect {
     constructor(
-        public attack: number,
-        public health: number,
+        public attack: NumericValue,
+        public health: NumericValue,
     ) {
         super()
     }
 
     getDescription(): string {
-        return gt`give all allies +${this.attack}/${this.health}`
+        return gt`give all allies +${this.describeAmount(
+            this.attack,
+        )}/${this.describeAmount(this.health)}`
     }
 
     async apply(battle: Battle, source: CardSource) {
@@ -424,20 +438,28 @@ class GiveFriendsEffect extends Effect {
         for (let i = 0; i < targetSideCreatures.length; i++) {
             let card = targetSideCreatures[i]
             if (card) {
-                card.attack += this.attack
-                card.health += this.health
+                let attackEval = await evalNumber(this.attack, battle)
+                let healthEval = await evalNumber(this.health, battle)
+                card.attack += attackEval
+                card.health += healthEval
                 battle.log(
-                    `${source.sourceDescription()} gave ${card.getTitle()} +${
-                        this.attack
-                    }/${this.health}.`,
+                    `${source.sourceDescription()} gave ${card.getTitle()} +${attackEval}/${healthEval}.`,
                 )
             }
         }
     }
 }
 
-class DynamicNumericValue {
-    constructor(public type: DynamicValueType) {}
+abstract class DynamicNumericValue {
+    abstract eval(battle: Battle): Promise<number>
+
+    abstract getDescription(): string
+}
+
+class DynamicGitValue extends DynamicNumericValue {
+    constructor(public type: DynamicValueType) {
+        super()
+    }
 
     async eval(battle: Battle): Promise<number> {
         return await battle.evaluateDynamicValue(this.type)
@@ -451,6 +473,27 @@ class DynamicNumericValue {
             [DynamicValueType.BranchCount]: gt`the number of branches in your repository`,
         }
         return descriptions[this.type]
+    }
+}
+
+class DynamicSubtraction extends DynamicNumericValue {
+    constructor(
+        public value1: NumericValue,
+        public value2: NumericValue,
+    ) {
+        super()
+    }
+
+    async eval(battle: Battle): Promise<number> {
+        let evaluatedValue1 = await evalNumber(this.value1, battle)
+        let evaluatedValue2 = await evalNumber(this.value2, battle)
+        return evaluatedValue1 - evaluatedValue2
+    }
+
+    getDescription(): string {
+        return gt`${describeNumber(this.value1)} minus ${describeNumber(
+            this.value2,
+        )}`
     }
 }
 
@@ -514,7 +557,7 @@ function allCards(): Record<CardID, Card> {
         ).addEffect(
             Trigger.Played,
             new GiveSelfEffect(
-                new DynamicNumericValue(DynamicValueType.CommitCount),
+                new DynamicGitValue(DynamicValueType.CommitCount),
                 0,
             ),
         ),
@@ -739,9 +782,15 @@ function allCards(): Record<CardID, Card> {
         //),
         [CardID.HealthPotion]: new EffectCard(
             CardID.HealthPotion,
-            1,
+            2,
             gt`Health potion`,
-            new GiveFriendsEffect(0, 2),
+            new GiveFriendsEffect(
+                0,
+                new DynamicSubtraction(
+                    5,
+                    new DynamicGitValue(DynamicValueType.BranchLength),
+                ),
+            ),
             "🧪",
         ),
         [CardID.DrawCard]: new EffectCard(
@@ -756,7 +805,7 @@ function allCards(): Record<CardID, Card> {
             1,
             gt`Bandaid`,
             new HealPlayerEffect(
-                new DynamicNumericValue(DynamicValueType.TagCount),
+                new DynamicGitValue(DynamicValueType.TagCount),
             ),
             "🩹",
         ),
@@ -765,7 +814,7 @@ function allCards(): Record<CardID, Card> {
             0,
             gt`Inspiration`,
             new GainEnergyEffect(
-                new DynamicNumericValue(DynamicValueType.BranchCount),
+                new DynamicGitValue(DynamicValueType.BranchCount),
             ),
             "💡",
         ),
@@ -1018,9 +1067,7 @@ export class Adventure {
             CardID.Add,
             CardID.Restore,
             CardID.Joker,
-
-            CardID.Tag,
-            CardID.Bandaid,
+            CardID.HealthPotion,
         ]
 
         this.deck = cards.map((id) => buildCard(id))
@@ -1031,7 +1078,7 @@ export class Adventure {
         //}
 
         //for (let card of Object.values(allCards())) {
-        //    this.deck.push(cloneDeep(card))
+        //  this.deck.push(cloneDeep(card))
         //}
 
         this.path = [
@@ -1270,7 +1317,8 @@ export class Battle {
         let commands = {
             [DynamicValueType.TagCount]: "git tag | wc -l",
             [DynamicValueType.CommitCount]: "git rev-list --all --count",
-            [DynamicValueType.BranchLength]: "git rev-list HEAD --count",
+            [DynamicValueType.BranchLength]:
+                "git rev-list HEAD --count || echo 0",
             [DynamicValueType.BranchCount]: "git branch | wc -l",
         }
         let result = await this.runHiddenCommand(commands[value])
