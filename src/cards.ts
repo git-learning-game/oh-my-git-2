@@ -1146,7 +1146,7 @@ export class Adventure {
     }
 
     startNewCardEvent() {
-        let options = Array(4)
+        let options = Array(3)
             .fill(0)
             .map(() => randomGift(this.deck))
         this.state = new Decision(

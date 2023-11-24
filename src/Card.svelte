@@ -222,6 +222,9 @@
         flex: 1;
         border-radius: 1em;
     }
+    .hand .card {
+        opacity: 0.5;
+    }
     .energy {
         position: absolute;
         top: -0.8em;
@@ -277,6 +280,7 @@
     .card.playable {
         border: solid #225cba 5px;
         cursor: move;
+        opacity: 1;
     }
     .clickable {
         cursor: pointer;
@@ -310,7 +314,7 @@
         align-items: center;
         justify-content: center;
         filter: grayscale(100%);
-        opacity: 0.5;
-        z-index: -1;
+        opacity: 0.3;
+        z-index: 0;
     }
 </style>

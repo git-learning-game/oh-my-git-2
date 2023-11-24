@@ -44,9 +44,9 @@
         <div class="group">
             <div class="column-title"></div>
 
-            <div class="cards">
+            <div class="cards future">
                 {#each battle.enemyUpcomingSlots as slot}
-                    <CardSvelte card={slot} placeholderEmoji="⬅️" />
+                    <CardSvelte card={slot} placeholderEmoji="⏳" />
                 {/each}
             </div>
         </div>
@@ -123,6 +123,10 @@
         display: flex;
         flex-direction: column;
         gap: 1em;
+    }
+
+    .future {
+        opacity: 0.5;
     }
     #arena {
         background: #225cba;
