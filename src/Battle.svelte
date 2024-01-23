@@ -8,6 +8,7 @@
     import Hand from "./Hand.svelte"
     import EventLog from "./EventLog.svelte"
     import StateIndicator from "./StateIndicator.svelte"
+    import Achievements from "./Achievements.svelte"
 
     import {GitShell} from "./gitshell.ts"
     import {Repository, GitBlob} from "./repository.ts"
@@ -92,6 +93,7 @@
         let beforeRepo = repo.clone()
         await repo.update()
         achievementTracker.update(beforeRepo, repo)
+        achievementTracker = achievementTracker
         console.log("Achievements", achievementTracker.achievementProgresses)
         syncDiskToGame()
         repo = repo
@@ -269,7 +271,7 @@
         </div>
         <div id="right">
             <div id="log">
-                <EventLog {battle} />
+                <Achievements tracker={achievementTracker} />
             </div>
 
             <div id="screen">
