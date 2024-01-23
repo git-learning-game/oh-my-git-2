@@ -26,7 +26,6 @@
         } else if (battle.state instanceof WaitingState) {
             stateMessage = $t`Waiting...`
         } else if (battle.state instanceof RequirePlaceholderState) {
-            console.log("cur pl", battle.state.currentPlaceholder())
             let currentPlaceholder = battle.state.currentPlaceholder()
             if (currentPlaceholder instanceof SlotPlaceholder) {
                 stateMessage = $t`Select slot`

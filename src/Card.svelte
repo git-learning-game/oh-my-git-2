@@ -27,12 +27,12 @@
 
     function dragStart(e: DragEvent) {
         if (index != null && e.dataTransfer) {
+            e.dataTransfer.clearData()
             e.dataTransfer.setData("text/plain", index.toString())
             const img = new Image()
             //img.src = dragImage
             e.dataTransfer.setDragImage(img, 0, 0)
             beingDragged = true
-            console.log("drag start")
 
             startDragOffsetX = e.clientX
             startDragOffsetY = e.clientY
@@ -75,18 +75,15 @@
 
     function dragEnd(e: DragEvent) {
         beingDragged = false
-        console.log("drag end")
 
         let target = document.elementFromPoint(e.clientX, e.clientY)
         // walk up until we find a ancestor with the class "slot"
         while (target && !target.classList.contains("slot")) {
             target = target.parentElement
         }
-        console.log(target)
         // trigger a proper drop event on the target
         if (target) {
-            console.log(index)
-            e.dataTransfer.setData("text/plain", index.toString())
+            //e.dataTransfer.setData("text/plain", index.toString())
             let dt = new DataTransfer()
             dt.setData("text/plain", index.toString())
             target.dispatchEvent(
@@ -101,7 +98,7 @@
     }
 
     function mouseup(e: MouseEvent) {
-        console.log("mouseup")
+        //console.log("mouseup")
     }
 
     let fontSize: number

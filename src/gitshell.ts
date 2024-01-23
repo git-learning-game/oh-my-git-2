@@ -31,8 +31,8 @@ export class GitShell extends WebShell {
             "cd /root/repo",
             "git init",
         ])
-        await this.putFile("/root/repo/.gitattributes", ["* merge=cardgame"])
-        await this.putFile("/root/.gitignore", [".gitattributes"])
+        //await this.putFile("/root/repo/.gitattributes", ["* merge=cardgame"])
+        //await this.putFile("/root/.gitignore", [".gitattributes"])
         this.type("cd /root/repo\nclear\n")
     }
 

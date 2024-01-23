@@ -12,7 +12,12 @@
 
     import {GitShell} from "./gitshell.ts"
     import {Repository, GitBlob} from "./repository.ts"
-    import {AchievementTracker, achievements} from "./achievements.ts"
+    import {
+        AchievementTracker,
+        Achievement,
+        achievements,
+    } from "./achievements.ts"
+    import {CardID, buildCard} from "./cards.ts"
 
     import {
         Battle,
@@ -34,9 +39,29 @@
     let repo: Repository
     let graph: Graph
 
-    let achievementTracker = new AchievementTracker()
-    achievementTracker.add(achievements.CREATE_TAGS, 5)
-    achievementTracker.add(achievements.ADD_TO_INDEX, 5)
+    let achievementTracker = new AchievementTracker(achievementCompleted)
+    for (let achievement of Object.values(achievements)) {
+        achievementTracker.add(achievement, 3)
+    }
+
+    function achievementCompleted(achievement: Achievement) {
+        let cardID = nextUsefulCard()
+        if (cardID !== null) {
+            let card = buildCard(cardID)
+            battle.hand.push(card)
+        }
+    }
+
+    function nextUsefulCard(): CardID | null {
+        for (let progress of achievementTracker.achievementProgresses) {
+            for (let card of progress.achievement.requiredCards) {
+                if (!battle.hand.map((c) => c.id).includes(card as CardID)) {
+                    return card as CardID
+                }
+            }
+        }
+        return null
+    }
 
     let indexSlots: (CreatureCard | null)[]
 
@@ -87,19 +112,39 @@
     })
 
     async function update() {
+        console.log("update begin")
         if (graph) {
             graph.setRefreshing(true)
         }
+
         let beforeRepo = repo.clone()
         await repo.update()
-        achievementTracker.update(beforeRepo, repo)
-        achievementTracker = achievementTracker
-        console.log("Achievements", achievementTracker.achievementProgresses)
+        console.log("repo update done, updating achievments")
+        updateAchievements(beforeRepo)
+
         syncDiskToGame()
         repo = repo
         //graph.update()
         if (graph) {
             graph.setRefreshing(false)
+        }
+    }
+
+    function updateAchievements(beforeRepo: Repository) {
+        achievementTracker.update(beforeRepo, repo)
+        achievementTracker = achievementTracker
+
+        for (let progress of achievementTracker.achievementProgresses) {
+            let possible = true
+            let cardIDsInHand = battle.hand.map((c) => c.id)
+            for (let card of progress.achievement.requiredCards) {
+                if (!cardIDsInHand.includes(card as CardID)) {
+                    possible = false
+                }
+            }
+            if (possible) {
+                progress.visible = true
+            }
         }
     }
 
@@ -159,6 +204,7 @@
                 await shell.run(`rm -f ${index + 1}`)
             }
         }
+        updateACoupleOfTimes()
     }
 
     function syncDiskToGame() {

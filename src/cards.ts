@@ -506,7 +506,7 @@ enum DynamicValueType {
 
 type NumericValue = number | DynamicNumericValue
 
-enum CardID {
+export enum CardID {
     TimeSnail = "TimeSnail",
     RepoRaven = "RepoRaven",
     GraphGnome = "GraphGnome",
@@ -526,8 +526,8 @@ enum CardID {
     RestoreS = "RestoreS",
     RestoreStaged = "RestoreStaged",
     RestoreStagedS = "RestoreStagedS",
-    //Commit = "Commit",
-    //CommitAll = "CommitAll",
+    Commit = "Commit",
+    CommitAll = "CommitAll",
     Copy = "Copy",
     Move = "Move",
     GitMove = "GitMove",
@@ -692,7 +692,6 @@ function allCards(): Record<CardID, Card> {
             gt`Copy a card from the specified commit to the index.`,
             new Command("git restore --staged -s REF SLOT"),
         ),
-        /*
         [CardID.Commit]: new CommandCard(
             CardID.Commit,
             2,
@@ -705,7 +704,6 @@ function allCards(): Record<CardID, Card> {
             gt`Commit all`,
             new Command("git add .; git commit -m 'Commit'"),
         ),
-        */
         [CardID.Copy]: new CommandCard(
             CardID.Copy,
             3,
@@ -898,7 +896,7 @@ function randomGift(currentDeck: Card[]): Card[] {
     return gift
 }
 
-function buildCard(id: CardID): Card {
+export function buildCard(id: CardID): Card {
     return cloneDeep(allCards()[id])
 }
 
@@ -1060,18 +1058,7 @@ export class Adventure {
     currentEvent: AdventureEvent | null = null
 
     constructor(public onNextEvent: (e: AdventureState | null) => void) {
-        let cards = [
-            CardID.TimeSnail,
-            CardID.TimeSnail,
-            CardID.RepoRaven,
-            CardID.RubberDuck,
-            CardID.GraphGnome,
-            CardID.Add,
-            CardID.Add,
-            CardID.Add,
-            CardID.Restore,
-            CardID.Joker,
-        ]
+        let cards = [CardID.TimeSnail]
 
         this.deck = cards.map((id) => buildCard(id))
 
@@ -1251,7 +1238,7 @@ export class Battle {
     eventLog: [string, LogType][] = []
 
     health = 20
-    energy = 1
+    energy = 10
     maxEnergy = 1
 
     enemyHealth = 20
@@ -1362,20 +1349,20 @@ export class Battle {
 
         const card = cloneDeep(this.hand[i])
 
-        if (card.energy > this.energy) {
+        /*if (card.energy > this.energy) {
             this.log(
                 gt`Not enough energy to play ${card.getTitle()}.`,
                 LogType.Error,
             )
             return
-        }
+        }*/
 
         this.activeCard = this.hand[i]
 
         if (card instanceof CreatureCard) {
             let placeholder = new SlotPlaceholder(async (_, slotString) => {
                 let slot = parseInt(slotString)
-                this.energy -= card.energy
+                //this.energy -= card.energy
                 this.slots[slot - 1] = cloneDeep(card)
                 this.log(gt`Played ${card.getTitle()} to slot ${slotString}.`)
                 await card.triggerEffects(
@@ -1392,7 +1379,7 @@ export class Battle {
             let command = new Command(card.command.template)
             try {
                 await this.runCommand(command)
-                this.energy -= card.energy
+                //this.energy -= card.energy
                 this.log(gt`Played ${card.getTitle()}.`)
                 this.discardHandCard(i)
             } catch (_) {
@@ -1400,7 +1387,7 @@ export class Battle {
                 this.activeCard = undefined
             }
         } else if (card instanceof EffectCard) {
-            this.energy -= card.energy
+            //this.energy -= card.energy
             this.log(gt`Played ${card.getTitle()}.`)
             await card.effect.apply(this, new CardSource(true, card))
             this.discardHandCard(i)
@@ -1602,7 +1589,9 @@ export class Battle {
         }
     }
 
-    discardHandCard(i: number) {
+    discardHandCard(_: number) {
+        // Don't discard cards for now.
+        /*
         if (i < 0 || i >= this.hand.length) {
             throw new Error(`Invalid hand index: ${i}`)
         }
@@ -1611,5 +1600,6 @@ export class Battle {
         }
         const card = this.hand.splice(i, 1)[0]
         this.discardPile.push(card)
+        */
     }
 }

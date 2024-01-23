@@ -8,9 +8,11 @@
 <div id="wrapper">
     <ul>
         {#each tracker.achievementProgresses as progress}
-            <li class:fullfilled={progress.progress >= progress.target}>
-                {progress.achievement.description}: {progress.progress}/{progress.target}
-            </li>
+            {#if progress.visible}
+                <li class:fullfilled={progress.progress >= progress.target}>
+                    {progress.achievement.description}: {progress.progress}/{progress.target}
+                </li>
+            {/if}
         {/each}
     </ul>
 </div>

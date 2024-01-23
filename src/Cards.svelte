@@ -11,10 +11,8 @@
     export let indexSlots: (CreatureCard | null)[] = [null, null, null]
 
     function drop(e: DragEvent, slotIndex: number) {
-        console.log("drop", slotIndex)
         e.preventDefault()
         const cardIndex = parseInt(e.dataTransfer?.getData("text/plain") ?? "")
-        console.log(`from ${cardIndex} to ${slotIndex}`)
         if (cardIndex >= 0 && cardIndex < battle.hand.length) {
             dispatch("drag", {cardIndex, slotIndex})
         }

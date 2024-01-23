@@ -1,9 +1,11 @@
 import {Repository} from "./repository"
+import {CardID} from "./cards"
 
-class Achievement {
+export class Achievement {
     constructor(
         public description: string,
         public checkFunction: (b: Repository, a: Repository) => number,
+        public requiredCards: CardID[] = [],
     ) {}
     check(before: Repository, after: Repository): number {
         return this.checkFunction(before, after)
@@ -11,6 +13,18 @@ class Achievement {
 }
 
 export let achievements = {
+    CREATE_FILE: new Achievement(
+        "Create files",
+        (b: Repository, a: Repository) => {
+            let bFiles = b.workingDirectory.entries.map((e) => e.name)
+            let aFiles = a.workingDirectory.entries.map((e) => e.name)
+
+            // Find all files that are in a but not in b.
+            let newFiles = aFiles.filter((t) => !bFiles.includes(t))
+            return newFiles.length
+        },
+        [CardID.TimeSnail],
+    ),
     CREATE_TAGS: new Achievement(
         "Create tags",
         (b: Repository, a: Repository) => {
@@ -25,6 +39,7 @@ export let achievements = {
             let newTags = aTags.filter((t) => !bTags.includes(t))
             return newTags.length
         },
+        [CardID.Tag, CardID.Commit, CardID.TimeSnail],
     ),
     ADD_TO_INDEX: new Achievement(
         "Add something to the index",
@@ -36,6 +51,7 @@ export let achievements = {
             let newEntries = aEntryNames.filter((t) => !bEntryNames.includes(t))
             return newEntries.length
         },
+        [CardID.Add, CardID.TimeSnail],
     ),
 }
 
@@ -44,11 +60,18 @@ class AchievementProgress {
         public achievement: Achievement,
         public target: number,
         public progress: number,
+        public visible: boolean = false,
     ) {}
 }
 
 export class AchievementTracker {
     public achievementProgresses: AchievementProgress[] = []
+
+    constructor(
+        public achievementCompletedCallback: (a: Achievement) => void = (
+            _,
+        ) => {},
+    ) {}
 
     add(achievement: Achievement, target: number) {
         if (achievement === undefined) {
@@ -61,7 +84,14 @@ export class AchievementTracker {
 
     update(before: Repository, after: Repository) {
         for (let progress of this.achievementProgresses) {
+            let progressBefore = progress.progress
             progress.progress += progress.achievement.check(before, after)
+            if (
+                progress.progress >= progress.target &&
+                progressBefore < progress.target
+            ) {
+                this.achievementCompletedCallback(progress.achievement)
+            }
         }
     }
 }
