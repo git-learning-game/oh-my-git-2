@@ -45,11 +45,25 @@
     }
 
     function achievementCompleted(achievement: Achievement) {
-        let cardID = nextUsefulCard()
-        if (cardID !== null) {
-            let card = buildCard(cardID)
-            battle.hand.push(card)
+        while (!hasActiveAchievement()) {
+            let cardID = nextUsefulCard()
+            if (cardID !== null) {
+                let card = buildCard(cardID)
+                battle.hand.push(card)
+                updateAchievementVisibility()
+            } else {
+                return
+            }
         }
+    }
+
+    function hasActiveAchievement(): boolean {
+        for (let progress of achievementTracker.achievementProgresses) {
+            if (progress.visible && progress.progress < progress.target) {
+                return true
+            }
+        }
+        return false
     }
 
     function nextUsefulCard(): CardID | null {
@@ -134,6 +148,10 @@
         achievementTracker.update(beforeRepo, repo)
         achievementTracker = achievementTracker
 
+        updateAchievementVisibility()
+    }
+
+    function updateAchievementVisibility() {
         for (let progress of achievementTracker.achievementProgresses) {
             let possible = true
             let cardIDsInHand = battle.hand.map((c) => c.id)

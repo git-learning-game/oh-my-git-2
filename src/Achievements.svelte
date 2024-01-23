@@ -8,11 +8,12 @@
 <div id="wrapper">
     <ul>
         {#each tracker.achievementProgresses as progress}
-            {#if progress.visible}
-                <li class:fullfilled={progress.progress >= progress.target}>
-                    {progress.achievement.description}: {progress.progress}/{progress.target}
-                </li>
-            {/if}
+            <li
+                class:fullfilled={progress.progress >= progress.target}
+                class:peak={!progress.visible}
+            >
+                {progress.achievement.description}: {progress.progress}/{progress.target}
+            </li>
         {/each}
     </ul>
 </div>
@@ -37,5 +38,8 @@
     .fullfilled {
         background: darkgreen !important;
         color: white;
+    }
+    .peak {
+        opacity: 0.35;
     }
 </style>

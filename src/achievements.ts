@@ -1,5 +1,6 @@
-import {Repository} from "./repository"
+import {Repository, GitCommit} from "./repository"
 import {CardID} from "./cards"
+import {uniq} from "lodash"
 
 export class Achievement {
     constructor(
@@ -25,6 +26,45 @@ export let achievements = {
         },
         [CardID.TimeSnail],
     ),
+    DELETE_FILE: new Achievement(
+        "Delete files",
+        (b: Repository, a: Repository) => {
+            let bFiles = b.workingDirectory.entries.map((e) => e.name)
+            let aFiles = a.workingDirectory.entries.map((e) => e.name)
+
+            // Find all files that are in a but not in b.
+            let newFiles = bFiles.filter((t) => !aFiles.includes(t))
+            return newFiles.length
+        },
+        [CardID.Remove],
+    ),
+    ADD_TO_INDEX: new Achievement(
+        "Add something to the index",
+        (b: Repository, a: Repository) => {
+            let bEntryNames = b.index.entries.map((e) => e.name)
+            let aEntryNames = a.index.entries.map((e) => e.name)
+
+            // Find all entries that are in a but not in b.
+            let newEntries = aEntryNames.filter((t) => !bEntryNames.includes(t))
+            return newEntries.length
+        },
+        [CardID.Add, CardID.TimeSnail],
+    ),
+    CREATE_COMMIT: new Achievement(
+        "Create commits",
+        (b: Repository, a: Repository) => {
+            let bCommitIDs = Object.values(b.objects)
+                .filter((o) => o instanceof GitCommit)
+                .map((o) => o.oid)
+            let aCommitIDs = Object.values(a.objects)
+                .filter((o) => o instanceof GitCommit)
+                .map((o) => o.oid)
+
+            let newCommits = aCommitIDs.filter((t) => !bCommitIDs.includes(t))
+            return newCommits.length
+        },
+        [CardID.Commit, CardID.TimeSnail, CardID.Add],
+    ),
     CREATE_TAGS: new Achievement(
         "Create tags",
         (b: Repository, a: Repository) => {
@@ -39,19 +79,31 @@ export let achievements = {
             let newTags = aTags.filter((t) => !bTags.includes(t))
             return newTags.length
         },
-        [CardID.Tag, CardID.Commit, CardID.TimeSnail],
+        [CardID.Tag, CardID.Commit, CardID.TimeSnail, CardID.Add],
     ),
-    ADD_TO_INDEX: new Achievement(
-        "Add something to the index",
+    CREATE_TAGS_DIFFERENT_COMMITS: new Achievement(
+        "Create tags on different commits",
         (b: Repository, a: Repository) => {
-            let bEntryNames = b.index.entries.map((e) => e.name)
-            let aEntryNames = a.index.entries.map((e) => e.name)
+            let bTags = uniq(
+                Object.values(b.refs)
+                    .filter((r) => r.name.startsWith("refs/tags/"))
+                    .map((r) => r.target),
+            )
 
-            // Find all entries that are in a but not in b.
-            let newEntries = aEntryNames.filter((t) => !bEntryNames.includes(t))
-            return newEntries.length
+            console.log(bTags)
+
+            let aTags = uniq(
+                Object.values(a.refs)
+                    .filter((r) => r.name.startsWith("refs/tags/"))
+                    .map((r) => r.target),
+            )
+            console.log(aTags)
+
+            // Find all tags that are in a but not in b.
+            let newTags = aTags.filter((t) => !bTags.includes(t))
+            return newTags.length
         },
-        [CardID.Add, CardID.TimeSnail],
+        [CardID.Tag, CardID.Commit, CardID.TimeSnail, CardID.Add],
     ),
 }
 
