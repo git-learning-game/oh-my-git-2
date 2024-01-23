@@ -11,6 +11,7 @@
 
     import {GitShell} from "./gitshell.ts"
     import {Repository, GitBlob} from "./repository.ts"
+    import {AchievementTracker, achievements} from "./achievements.ts"
 
     import {
         Battle,
@@ -31,6 +32,10 @@
 
     let repo: Repository
     let graph: Graph
+
+    let achievementTracker = new AchievementTracker()
+    achievementTracker.add(achievements.CREATE_TAGS, 5)
+    achievementTracker.add(achievements.ADD_TO_INDEX, 5)
 
     let indexSlots: (CreatureCard | null)[]
 
@@ -84,7 +89,10 @@
         if (graph) {
             graph.setRefreshing(true)
         }
+        let beforeRepo = repo.clone()
         await repo.update()
+        achievementTracker.update(beforeRepo, repo)
+        console.log("Achievements", achievementTracker.achievementProgresses)
         syncDiskToGame()
         repo = repo
         //graph.update()

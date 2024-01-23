@@ -1110,6 +1110,7 @@ export class Adventure {
     enterNextEvent() {
         if (this.currentEvent === null) {
             this.currentEvent = this.path[0]
+            this.enterEvent(this.currentEvent)
         } else {
             if (this.currentEvent === this.path[this.path.length - 1]) {
                 alert("You are a beautiful aweome person and you win!")

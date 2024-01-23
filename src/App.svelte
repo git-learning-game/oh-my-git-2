@@ -33,6 +33,7 @@
                 adventure = adventure
                 console.log("The next event was entered:", adventure.state)
             })
+            adventure.enterNextEvent()
         })
     })
 

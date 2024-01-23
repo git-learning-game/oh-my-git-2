@@ -1,4 +1,5 @@
 import WebShell from "./web-shell.ts"
+import {cloneDeep} from "lodash"
 
 type ObjectID = string
 
@@ -155,6 +156,16 @@ export class Repository {
         this.index.label = "Index"
 
         this.workingDirectory.label = "Working dir"
+    }
+
+    clone(): Repository {
+        let repo = new Repository(this.path, this.shell)
+        repo.objects = cloneDeep(this.objects)
+        repo.refs = cloneDeep(this.refs)
+        repo.index = cloneDeep(this.index)
+        repo.files = cloneDeep(this.files)
+        repo.workingDirectory = cloneDeep(this.workingDirectory)
+        return repo
     }
 
     resolve(what: string): GitNode | undefined {
