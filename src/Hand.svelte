@@ -33,7 +33,7 @@
                     showCost={false}
                     active={battle.activeCard === card}
                     on:click={() => {
-                        dispatch("playCard", {index})
+                        dispatch("playCard", card)
                     }}
                     on:drop={(_) => {
                         console.log("drop on card", card)
@@ -68,7 +68,12 @@
         display: flex;
         gap: 1em;
         justify-content: center;
-        margin: 0 15em;
+        overflow-x: auto;
+        height: 20em;
+        padding-top: 5em;
+        position: relative;
+        top: 0em;
+        width: 100%;
     }
     #tabs {
         display: flex;

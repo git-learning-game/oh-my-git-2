@@ -71,14 +71,14 @@ class Placeholder {
 
 export class FreeStringPlaceholder extends Placeholder {}
 
-export class SlotPlaceholder extends Placeholder {}
+export class FilePlaceholder extends Placeholder {}
 
 export class RefPlaceholder extends Placeholder {}
 
 const placeholderTypes: Record<string, typeof Placeholder> = {
     STRING: FreeStringPlaceholder,
     REF: RefPlaceholder,
-    SLOT: SlotPlaceholder,
+    FILE: FilePlaceholder,
 }
 
 class Command {
@@ -108,13 +108,13 @@ class Command {
             this.template = this.template.replace("STRING", value)
         } else if (placeholder instanceof RefPlaceholder) {
             this.template = this.template.replace("REF", value)
-        } else if (placeholder instanceof SlotPlaceholder) {
-            this.template = this.template.replace("SLOT", value)
+        } else if (placeholder instanceof FilePlaceholder) {
+            this.template = this.template.replace("FILE", value)
         } else {
             throw new Error(`Unknown placeholder type: ${placeholder}`)
         }
         */
-        this.template = this.template.replace(/(STRING|REF|SLOT)/, value)
+        this.template = this.template.replace(/(STRING|REF|FILE)/, value)
 
         // Remove placeholder, as it is now resolved.
         this.placeholders.shift()
@@ -196,7 +196,7 @@ function allCards(): Record<CardID, Card> {
             CardID.Add,
             1,
             gt`Copy a card from the working directory to the index.`,
-            new Command("git add SLOT"),
+            new Command("git add FILE"),
         ),
         [CardID.AddAll]: new CommandCard(
             CardID.AddAll,
@@ -208,13 +208,13 @@ function allCards(): Record<CardID, Card> {
             CardID.Remove,
             0,
             gt`Remove a card in the working directory.`,
-            new Command("rm SLOT"),
+            new Command("rm FILE"),
         ),
         [CardID.Restore]: new CommandCard(
             CardID.Restore,
             2,
             gt`Copy a card from the index to the working directory.`,
-            new Command("git restore SLOT"),
+            new Command("git restore FILE"),
         ),
         [CardID.RestoreAll]: new CommandCard(
             CardID.RestoreAll,
@@ -226,19 +226,19 @@ function allCards(): Record<CardID, Card> {
             CardID.RestoreS,
             2,
             gt`Copy a card from the specified commit to the working directory.`,
-            new Command("git restore -s REF SLOT"),
+            new Command("git restore -s REF FILE"),
         ),
         [CardID.RestoreStaged]: new CommandCard(
             CardID.RestoreStaged,
             2,
             gt`Copy a card from the HEAD commit to the index.`,
-            new Command("git restore --staged SLOT"),
+            new Command("git restore --staged FILE"),
         ),
         [CardID.RestoreStagedS]: new CommandCard(
             CardID.RestoreStagedS,
             2,
             gt`Copy a card from the specified commit to the index.`,
-            new Command("git restore --staged -s REF SLOT"),
+            new Command("git restore --staged -s REF FILE"),
         ),
         [CardID.Commit]: new CommandCard(
             CardID.Commit,
@@ -255,20 +255,20 @@ function allCards(): Record<CardID, Card> {
         [CardID.Copy]: new CommandCard(
             CardID.Copy,
             3,
-            gt`Copy a card from one working directory slot to another.`,
-            new Command("cp SLOT SLOT"),
+            gt`Copy a card from one working directory file to another.`,
+            new Command("cp FILE FILE"),
         ),
         [CardID.Move]: new CommandCard(
             CardID.Move,
             3,
-            gt`Move a card from one working directory slot to another.`,
-            new Command("mv SLOT SLOT"),
+            gt`Move a card from one working directory file to another.`,
+            new Command("mv FILE STRING"),
         ),
         [CardID.GitMove]: new CommandCard(
             CardID.GitMove,
             3,
-            gt`Move a card from one slot to another in both the working directory and index.`,
-            new Command("git mv SLOT SLOT"),
+            gt`Move a card from one file to another in both the working directory and index.`,
+            new Command("git mv FILE FILE"),
         ),
         [CardID.Stash]: new CommandCard(
             CardID.Stash,
@@ -318,14 +318,6 @@ function allCards(): Record<CardID, Card> {
             gt`Merge the specified commit into the current HEAD commit, and set index and working directory to the result. Does nothing if the specified commit is already an ancestor of HEAD.`,
             new Command("git merge REF"),
         ),
-        //[CardID.HealthPotion]: new CommandCard(
-        //    CardID.HealthPotion,
-        //    gt`Health potion`,
-        //    1,
-        //    new Command(
-        //        `slot=SLOT; health=$(cat $slot | grep health | cut -d':' -f2); health=$((health+2)); sed -i "s/health: .*/health: $health/" $slot`,
-        //    ),
-        //),
     }
 }
 
@@ -606,36 +598,17 @@ export class Battle {
         }
     }
 
-    async playCardFromHand(i: number) {
-        if (i < 0 || i >= this.hand.length) {
-            throw new Error(`Invalid hand index: ${i}`)
-        }
+    async playCard(card: CommandCard) {
+        this.activeCard = card
 
-        const card = cloneDeep(this.hand[i])
-
-        /*if (card.energy > this.energy) {
-            this.log(
-                gt`Not enough energy to play ${card.getTitle()}.`,
-                LogType.Error,
-            )
-            return
-        }*/
-
-        this.activeCard = this.hand[i]
-
-        if (card instanceof CommandCard) {
-            let command = new Command(card.command.template)
-            try {
-                await this.runCommand(command)
-                //this.energy -= card.energy
-                this.log(gt`Played ${card.getTitle()}.`)
-                this.discardHandCard(i)
-            } catch (_) {
-                // Playing the card failed.
-                this.activeCard = undefined
-            }
-        } else {
-            throw new Error(`Unknown card type: ${card}`)
+        let command = new Command(card.command.template)
+        try {
+            await this.runCommand(command)
+            //this.energy -= card.energy
+            this.log(gt`Played ${card.getTitle()}.`)
+        } catch (_) {
+            // Playing the card failed.
+            this.activeCard = undefined
         }
     }
 

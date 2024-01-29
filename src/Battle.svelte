@@ -17,7 +17,7 @@
         getAchievements,
         getCardCatalogs,
     } from "./achievements.ts"
-    import {CardID, buildCard} from "./cards.ts"
+    import {CardID, Card, CommandCard, buildCard} from "./cards.ts"
     import {TextFile} from "./files.ts"
 
     import {
@@ -28,7 +28,7 @@
         BattleUpdatedSideEffect,
         PlayerTurnState,
         RequirePlaceholderState,
-        SlotPlaceholder,
+        FilePlaceholder,
     } from "./cards.ts"
 
     export let battle: Battle
@@ -36,6 +36,7 @@
 
     let repo: Repository
     let graph: Graph
+    let terminal: Terminal
 
     let index: TextFile[] = []
     let workingDirectory: TextFile[] = []
@@ -103,7 +104,7 @@
                 } else if (battle.state instanceof RequirePlaceholderState) {
                     if (
                         battle.state.currentPlaceholder() instanceof
-                        SlotPlaceholder
+                        FilePlaceholder
                     ) {
                         if (parseInt(e.key) > 3) {
                             return
@@ -302,13 +303,15 @@
     }
 
     async function playCard(e: CustomEvent) {
-        await battle.playCardFromHand(e.detail.index)
-        battle = battle
+        let card: CommandCard = e.detail
+        battle.playCard(card)
     }
 
-    function clickSlot(e: CustomEvent) {
+    function clickFile(e: CustomEvent) {
         if (battle.state instanceof RequirePlaceholderState) {
-            battle.state.resolveNext(e.detail.index + 1)
+            let file = e.detail.file
+            let filename = file.name
+            battle.state.resolveNext(filename)
             battle = battle
         }
         battle = battle
@@ -360,7 +363,7 @@
     </div>
     <div id="cards">
         <Cards
-            on:clickSlot={clickSlot}
+            on:clickFile={clickFile}
             on:drag={cardDrag}
             on:endTurn={endTurn}
             {index}
@@ -371,7 +374,7 @@
         <Achievements tracker={achievementTracker} />
     </div>
     <div id="screen">
-        <Terminal {shell} />
+        <Terminal {shell} bind:this={terminal} />
     </div>
     <div id="hand">
         <Hand on:endTurn={endTurn} {battle} on:playCard={playCard} />

@@ -18,8 +18,8 @@
         }*/
     }
 
-    function clickSlot(_: MouseEvent, index: number) {
-        /*dispatch("clickSlot", {index})*/
+    function clickFile(_: MouseEvent, file: TextFile) {
+        dispatch("clickFile", {file})
     }
 </script>
 
@@ -32,8 +32,8 @@
                     name={file.name}
                     content={file.content}
                     on:dragover={(e) => e.preventDefault()}
-                    on:drop={(e) => drop(e, index)}
-                    on:click={(e) => clickSlot(e, index)}
+                    on:drop={(e) => drop(e, file)}
+                    on:click={(e) => clickFile(e, file)}
                 />
             {/each}
         </div>
@@ -47,8 +47,8 @@
                     name={file.name}
                     content={file.content}
                     on:dragover={(e) => e.preventDefault()}
-                    on:drop={(e) => drop(e, index)}
-                    on:click={(e) => clickSlot(e, index)}
+                    on:drop={(e) => drop(e, file)}
+                    on:click={(e) => clickFile(e, fil)}
                 />
             {/each}
         </div>

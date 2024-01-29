@@ -4,6 +4,10 @@
 
     export let shell: WebShell
 
+    export function type(text: string) {
+        shell.type(text)
+    }
+
     $: if (shell && terminalDiv) {
         shell.setKeyboardActive(false)
         shell.setScreen(terminalDiv)

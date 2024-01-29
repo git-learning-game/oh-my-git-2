@@ -162,7 +162,7 @@ export class CardCatalog {
 }
 
 export function getCardCatalogs(): CardCatalog[] {
-    return [
+    let catalogs = [
         new CardCatalog("File handling", [
             CardID.Touch,
             CardID.Move,
@@ -172,4 +172,12 @@ export function getCardCatalogs(): CardCatalog[] {
         new CardCatalog("Branching", [CardID.Branch, CardID.Switch]),
         new CardCatalog("Tagging", [CardID.Tag]),
     ]
+    // Put all remaining cards into a "misc" catalog.
+    let miscCatalog = new CardCatalog("Misc", [])
+    for (let cardID in CardID) {
+        if (!catalogs.some((c) => c.cards.includes(cardID as CardID))) {
+            miscCatalog.cards.push(cardID as CardID)
+        }
+    }
+    return catalogs.concat(miscCatalog)
 }

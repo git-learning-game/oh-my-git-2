@@ -3,7 +3,7 @@
     export let content: string
 </script>
 
-<div id="wrapper">
+<div id="wrapper" on:click>
     <div id="content">{content}</div>
     <div id="name">{name}</div>
 </div>
@@ -16,6 +16,7 @@
         justify-content: center;
         width: 10em;
         height: 10em;
+        cursor: pointer;
     }
 
     #content {

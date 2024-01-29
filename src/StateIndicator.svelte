@@ -10,7 +10,7 @@
         RequirePlaceholderState,
         FreeStringPlaceholder,
         RefPlaceholder,
-        SlotPlaceholder,
+        FilePlaceholder,
     } from "./cards.ts"
 
     export let battle: Battle
@@ -27,7 +27,7 @@
             stateMessage = $t`Waiting...`
         } else if (battle.state instanceof RequirePlaceholderState) {
             let currentPlaceholder = battle.state.currentPlaceholder()
-            if (currentPlaceholder instanceof SlotPlaceholder) {
+            if (currentPlaceholder instanceof FilePlaceholder) {
                 stateMessage = $t`Select slot`
             } else if (currentPlaceholder instanceof RefPlaceholder) {
                 stateMessage = $t`Select ref`
