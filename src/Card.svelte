@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {Card, CreatureCard, CommandCard, EffectCard} from "./cards.ts"
+    import {Card, CommandCard} from "./cards.ts"
     import EmojiNumber from "./EmojiNumber.svelte"
     import {t} from "svelte-i18n-lingui"
     import {fade} from "svelte/transition"
@@ -172,18 +172,6 @@
             <div class="card-body" style="font-size: {descriptionFontSize}%">
                 {card.getDescription()}
             </div>
-            {#if card instanceof CreatureCard}
-                <div class="attack">
-                    <EmojiNumber
-                        number={card.attack}
-                        emoji={"⚔️"}
-                        color="black"
-                    />
-                </div>
-                <div class="health">
-                    <EmojiNumber number={card.health} emoji={"🩸"} />
-                </div>
-            {/if}
         </div>
     {/if}
 </div>

@@ -1,6 +1,6 @@
 <script lang="ts">
     import {GitRef, GitTree, GitBlob} from "./repository.ts"
-    import {CreatureCard, Card} from "./cards.ts"
+    import {Card} from "./cards.ts"
     import CardSvelte from "./Card.svelte"
     import {Repository} from "./repository.ts"
     import Head from "./Head.svelte"

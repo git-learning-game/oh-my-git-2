@@ -24,7 +24,7 @@ export let achievements = {
             let newFiles = aFiles.filter((t) => !bFiles.includes(t))
             return newFiles.length
         },
-        [CardID.TimeSnail],
+        [CardID.Touch],
     ),
     DELETE_FILE: new Achievement(
         "Delete files",
@@ -48,7 +48,7 @@ export let achievements = {
             let newEntries = aEntryNames.filter((t) => !bEntryNames.includes(t))
             return newEntries.length
         },
-        [CardID.Add, CardID.TimeSnail],
+        [CardID.Add, CardID.Touch],
     ),
     CREATE_COMMIT: new Achievement(
         "Create commits",
@@ -63,7 +63,7 @@ export let achievements = {
             let newCommits = aCommitIDs.filter((t) => !bCommitIDs.includes(t))
             return newCommits.length
         },
-        [CardID.Commit, CardID.TimeSnail, CardID.Add],
+        [CardID.Commit, CardID.Touch, CardID.Add],
     ),
     CREATE_TAGS: new Achievement(
         "Create tags",
@@ -79,7 +79,7 @@ export let achievements = {
             let newTags = aTags.filter((t) => !bTags.includes(t))
             return newTags.length
         },
-        [CardID.Tag, CardID.Commit, CardID.TimeSnail, CardID.Add],
+        [CardID.Tag, CardID.Commit, CardID.Touch, CardID.Add],
     ),
     CREATE_TAGS_DIFFERENT_COMMITS: new Achievement(
         "Create tags on different commits",
@@ -103,7 +103,7 @@ export let achievements = {
             let newTags = aTags.filter((t) => !bTags.includes(t))
             return newTags.length
         },
-        [CardID.Tag, CardID.Commit, CardID.TimeSnail, CardID.Add],
+        [CardID.Tag, CardID.Commit, CardID.Touch, CardID.Add],
     ),
 }
 

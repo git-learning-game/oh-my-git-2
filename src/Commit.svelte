@@ -1,6 +1,6 @@
 <script lang="ts">
     import {GitCommit, GitTree, GitBlob} from "./repository.ts"
-    import {CreatureCard, Card} from "./cards.ts"
+    import {Card} from "./cards.ts"
     import CardSvelte from "./Card.svelte"
     import Head from "./Head.svelte"
     import {Repository} from "./repository.ts"
@@ -11,27 +11,9 @@
 
     let cards: (Card | null)[] = [null, null, null]
 
-    function parseCard(slot: string): CreatureCard | null {
-        let tree = repo.resolve(commit.tree)
-        if (tree !== undefined) {
-            let entry = (tree as GitTree).entries.find(
-                (entry) => entry.name === slot,
-            )
-            if (entry) {
-                let blob = repo.resolve(entry.oid)
-                if (blob !== undefined) {
-                    let content = (blob as GitBlob).content
-                    let card = CreatureCard.parse(content)
-                    return card
-                }
-            }
-        }
-        return null
-    }
-
     $: {
         if (commit && repo) {
-            cards = [parseCard("1"), parseCard("2"), parseCard("3")]
+            cards = []
         }
     }
 </script>

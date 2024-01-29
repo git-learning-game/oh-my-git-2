@@ -6,7 +6,6 @@
     import Graph from "./Graph.svelte"
     import Cards from "./Cards.svelte"
     import Hand from "./Hand.svelte"
-    import EventLog from "./EventLog.svelte"
     import StateIndicator from "./StateIndicator.svelte"
     import Achievements from "./Achievements.svelte"
 
@@ -21,15 +20,12 @@
 
     import {
         Battle,
-        CreatureCard,
         SideEffect,
         CommandSideEffect,
         SyncGameToDiskSideEffect,
         BattleUpdatedSideEffect,
         PlayerTurnState,
         RequirePlaceholderState,
-        FreeStringPlaceholder,
-        RefPlaceholder,
         SlotPlaceholder,
     } from "./cards.ts"
 
@@ -312,36 +308,29 @@
 
 <svelte:window on:keydown={keydown} />
 
-<div id="topdown">
-    <div id="columns">
-        <div id="left">
-            <div id="graph">
-                <Graph
-                    {repo}
-                    bind:this={graph}
-                    on:clickNode={clickNode}
-                    on:dragToNode={dragToNode}
-                />
-            </div>
-        </div>
-        <div id="cards">
-            <Cards
-                on:clickSlot={clickSlot}
-                on:drag={cardDrag}
-                on:endTurn={endTurn}
-                {battle}
-                {indexSlots}
-            />
-        </div>
-        <div id="right">
-            <div id="log">
-                <Achievements tracker={achievementTracker} />
-            </div>
-
-            <div id="screen">
-                <Terminal {shell} />
-            </div>
-        </div>
+<div id="grid">
+    <div id="graph">
+        <Graph
+            {repo}
+            bind:this={graph}
+            on:clickNode={clickNode}
+            on:dragToNode={dragToNode}
+        />
+    </div>
+    <div id="cards">
+        <Cards
+            on:clickSlot={clickSlot}
+            on:drag={cardDrag}
+            on:endTurn={endTurn}
+            {battle}
+            {indexSlots}
+        />
+    </div>
+    <div id="log">
+        <Achievements tracker={achievementTracker} />
+    </div>
+    <div id="screen">
+        <Terminal {shell} />
     </div>
     <div id="hand">
         <Hand on:endTurn={endTurn} {battle} on:playCard={playCard} />
@@ -354,6 +343,17 @@
         --term-height: 305px;
     }
 
+    #grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr;
+        grid-template-rows: 2fr 1fr;
+        grid-template-areas:
+            "graph cards log"
+            "hand hand screen";
+        height: 100%;
+        background: lightgreen;
+    }
+
     #state {
         position: absolute;
         left: 50%;
@@ -362,40 +362,29 @@
         z-index: 999;
     }
 
-    #topdown {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        background: #f0e2b9;
-    }
-
-    #columns {
-        width: 100%;
-        display: flex;
-        flex: 1;
-        overflow: auto;
-    }
-
     #graph {
+        grid-area: graph;
         flex: 1;
         overflow: auto;
         width: 36em;
     }
 
     #cards {
-        width: 48em;
+        grid-area: cards;
         overflow: auto;
     }
 
-    #right,
-    #left {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
+    #screen {
+        grid-area: screen;
+        font-family: Iosevka;
     }
 
-    #screen {
-        font-family: Iosevka;
+    #log {
+        grid-area: log;
+    }
+
+    #hand {
+        grid-area: hand;
     }
 
     #log,
