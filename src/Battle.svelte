@@ -14,9 +14,11 @@
     import {
         AchievementTracker,
         Achievement,
-        achievements,
+        getAchievements,
+        getCardCatalogs,
     } from "./achievements.ts"
     import {CardID, buildCard} from "./cards.ts"
+    import {TextFile} from "./files.ts"
 
     import {
         Battle,
@@ -35,8 +37,11 @@
     let repo: Repository
     let graph: Graph
 
+    let index: TextFile[] = []
+    let workingDirectory: TextFile[] = []
+
     let achievementTracker = new AchievementTracker(achievementCompleted)
-    for (let achievement of Object.values(achievements)) {
+    for (let achievement of Object.values(getAchievements())) {
         achievementTracker.add(achievement, 3)
     }
 
@@ -134,9 +139,45 @@
 
         syncDiskToGame()
         repo = repo
+
+        updateFiles()
+
         //graph.update()
         if (graph) {
             graph.setRefreshing(false)
+        }
+    }
+
+    function updateFiles() {
+        console.log(repo)
+        workingDirectory = []
+        for (let entry of repo.workingDirectory.entries) {
+            let content = ""
+            console.log(entry)
+            if (entry.oid) {
+                let blob = repo.objects[entry.oid]
+                if (blob instanceof GitBlob) {
+                    content = blob.content
+                } else {
+                    throw new Error("Requested OID is not a blob")
+                }
+            } else {
+                content = repo.files[entry.name].content
+            }
+            console.log("content", content)
+            workingDirectory.push(new TextFile(entry.name, content))
+        }
+
+        index = []
+        for (let entry of repo.index.entries) {
+            let blob = repo.objects[entry.oid]
+            let content = ""
+            if (blob instanceof GitBlob) {
+                content = blob.content
+            } else {
+                throw new Error("Requested OID is not a blob")
+            }
+            index.push(new TextFile(entry.name, content))
         }
     }
 
@@ -322,8 +363,8 @@
             on:clickSlot={clickSlot}
             on:drag={cardDrag}
             on:endTurn={endTurn}
-            {battle}
-            {indexSlots}
+            {index}
+            {workingDirectory}
         />
     </div>
     <div id="log">
@@ -366,7 +407,6 @@
         grid-area: graph;
         flex: 1;
         overflow: auto;
-        width: 36em;
     }
 
     #cards {

@@ -57,7 +57,7 @@ h6 {
 
 button {
     padding: 0.4em 0.8em;
-    border-radius: 99em;
+    border-radius: 0.2em;
     border: none;
     background: white;
     cursor: pointer;
@@ -69,8 +69,4 @@ button {
     display: inline-block;
     font-family: var(--title-font);
     transition: transform 0.1s ease-in-out;
-}
-
-button:hover {
-    transform: scale(1.05);
 }

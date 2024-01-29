@@ -1,19 +1,30 @@
 <script lang="ts">
     import {GitCommit, GitTree, GitBlob} from "./repository.ts"
     import {Card} from "./cards.ts"
-    import CardSvelte from "./Card.svelte"
+    import FileSvelte from "./File.svelte"
     import Head from "./Head.svelte"
     import {Repository} from "./repository.ts"
+    import {TextFile} from "./files.ts"
 
     export let commit: GitCommit
     export let repo: Repository
     export let head = false
 
-    let cards: (Card | null)[] = [null, null, null]
+    let files: TextFile[] = []
 
     $: {
         if (commit && repo) {
-            cards = []
+            let tree = repo.objects[commit.tree]
+            if (!(tree instanceof GitTree)) {
+                throw new Error("Expected tree")
+            }
+            tree.entries.forEach((entry) => {
+                let blob = repo.objects[entry.oid]
+                if (!(blob instanceof GitBlob)) {
+                    throw new Error("Expected blob")
+                }
+                files.push(new TextFile(entry.name, blob.content))
+            })
         }
     }
 </script>
@@ -21,8 +32,8 @@
 <div class="commit">
     <h2>{commit.id().substr(0, 8)}</h2>
     <div class="cards">
-        {#each cards as card}
-            <CardSvelte {card} />
+        {#each files as file}
+            <FileSvelte name={file.name} content={file.content} />
         {/each}
     </div>
     {#if head}
