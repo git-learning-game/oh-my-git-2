@@ -7,6 +7,8 @@
 
     $: [sx, sy, cx, cy, ex, ey, ae, as, ec] = getArrow(p1.x, p1.y, p2.x, p2.y, {
         padEnd: 20,
+        stretch: 0.1,
+        bow: 0.3,
     })
 
     let wd = 1080

@@ -1,4 +1,5 @@
 import {Repository, GitCommit} from "./repository"
+import type {ObjectID} from "./repository"
 import {CardID} from "./cards"
 import {uniq} from "lodash"
 
@@ -50,6 +51,52 @@ export function getAchievements() {
                     (t) => !bEntryNames.includes(t),
                 )
                 return newEntries.length
+            },
+            [CardID.Add, CardID.Touch],
+        ),
+        RESTORE_FROM_INDEX: new Achievement(
+            "Restore something from the index",
+            (b: Repository, a: Repository) => {
+                // Loop through index, and count how many files have identical copies in the working directory.
+                let identicalOIDs: ObjectID[] = []
+                for (let indexEntry of b.index.entries) {
+                    let workingDirectoryEntry = b.workingDirectory.entries.find(
+                        (e) => e.name === indexEntry.name,
+                    )
+                    if (
+                        workingDirectoryEntry !== undefined &&
+                        workingDirectoryEntry.oid === indexEntry.oid
+                    ) {
+                        identicalOIDs.push(indexEntry.oid)
+                    }
+                }
+
+                // Count the same things for the "after" state.
+                let identicalOIDsAfter = []
+                for (let indexEntry of a.index.entries) {
+                    let workingDirectoryEntry = a.workingDirectory.entries.find(
+                        (e) => e.name === indexEntry.name,
+                    )
+                    if (
+                        workingDirectoryEntry !== undefined &&
+                        workingDirectoryEntry.oid === indexEntry.oid
+                    ) {
+                        // Check that this OID was in the index in the "before" state.
+                        if (
+                            b.index.entries.find(
+                                (e) => e.oid === indexEntry.oid,
+                            )
+                        ) {
+                            identicalOIDsAfter.push(indexEntry.oid)
+                        }
+                    }
+                }
+
+                // Count how many OIDs are in the "after" state but not in the "before" state.
+                let newIdenticalEntries = identicalOIDsAfter.filter(
+                    (t) => !identicalOIDs.includes(t),
+                )
+                return newIdenticalEntries.length
             },
             [CardID.Add, CardID.Touch],
         ),
@@ -109,6 +156,76 @@ export function getAchievements() {
                 return newTags.length
             },
             [CardID.Tag, CardID.Commit, CardID.Touch, CardID.Add],
+        ),
+        DETACH_HEAD: new Achievement(
+            "Detach your HEAD (from a non-detached state)",
+            (b: Repository, a: Repository) => {
+                if (
+                    Object.keys(b.refs).includes("HEAD") &&
+                    Object.keys(a.refs).includes("HEAD")
+                ) {
+                    if (
+                        b.refs["HEAD"].target.startsWith("refs/heads/") &&
+                        !a.refs["HEAD"].target.startsWith("refs/heads/")
+                    ) {
+                        return 1
+                    }
+                }
+                return 0
+            },
+            [CardID.SwitchDetach],
+        ),
+        OCTOPUS_MERGE: new Achievement(
+            "Create a merge commit with three parents",
+            (b: Repository, a: Repository) => {
+                let tripleMergeBefore: ObjectID[] = []
+                for (let object of Object.values(b.objects)) {
+                    if (object instanceof GitCommit) {
+                        if (object.parents.length == 3) {
+                            tripleMergeBefore.push(object.oid)
+                        }
+                    }
+                }
+
+                let tripleMergeAfter: ObjectID[] = []
+                for (let object of Object.values(a.objects)) {
+                    if (object instanceof GitCommit) {
+                        if (object.parents.length == 3) {
+                            tripleMergeAfter.push(object.oid)
+                        }
+                    }
+                }
+
+                let newTripleMerges = tripleMergeAfter.filter(
+                    (t) => !tripleMergeBefore.includes(t),
+                )
+                return newTripleMerges.length
+            },
+            [CardID.Joker],
+        ),
+        MERGE_CONFLILCT: new Achievement(
+            "Create a merge conflict",
+            (b: Repository, a: Repository) => {
+                // Count index entries with stage number != 0
+                let beforeIndexEntriesOfStageUnequal0 = b.index.entries.filter(
+                    (e) => e.stage !== 0,
+                ).length
+
+                // The same in the after state.
+                let afterIndexEntriesOfStageUnequal0 = a.index.entries.filter(
+                    (e) => e.stage !== 0,
+                ).length
+
+                if (
+                    beforeIndexEntriesOfStageUnequal0 === 0 &&
+                    afterIndexEntriesOfStageUnequal0 > 0
+                ) {
+                    return 1
+                } else {
+                    return 0
+                }
+            },
+            [CardID.Commit, CardID.Merge],
         ),
     }
 }

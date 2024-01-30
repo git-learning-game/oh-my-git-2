@@ -1,7 +1,7 @@
 import WebShell from "./web-shell.ts"
 import {cloneDeep} from "lodash"
 
-type ObjectID = string
+export type ObjectID = string
 
 export enum GitNodeType {
     Blob = "blob",
