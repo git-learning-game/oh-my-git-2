@@ -9,11 +9,13 @@
     const dispatch = createEventDispatcher()
 
     export let battle: Battle
+    export let points: number
 
     let openCatalogNumber = 0
     let catalogs = getCardCatalogs().map((catalog) => {
         return {
             name: catalog.name,
+            cost: catalog.cost,
             cards: catalog.cards.map((card) => {
                 return buildCard(card)
             }),
@@ -47,11 +49,14 @@
         {#each catalogs as catalog, index}
             <button
                 class:active={openCatalogNumber === index}
+                class:disabled={points < catalog.cost}
                 on:click={() => {
-                    openCatalogNumber = index
+                    if (points >= catalog.cost) {
+                        openCatalogNumber = index
+                    }
                 }}
             >
-                {catalog.name}
+                {catalog.name} ({points}/{catalog.cost})
             </button>
         {/each}
     </div>
@@ -81,6 +86,9 @@
         justify-content: center;
         margin: 1em 2em;
     }
+    .disabled {
+        color: gray;
+    }
     button {
         color: black;
         border: none;
@@ -88,7 +96,6 @@
         background: none;
     }
     button.active {
-        color: blue;
         background: white;
     }
 </style>

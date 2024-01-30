@@ -48,7 +48,7 @@
                     content={file.content}
                     on:dragover={(e) => e.preventDefault()}
                     on:drop={(e) => drop(e, file)}
-                    on:click={(e) => clickFile(e, fil)}
+                    on:click={(e) => clickFile(e, file)}
                 />
             {/each}
         </div>

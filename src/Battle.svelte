@@ -46,17 +46,10 @@
         achievementTracker.add(achievement, 3)
     }
 
+    let points = 0
+
     function achievementCompleted(achievement: Achievement) {
-        while (!hasActiveAchievement()) {
-            let cardID = nextUsefulCard()
-            if (cardID !== null) {
-                let card = buildCard(cardID)
-                battle.hand.push(card)
-                updateAchievementVisibility()
-            } else {
-                return
-            }
-        }
+        updateAchievementVisibility()
     }
 
     function hasActiveAchievement(): boolean {
@@ -185,6 +178,7 @@
     function updateAchievements(beforeRepo: Repository) {
         achievementTracker.update(beforeRepo, repo)
         achievementTracker = achievementTracker
+        points = achievementTracker.getPoints()
 
         updateAchievementVisibility()
     }
@@ -192,9 +186,15 @@
     function updateAchievementVisibility() {
         for (let progress of achievementTracker.achievementProgresses) {
             let possible = true
-            let cardIDsInHand = battle.hand.map((c) => c.id)
+            let availableCardIDs = []
+            for (let catalog of getCardCatalogs()) {
+                if (points >= catalog.cost) {
+                    availableCardIDs = availableCardIDs.concat(catalog.cards)
+                }
+            }
+            console.log("available cards", availableCardIDs)
             for (let card of progress.achievement.requiredCards) {
-                if (!cardIDsInHand.includes(card as CardID)) {
+                if (!availableCardIDs.includes(card as CardID)) {
                     possible = false
                 }
             }
@@ -377,7 +377,7 @@
         <Terminal {shell} bind:this={terminal} />
     </div>
     <div id="hand">
-        <Hand on:endTurn={endTurn} {battle} on:playCard={playCard} />
+        <Hand on:endTurn={endTurn} {battle} {points} on:playCard={playCard} />
     </div>
 </div>
 

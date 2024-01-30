@@ -269,28 +269,41 @@ export class AchievementTracker {
             }
         }
     }
+
+    getPoints(): number {
+        let points = 0
+        for (let progress of this.achievementProgresses) {
+            points += progress.progress
+        }
+        return points
+    }
 }
 
 export class CardCatalog {
     constructor(
         public name: string,
+        public cost: number = 0,
         public cards: CardID[],
     ) {}
 }
 
 export function getCardCatalogs(): CardCatalog[] {
     let catalogs = [
-        new CardCatalog("File handling", [
+        new CardCatalog("File handling", 0, [
             CardID.Touch,
             CardID.Move,
             CardID.Remove,
         ]),
-        new CardCatalog("Basics", [CardID.Add, CardID.Commit]),
-        new CardCatalog("Branching", [CardID.Branch, CardID.Switch]),
-        new CardCatalog("Tagging", [CardID.Tag]),
+        new CardCatalog("Basics", 3, [
+            CardID.Add,
+            CardID.Commit,
+            CardID.Restore,
+        ]),
+        new CardCatalog("Branching", 8, [CardID.Branch, CardID.Switch]),
+        new CardCatalog("Tagging", 15, [CardID.Tag]),
     ]
     // Put all remaining cards into a "misc" catalog.
-    let miscCatalog = new CardCatalog("Misc", [])
+    let miscCatalog = new CardCatalog("Misc", 20, [])
     for (let cardID in CardID) {
         if (!catalogs.some((c) => c.cards.includes(cardID as CardID))) {
             miscCatalog.cards.push(cardID as CardID)
