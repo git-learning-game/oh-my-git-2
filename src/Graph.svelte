@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {onMount} from "svelte"
+    import {onMount, afterUpdate} from "svelte"
     import {fly} from "svelte/transition"
     import {flip} from "svelte/animate"
     import {Repository, GitCommit, GitObject, GitRef} from "./repository.ts"
@@ -8,6 +8,7 @@
 
     import Commit from "./Commit.svelte"
     import Ref from "./Ref.svelte"
+    import Arrow from "./Arrow.svelte"
 
     export let repo: Repository
 
@@ -69,12 +70,43 @@
             dispatch("clickNode", {node: lastPartOfID})
         }
     }
+
+    afterUpdate(() => {
+        document.querySelectorAll(".arrow").forEach((a) => a.remove())
+
+        document.querySelectorAll("#topdown>.commit").forEach((d) => {
+            console.log(d.getAttribute("data-id"))
+            let hash = d.getAttribute("data-id")
+
+            let bounds = d.getBoundingClientRect()
+
+            let p2 = {
+                x: bounds.left + bounds.width / 2,
+                y: bounds.bottom - 0.001,
+            }
+
+            repo.objects[hash].parents.forEach((parentID) => {
+                let parentDiv = document.querySelector(
+                    `.commit[data-id="${parentID}"]`,
+                )
+                let parentBound = parentDiv.getBoundingClientRect()
+                let p1 = {
+                    x: parentBound.left + parentBound.width / 2,
+                    y: parentBound.bottom,
+                }
+                let arrow = new Arrow({target: graph, props: {p1: p1, p2: p2}})
+            })
+
+            //d.appendChild(arrow)
+        })
+    })
 </script>
 
 <div id="graph" bind:this={graph}>
     {#each slots as slot (slot.commit.id())}
         {@const commit = slot.commit}
-        <div id="topdown" animate:flip in:fly={{x: 50, duration: 500}}>
+        <!--<div id="topdown" animate:flip in:fly={{x: 50, duration: 500}}> -->
+        <div id="topdown">
             <div class="refs">
                 {#each slot.refs as ref}
                     <div

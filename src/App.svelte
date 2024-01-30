@@ -47,6 +47,7 @@
     }
 
     function transformToFitScreen() {
+        return
         // apply css transform style to the container, so that it fits in the screen, centered in the screen
         const container = document.getElementById("container")
         if (container) {
