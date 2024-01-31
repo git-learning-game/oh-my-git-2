@@ -95,6 +95,20 @@ export function getAchievements() {
             },
             [CardID.Add, CardID.Touch],
         ),
+        DELETE_FROM_INDEX: new Achievement(
+            "Delete entries from the index",
+            (b: Repository, a: Repository) => {
+                let bEntryNames = b.index.entries.map((e) => e.name)
+                let aEntryNames = a.index.entries.map((e) => e.name)
+
+                // Find all entries that are in b but not in a.
+                let deletedEntries = bEntryNames.filter(
+                    (t) => !aEntryNames.includes(t),
+                )
+                return deletedEntries.length
+            },
+            [CardID.RmCached],
+        ),
         RESTORE_FROM_INDEX: new Achievement(
             "Restore files from the index",
             (b: Repository, a: Repository) => {
@@ -402,22 +416,29 @@ export class CardCatalog {
 export function getCardCatalogs(): CardCatalog[] {
     let catalogs = [
         new CardCatalog("File handling", 0, [
-            CardID.Touch,
+            CardID.Create,
             CardID.Append,
             CardID.Move,
             CardID.Copy,
             CardID.Remove,
         ]),
-        new CardCatalog("Basics", 10, [
+        new CardCatalog("Index", 0, [
             CardID.Add,
-            CardID.Commit,
+            CardID.AddAll,
             CardID.Restore,
+            CardID.RestoreAll,
+            CardID.RmCached,
         ]),
-        new CardCatalog("Branching", 20, [CardID.Branch, CardID.Switch]),
-        new CardCatalog("Tagging", 30, [CardID.Tag]),
+        new CardCatalog("Commit", 0, [CardID.Commit, CardID.CommitAll]),
+        new CardCatalog("Moving around", 0, [
+            CardID.Switch,
+            CardID.SwitchDetach,
+        ]),
+        new CardCatalog("Branching", 0, [CardID.Branch]),
+        new CardCatalog("Tagging", 0, [CardID.Tag]),
     ]
     // Put all remaining cards into a "misc" catalog.
-    let miscCatalog = new CardCatalog("Misc", 40, [])
+    let miscCatalog = new CardCatalog("Misc", 0, [])
     for (let cardID in CardID) {
         if (!catalogs.some((c) => c.cards.includes(cardID as CardID))) {
             miscCatalog.cards.push(cardID as CardID)

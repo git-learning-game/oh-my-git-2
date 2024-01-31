@@ -153,10 +153,12 @@ abstract class Effect {
 export enum CardID {
     Joker = "Joker",
     Touch = "Touch",
+    Create = "Create",
     Append = "Append",
     Add = "Add",
     AddAll = "AddAll",
     Remove = "Remove",
+    RmCached = "RmCached",
     Restore = "Restore",
     RestoreAll = "RestoreAll",
     RestoreS = "RestoreS",
@@ -186,6 +188,12 @@ function allCards(): Record<CardID, Card> {
             gt`Create an empty file in the working directory.`,
             new Command("touch STRING"),
         ),
+        [CardID.Create]: new CommandCard(
+            CardID.Create,
+            0,
+            gt`Create a new file in the working directory.`,
+            new Command("echo $RANDOM > $RANDOM"),
+        ),
         [CardID.Append]: new CommandCard(
             CardID.Append,
             0,
@@ -202,49 +210,55 @@ function allCards(): Record<CardID, Card> {
         [CardID.Add]: new CommandCard(
             CardID.Add,
             1,
-            gt`Copy a card from the working directory to the index.`,
+            gt`Copy a file from the working directory to the index.`,
             new Command("git add FILE"),
         ),
         [CardID.AddAll]: new CommandCard(
             CardID.AddAll,
             2,
-            gt`Copy all cards from the working directory to the index.`,
+            gt`Copy all files from the working directory to the index.`,
             new Command("git add ."),
         ),
         [CardID.Remove]: new CommandCard(
             CardID.Remove,
             0,
-            gt`Remove a card in the working directory.`,
+            gt`Remove a file in the working directory.`,
             new Command("rm FILE"),
+        ),
+        [CardID.RmCached]: new CommandCard(
+            CardID.RmCached,
+            0,
+            gt`Remove a file from the index.`,
+            new Command("git rm --cached FILE"),
         ),
         [CardID.Restore]: new CommandCard(
             CardID.Restore,
             2,
-            gt`Copy a card from the index to the working directory.`,
+            gt`Copy a file from the index to the working directory.`,
             new Command("git restore FILE"),
         ),
         [CardID.RestoreAll]: new CommandCard(
             CardID.RestoreAll,
             3,
-            gt`Copy all cards from the index to the working directory.`,
+            gt`Copy all files from the index to the working directory.`,
             new Command("git restore ."),
         ),
         [CardID.RestoreS]: new CommandCard(
             CardID.RestoreS,
             2,
-            gt`Copy a card from the specified commit to the working directory.`,
+            gt`Copy a file from the specified commit to the working directory.`,
             new Command("git restore -s REF FILE"),
         ),
         [CardID.RestoreStaged]: new CommandCard(
             CardID.RestoreStaged,
             2,
-            gt`Copy a card from the HEAD commit to the index.`,
+            gt`Copy a file from the HEAD commit to the index.`,
             new Command("git restore --staged FILE"),
         ),
         [CardID.RestoreStagedS]: new CommandCard(
             CardID.RestoreStagedS,
             2,
-            gt`Copy a card from the specified commit to the index.`,
+            gt`Copy a file from the specified commit to the index.`,
             new Command("git restore --staged -s REF FILE"),
         ),
         [CardID.Commit]: new CommandCard(
@@ -274,7 +288,7 @@ function allCards(): Record<CardID, Card> {
         [CardID.GitMove]: new CommandCard(
             CardID.GitMove,
             3,
-            gt`Move a card from one file to another in both the working directory and index.`,
+            gt`Move a file from one file to another in both the working directory and index.`,
             new Command("git mv FILE FILE"),
         ),
         [CardID.Stash]: new CommandCard(
