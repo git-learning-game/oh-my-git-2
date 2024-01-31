@@ -1,4 +1,4 @@
-import {Repository, GitCommit} from "./repository"
+import {Repository, GitCommit, GitBlob} from "./repository"
 import type {ObjectID} from "./repository"
 import {CardID} from "./cards"
 import {uniq} from "lodash"
@@ -17,31 +17,72 @@ export class Achievement {
 export function getAchievements() {
     return {
         CREATE_FILE: new Achievement(
-            "Create files",
+            "Create files (with different content)",
             (b: Repository, a: Repository) => {
-                let bFiles = b.workingDirectory.entries.map((e) => e.name)
-                let aFiles = a.workingDirectory.entries.map((e) => e.name)
+                let bContentCounts = getContentCount(b)
+                let aContentCounts = getContentCount(a)
 
-                // Find all files that are in a but not in b.
-                let newFiles = aFiles.filter((t) => !bFiles.includes(t))
-                return newFiles.length
+                // Count how many new contents appeared.
+                return Object.keys(aContentCounts).filter(
+                    (t) => !Object.keys(bContentCounts).includes(t),
+                ).length
             },
-            [CardID.Touch],
+            [CardID.Touch, CardID.Append],
         ),
         DELETE_FILE: new Achievement(
-            "Delete files",
+            "Delete files (with different content)",
             (b: Repository, a: Repository) => {
-                let bFiles = b.workingDirectory.entries.map((e) => e.name)
-                let aFiles = a.workingDirectory.entries.map((e) => e.name)
+                let bContentCounts = getContentCount(b)
+                let aContentCounts = getContentCount(a)
 
-                // Find all files that are in a but not in b.
-                let newFiles = bFiles.filter((t) => !aFiles.includes(t))
-                return newFiles.length
+                // Count how many contents disappeared.
+                return Object.keys(bContentCounts).filter(
+                    (t) => !Object.keys(aContentCounts).includes(t),
+                ).length
             },
             [CardID.Remove],
         ),
+        COPY_FILE: new Achievement(
+            "Make copies of files",
+            (b: Repository, a: Repository) => {
+                // Strategy: count how many files have identical copies in the working directory. In the after state, there must be more copies of identical content than before.
+                let contentCountBefore = getContentCount(b)
+                let contentCountAfter = getContentCount(a)
+
+                // Count how many contents now have more copies than before (but existed before).
+                return Object.keys(contentCountAfter).filter(
+                    (content) =>
+                        contentCountBefore[content] !== undefined &&
+                        contentCountAfter[content] >
+                            contentCountBefore[content],
+                ).length
+            },
+            [CardID.Copy],
+        ),
+        MOVE_FILE: new Achievement(
+            "Move files",
+            (b: Repository, a: Repository) => {
+                // Strategy: In the after state, there must be a file with the same content as before, but a different name.
+
+                let bFiles = workingDirectoryEntries(b)
+                let aFiles = workingDirectoryEntries(a)
+
+                // For each file in a, count it if there was a file with the same content in b, but a different name, and that name is not in a.
+                return Object.keys(aFiles).filter(
+                    (name) =>
+                        !Object.keys(bFiles).includes(name) &&
+                        Object.entries(bFiles).filter(
+                            ([name2, content]) =>
+                                content === aFiles[name] &&
+                                name2 !== name &&
+                                !Object.keys(aFiles).includes(name2),
+                        ).length > 0,
+                ).length
+            },
+            [CardID.Move],
+        ),
         ADD_TO_INDEX: new Achievement(
-            "Add something to the index",
+            "Add files to the index",
             (b: Repository, a: Repository) => {
                 let bEntryNames = b.index.entries.map((e) => e.name)
                 let aEntryNames = a.index.entries.map((e) => e.name)
@@ -55,7 +96,7 @@ export function getAchievements() {
             [CardID.Add, CardID.Touch],
         ),
         RESTORE_FROM_INDEX: new Achievement(
-            "Restore something from the index",
+            "Restore files from the index",
             (b: Repository, a: Repository) => {
                 // Loop through index, and count how many files have identical copies in the working directory.
                 let identicalOIDs: ObjectID[] = []
@@ -230,6 +271,76 @@ export function getAchievements() {
     }
 }
 
+function workingDirectoryEntries(repository: Repository): {
+    [filename: string]: string
+} {
+    let entries: {[filename: string]: string} = {}
+    for (let entry of repository.workingDirectory.entries) {
+        entries[entry.name] = workingDirectoryEntryContent(
+            entry.name,
+            repository,
+        )
+    }
+    return entries
+}
+
+function nonEmptyWorkingDirectoryEntries(repository: Repository): {
+    [filename: string]: string
+} {
+    return Object.fromEntries(
+        Object.entries(workingDirectoryEntries(repository)).filter(
+            ([_, content]) => content !== "",
+        ),
+    )
+}
+
+function getContentCount(repository: Repository): {[key: string]: number} {
+    let contentCount: {[key: string]: number} = {}
+    for (let entry of repository.workingDirectory.entries) {
+        let content = workingDirectoryEntryContent(entry.name, repository)
+        if (contentCount[content] === undefined) {
+            contentCount[content] = 0
+        }
+        contentCount[content] += 1
+    }
+    return contentCount
+}
+
+function getNonEmptyContentCount(repository: Repository): {
+    [key: string]: number
+} {
+    return Object.fromEntries(
+        Object.entries(getContentCount(repository)).filter(
+            ([content, _]) => content !== "",
+        ),
+    )
+}
+
+function workingDirectoryEntryContent(name: string, repository: Repository) {
+    let entry = repository.workingDirectory.entries.find((e) => e.name === name)
+    if (entry === undefined) {
+        throw new Error(
+            `Working directory entry ${name} not found in repository.`,
+        )
+    }
+    if (entry.oid === undefined) {
+        return repository.files[entry.name].content
+    } else {
+        let object = repository.objects[entry.oid]
+        if (object === undefined) {
+            throw new Error(
+                `Object ${entry.oid} referenced by working directory entry ${name} not found in repository.`,
+            )
+        }
+        if (!(object instanceof GitBlob)) {
+            throw new Error(
+                `Object ${entry.oid} referenced by working directory entry ${name} is not a blob.`,
+            )
+        }
+        return object.content
+    }
+}
+
 class AchievementProgress {
     constructor(
         public achievement: Achievement,
@@ -261,6 +372,7 @@ export class AchievementTracker {
         for (let progress of this.achievementProgresses) {
             let progressBefore = progress.progress
             progress.progress += progress.achievement.check(before, after)
+            progress.progress = Math.min(progress.progress, progress.target)
             if (
                 progress.progress >= progress.target &&
                 progressBefore < progress.target
@@ -291,19 +403,21 @@ export function getCardCatalogs(): CardCatalog[] {
     let catalogs = [
         new CardCatalog("File handling", 0, [
             CardID.Touch,
+            CardID.Append,
             CardID.Move,
+            CardID.Copy,
             CardID.Remove,
         ]),
-        new CardCatalog("Basics", 3, [
+        new CardCatalog("Basics", 10, [
             CardID.Add,
             CardID.Commit,
             CardID.Restore,
         ]),
-        new CardCatalog("Branching", 8, [CardID.Branch, CardID.Switch]),
-        new CardCatalog("Tagging", 15, [CardID.Tag]),
+        new CardCatalog("Branching", 20, [CardID.Branch, CardID.Switch]),
+        new CardCatalog("Tagging", 30, [CardID.Tag]),
     ]
     // Put all remaining cards into a "misc" catalog.
-    let miscCatalog = new CardCatalog("Misc", 20, [])
+    let miscCatalog = new CardCatalog("Misc", 40, [])
     for (let cardID in CardID) {
         if (!catalogs.some((c) => c.cards.includes(cardID as CardID))) {
             miscCatalog.cards.push(cardID as CardID)

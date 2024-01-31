@@ -3,6 +3,8 @@
     import {AchievementTracker} from "./achievements.ts"
 
     export let tracker: AchievementTracker
+
+    $: points = tracker.getPoints()
 </script>
 
 <div id="wrapper">
@@ -16,6 +18,7 @@
             </li>
         {/each}
     </ul>
+    <b><br />Total points: {points}</b>
 </div>
 
 <style>

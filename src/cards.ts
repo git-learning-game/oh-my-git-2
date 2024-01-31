@@ -153,6 +153,7 @@ abstract class Effect {
 export enum CardID {
     Joker = "Joker",
     Touch = "Touch",
+    Append = "Append",
     Add = "Add",
     AddAll = "AddAll",
     Remove = "Remove",
@@ -184,6 +185,12 @@ function allCards(): Record<CardID, Card> {
             0,
             gt`Create an empty file in the working directory.`,
             new Command("touch STRING"),
+        ),
+        [CardID.Append]: new CommandCard(
+            CardID.Append,
+            0,
+            gt`Append a random string to a file in the working directory.`,
+            new Command("echo $RANDOM >> FILE"),
         ),
         [CardID.Joker]: new CommandCard(
             CardID.Joker,
@@ -255,13 +262,13 @@ function allCards(): Record<CardID, Card> {
         [CardID.Copy]: new CommandCard(
             CardID.Copy,
             3,
-            gt`Copy a card from one working directory file to another.`,
+            gt`Make a copy a file.`,
             new Command("cp FILE FILE"),
         ),
         [CardID.Move]: new CommandCard(
             CardID.Move,
             3,
-            gt`Move a card from one working directory file to another.`,
+            gt`Rename a file.`,
             new Command("mv FILE STRING"),
         ),
         [CardID.GitMove]: new CommandCard(

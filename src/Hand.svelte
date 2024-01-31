@@ -12,15 +12,24 @@
     export let points: number
 
     let openCatalogNumber = 0
-    let catalogs = getCardCatalogs().map((catalog) => {
-        return {
-            name: catalog.name,
-            cost: catalog.cost,
-            cards: catalog.cards.map((card) => {
-                return buildCard(card)
-            }),
+    let catalogs = []
+    $: {
+        catalogs = []
+        for (let catalog of getCardCatalogs()) {
+            let c = {
+                name: catalog.name,
+                cost: catalog.cost,
+                remaining: catalog.cost - points,
+                cards: catalog.cards.map((card) => {
+                    return buildCard(card)
+                }),
+            }
+            catalogs.push(c)
+            if (catalog.cost > points) {
+                break
+            }
         }
-    })
+    }
 </script>
 
 <div id="wrapper">
@@ -56,7 +65,11 @@
                     }
                 }}
             >
-                {catalog.name} ({points}/{catalog.cost})
+                {catalog.name}
+                {#if points < catalog.cost}
+                    <br />
+                    ({catalog.cost - points} to unlock)
+                {/if}
             </button>
         {/each}
     </div>
