@@ -128,7 +128,6 @@
 
 <div
     class="slot"
-    draggable={playable}
     class:hand
     class:clickable
     class:active
@@ -263,8 +262,7 @@
         font-size: 150%;
     }
     .card.playable {
-        border: solid #225cba 5px;
-        cursor: move;
+        cursor: pointer;
         opacity: 1;
     }
     .clickable {

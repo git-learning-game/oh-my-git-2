@@ -16,7 +16,6 @@
         justify-content: center;
         width: 10em;
         height: 10em;
-        cursor: pointer;
     }
 
     #content {

@@ -171,12 +171,17 @@ export enum CardID {
     GitMove = "GitMove",
     Branch = "Branch",
     Tag = "Tag",
+    TagDelete = "TagDelete",
     Switch = "Switch",
     SwitchDetach = "SwitchDetach",
     //Checkout = "Checkout",
     Stash = "Stash",
     StashPop = "StashPop",
     Merge = "Merge",
+    Log = "Log",
+    Status = "Status",
+    Diff = "Diff",
+    DiffCached = "DiffCached",
 }
 
 function allCards(): Record<CardID, Card> {
@@ -270,14 +275,14 @@ function allCards(): Record<CardID, Card> {
         [CardID.CommitAll]: new CommandCard(
             CardID.CommitAll,
             3,
-            gt`Commit all`,
-            new Command("git add .; git commit -m 'Commit'"),
+            gt`Add changed files to the index and commit.`,
+            new Command("git commit -a -m 'Commit'"),
         ),
         [CardID.Copy]: new CommandCard(
             CardID.Copy,
             3,
             gt`Make a copy a file.`,
-            new Command("cp FILE FILE"),
+            new Command("cp FILE STRING"),
         ),
         [CardID.Move]: new CommandCard(
             CardID.Move,
@@ -315,17 +320,23 @@ function allCards(): Record<CardID, Card> {
             gt`Create a new tag at the HEAD commit.`,
             new Command("git tag $RANDOM"),
         ),
+        [CardID.TagDelete]: new CommandCard(
+            CardID.TagDelete,
+            0,
+            gt`Delete a tag.`,
+            new Command("git tag -d REF"),
+        ),
         [CardID.Switch]: new CommandCard(
             CardID.Switch,
             1,
             gt`Set HEAD to a branch, and reset the working directory and index to that commit.`,
-            new Command("git switch -f REF"),
+            new Command("git switch REF"),
         ),
         [CardID.SwitchDetach]: new CommandCard(
             CardID.SwitchDetach,
             1,
             gt`Set HEAD to a commit, and reset the working directory and index to that commit.`,
-            new Command("git switch -f --detach REF"),
+            new Command("git switch --detach REF"),
         ),
         /*[CardID.Checkout]: new CommandCard(
             CardID.Checkout,
@@ -338,6 +349,30 @@ function allCards(): Record<CardID, Card> {
             2,
             gt`Merge the specified commit into the current HEAD commit, and set index and working directory to the result. Does nothing if the specified commit is already an ancestor of HEAD.`,
             new Command("git merge REF"),
+        ),
+        [CardID.Log]: new CommandCard(
+            CardID.Log,
+            0,
+            gt`Show the commit history starting at HEAD.`,
+            new Command("git log"),
+        ),
+        [CardID.Status]: new CommandCard(
+            CardID.Status,
+            0,
+            gt`Show the status of the working directory and index.`,
+            new Command("git status"),
+        ),
+        [CardID.Diff]: new CommandCard(
+            CardID.Diff,
+            0,
+            gt`Show the difference between the working directory and index.`,
+            new Command("git diff"),
+        ),
+        [CardID.DiffCached]: new CommandCard(
+            CardID.DiffCached,
+            0,
+            gt`Show the difference between the index and the HEAD commit.`,
+            new Command("git diff --cached"),
         ),
     }
 }

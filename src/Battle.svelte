@@ -115,6 +115,8 @@
         repo = new Repository("/root/repo", shell)
         await update()
         battle.onSideEffect(realizeEffect)
+
+        // TODO: Not actually hidden anymore.
         battle.onHiddenCommand(runCommand)
 
         //await battle.devSetup()
@@ -246,10 +248,11 @@
         command: string,
     ): Promise<{output: string; exit_code: number}> {
         console.log(`Running command: ${command}`)
-        let result = await shell.run_with_exit_code(command)
-        console.log(`Command output: ${result.output}`)
+        terminal.type(command + "\n")
+        //let result = await shell.run_with_exit_code(command)
+        //console.log(`Command output: ${result.output}`)
         updateACoupleOfTimes()
-        return result
+        //return result
     }
 
     async function syncGameToDisk() {

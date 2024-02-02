@@ -28,9 +28,9 @@
         } else if (battle.state instanceof RequirePlaceholderState) {
             let currentPlaceholder = battle.state.currentPlaceholder()
             if (currentPlaceholder instanceof FilePlaceholder) {
-                stateMessage = $t`Select slot`
+                stateMessage = $t`Select file`
             } else if (currentPlaceholder instanceof RefPlaceholder) {
-                stateMessage = $t`Select ref`
+                stateMessage = $t`Select commit/branch/tag`
             } else if (currentPlaceholder instanceof FreeStringPlaceholder) {
                 stateMessage = $t`Enter text: `
                 showInput = true

@@ -27,7 +27,7 @@ export function getAchievements() {
                     (t) => !Object.keys(bContentCounts).includes(t),
                 ).length
             },
-            [CardID.Touch, CardID.Append],
+            [CardID.Create, CardID.Append],
         ),
         DELETE_FILE: new Achievement(
             "Delete files (with different content)",
@@ -81,6 +81,7 @@ export function getAchievements() {
             },
             [CardID.Move],
         ),
+        // MODIFY_FILE
         ADD_TO_INDEX: new Achievement(
             "Add files to the index",
             (b: Repository, a: Repository) => {
@@ -93,7 +94,7 @@ export function getAchievements() {
                 )
                 return newEntries.length
             },
-            [CardID.Add, CardID.Touch],
+            [CardID.Add, CardID.Create],
         ),
         DELETE_FROM_INDEX: new Achievement(
             "Delete entries from the index",
@@ -153,8 +154,9 @@ export function getAchievements() {
                 )
                 return newIdenticalEntries.length
             },
-            [CardID.Add, CardID.Touch],
+            [CardID.Add, CardID.Create],
         ),
+        // EMPTY_INDEX
         CREATE_COMMIT: new Achievement(
             "Create commits",
             (b: Repository, a: Repository) => {
@@ -170,8 +172,27 @@ export function getAchievements() {
                 )
                 return newCommits.length
             },
-            [CardID.Commit, CardID.Touch, CardID.Add],
+            [CardID.Commit, CardID.Create, CardID.Add],
         ),
+        DETACH_HEAD: new Achievement(
+            "Detach your HEAD (from a non-detached state)",
+            (b: Repository, a: Repository) => {
+                if (
+                    Object.keys(b.refs).includes("HEAD") &&
+                    Object.keys(a.refs).includes("HEAD")
+                ) {
+                    if (
+                        b.refs["HEAD"].target.startsWith("refs/heads/") &&
+                        !a.refs["HEAD"].target.startsWith("refs/heads/")
+                    ) {
+                        return 1
+                    }
+                }
+                return 0
+            },
+            [CardID.SwitchDetach],
+        ),
+        // CREATE_BRANCH
         CREATE_TAGS: new Achievement(
             "Create tags",
             (b: Repository, a: Repository) => {
@@ -186,8 +207,9 @@ export function getAchievements() {
                 let newTags = aTags.filter((t) => !bTags.includes(t))
                 return newTags.length
             },
-            [CardID.Tag, CardID.Commit, CardID.Touch, CardID.Add],
+            [CardID.Tag, CardID.Commit, CardID.Create, CardID.Add],
         ),
+        // DELETE_TAGS
         CREATE_TAGS_DIFFERENT_COMMITS: new Achievement(
             "Create tags on different commits",
             (b: Repository, a: Repository) => {
@@ -210,25 +232,31 @@ export function getAchievements() {
                 let newTags = aTags.filter((t) => !bTags.includes(t))
                 return newTags.length
             },
-            [CardID.Tag, CardID.Commit, CardID.Touch, CardID.Add],
+            [CardID.Tag, CardID.Commit, CardID.Create, CardID.Add],
         ),
-        DETACH_HEAD: new Achievement(
-            "Detach your HEAD (from a non-detached state)",
+        MERGE_CONFLILCT: new Achievement(
+            "Create a merge conflict",
             (b: Repository, a: Repository) => {
+                // Count index entries with stage number != 0
+                let beforeIndexEntriesOfStageUnequal0 = b.index.entries.filter(
+                    (e) => e.stage !== 0,
+                ).length
+
+                // The same in the after state.
+                let afterIndexEntriesOfStageUnequal0 = a.index.entries.filter(
+                    (e) => e.stage !== 0,
+                ).length
+
                 if (
-                    Object.keys(b.refs).includes("HEAD") &&
-                    Object.keys(a.refs).includes("HEAD")
+                    beforeIndexEntriesOfStageUnequal0 === 0 &&
+                    afterIndexEntriesOfStageUnequal0 > 0
                 ) {
-                    if (
-                        b.refs["HEAD"].target.startsWith("refs/heads/") &&
-                        !a.refs["HEAD"].target.startsWith("refs/heads/")
-                    ) {
-                        return 1
-                    }
+                    return 1
+                } else {
+                    return 0
                 }
-                return 0
             },
-            [CardID.SwitchDetach],
+            [CardID.Commit, CardID.Merge],
         ),
         OCTOPUS_MERGE: new Achievement(
             "Create a merge commit with three parents",
@@ -257,30 +285,6 @@ export function getAchievements() {
                 return newTripleMerges.length
             },
             [CardID.Joker],
-        ),
-        MERGE_CONFLILCT: new Achievement(
-            "Create a merge conflict",
-            (b: Repository, a: Repository) => {
-                // Count index entries with stage number != 0
-                let beforeIndexEntriesOfStageUnequal0 = b.index.entries.filter(
-                    (e) => e.stage !== 0,
-                ).length
-
-                // The same in the after state.
-                let afterIndexEntriesOfStageUnequal0 = a.index.entries.filter(
-                    (e) => e.stage !== 0,
-                ).length
-
-                if (
-                    beforeIndexEntriesOfStageUnequal0 === 0 &&
-                    afterIndexEntriesOfStageUnequal0 > 0
-                ) {
-                    return 1
-                } else {
-                    return 0
-                }
-            },
-            [CardID.Commit, CardID.Merge],
         ),
     }
 }
@@ -422,23 +426,31 @@ export function getCardCatalogs(): CardCatalog[] {
             CardID.Copy,
             CardID.Remove,
         ]),
-        new CardCatalog("Index", 0, [
+        new CardCatalog("Index", 10, [
             CardID.Add,
             CardID.AddAll,
             CardID.Restore,
             CardID.RestoreAll,
             CardID.RmCached,
         ]),
-        new CardCatalog("Commit", 0, [CardID.Commit, CardID.CommitAll]),
-        new CardCatalog("Moving around", 0, [
+        new CardCatalog("Commit", 16, [
+            CardID.Commit,
+            CardID.CommitAll,
+            CardID.Branch,
             CardID.Switch,
             CardID.SwitchDetach,
         ]),
-        new CardCatalog("Branching", 0, [CardID.Branch]),
-        new CardCatalog("Tagging", 0, [CardID.Tag]),
+        new CardCatalog("Tags", 20, [CardID.Tag, CardID.TagDelete]),
+        new CardCatalog("Merge", 24, [CardID.Merge]),
+        new CardCatalog("Viewing", 28, [
+            CardID.Log,
+            CardID.Status,
+            CardID.Diff,
+            CardID.DiffCached,
+        ]),
     ]
     // Put all remaining cards into a "misc" catalog.
-    let miscCatalog = new CardCatalog("Misc", 0, [])
+    let miscCatalog = new CardCatalog("Misc", 28, [])
     for (let cardID in CardID) {
         if (!catalogs.some((c) => c.cards.includes(cardID as CardID))) {
             miscCatalog.cards.push(cardID as CardID)
