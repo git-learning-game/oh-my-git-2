@@ -50,6 +50,7 @@
 
     function achievementCompleted(achievement: Achievement) {
         updateAchievementVisibility()
+        popup(`🏆 You completed an achievement: ${achievement.description}`)
     }
 
     function hasActiveAchievement(): boolean {
@@ -59,6 +60,10 @@
             }
         }
         return false
+    }
+
+    function popup(message: string) {
+        alert(message)
     }
 
     function nextUsefulCard(): CardID | null {
@@ -180,11 +185,24 @@
     }
 
     function updateAchievements(beforeRepo: Repository) {
+        let pointsBefore = achievementTracker.getPoints()
         achievementTracker.update(beforeRepo, repo)
         achievementTracker = achievementTracker
         points = achievementTracker.getPoints()
 
+        let pointsAdded = points - pointsBefore
+
         updateAchievementVisibility()
+
+        alertNewAchievements(pointsAdded)
+    }
+
+    function alertNewAchievements(pointsAdded: number) {
+        for (let catalog of getCardCatalogs()) {
+            if (points >= catalog.cost && points - pointsAdded < catalog.cost) {
+                popup(`📔 You unlocked a new catalog: ${catalog.name}`)
+            }
+        }
     }
 
     function updateAchievementVisibility() {
