@@ -163,6 +163,7 @@
             console.log("content", content)
             workingDirectory.push(new TextFile(entry.name, content))
         }
+        workingDirectory.sort((a, b) => a.name.localeCompare(b.name))
 
         index = []
         for (let entry of repo.index.entries) {
@@ -175,6 +176,7 @@
             }
             index.push(new TextFile(entry.name, content))
         }
+        index.sort((a, b) => a.name.localeCompare(b.name))
     }
 
     function updateAchievements(beforeRepo: Repository) {

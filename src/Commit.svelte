@@ -25,6 +25,7 @@
                 }
                 files.push(new TextFile(entry.name, blob.content))
             })
+            files.sort((a, b) => a.name.localeCompare(b.name))
         }
     }
 </script>
