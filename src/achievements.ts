@@ -441,8 +441,8 @@ export function getCardCatalogs(): CardCatalog[] {
             CardID.SwitchDetach,
         ]),
         new CardCatalog("Tags", 20, [CardID.Tag, CardID.TagDelete]),
-        new CardCatalog("Merge", 24, [CardID.Merge]),
-        new CardCatalog("Viewing", 28, [
+        new CardCatalog("Merge", 26, [CardID.Merge]),
+        new CardCatalog("Viewing", 31, [
             CardID.Log,
             CardID.Status,
             CardID.Diff,
@@ -450,7 +450,7 @@ export function getCardCatalogs(): CardCatalog[] {
         ]),
     ]
     // Put all remaining cards into a "misc" catalog.
-    let miscCatalog = new CardCatalog("Misc", 28, [])
+    let miscCatalog = new CardCatalog("Misc", 31, [])
     for (let cardID in CardID) {
         if (!catalogs.some((c) => c.cards.includes(cardID as CardID))) {
             miscCatalog.cards.push(cardID as CardID)

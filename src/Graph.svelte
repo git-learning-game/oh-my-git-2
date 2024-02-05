@@ -163,9 +163,8 @@
         padding-top: 3em;
         overflow: auto;
         display: flex;
-        align-items: end;
         justify-content: flex-end;
-        padding-bottom: 9em;
+        padding-bottom: 3em;
         gap: 1em;
     }
     #topdown {
