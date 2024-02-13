@@ -5,11 +5,11 @@
     import BattleSvelte from "./Battle.svelte"
     import Path from "./Path.svelte"
     import WinSvelte from "./Win.svelte"
-    import {GitShell} from "./gitshell.ts"
+    import {LinuxBrowserShell} from "linux-browser-shell"
 
     import {Battle, Adventure, Decision, Win} from "./cards.ts"
 
-    let shell: GitShell
+    let shell: LinuxBrowserShell
     let adventure: Adventure
 
     let loadingProgress = 0
@@ -22,12 +22,20 @@
     onMount(() => {
         transformToFitScreen()
 
-        shell = new GitShell()
+        shell = new LinuxBrowserShell({
+            wasm: "./v86/v86.wasm",
+            bios: "./v86/seabios.bin",
+            vga_bios: "./v86/vgabios.bin",
+            cdrom: "./v86/image.iso",
+            initial_state: "./v86/initial-state.bin.zst",
+            font: "monospace",
+        })
         ;(window as any)["shell"] = shell
 
-        shell.boot(updateProgress).then(() => {
+        shell.boot(/*updateProgress*/).then(() => {
             loadingProgress = 100
-            shell.setKeyboardActive(false)
+            //shell.setKeyboardActive(false)
+            runGitConfigureCommands()
             adventure = new Adventure((_) => {
                 // The next event was entered!
                 adventure = adventure
@@ -36,6 +44,47 @@
             adventure.enterNextEvent()
         })
     })
+
+    async function runGitConfigureCommands() {
+        let backgroundTerminal = shell.getTerminal(0)
+        await backgroundTerminal.putFile("~/.gitconfig", [
+            "[core]",
+            "    excludesfile = /root/.gitignore",
+            "[init]",
+            "    defaultBranch = main",
+            "[user]",
+            "    name = You",
+            "    email = mail@example.com",
+            "[alias]",
+            "    graph = log --graph --pretty=oneline --abbrev-commit --all --decorate",
+            "    st = status",
+            "    take = checkout -b",
+            "[color]",
+            "    ui = never",
+            '[merge "cardgame"]',
+            "    name = cardgame merge driver",
+            "    driver = /tmp/merge.sh %A %B",
+        ])
+        await backgroundTerminal.putFile("/tmp/merge.sh", [
+            'CURRENT="$1"',
+            'OTHER="$2"',
+            "",
+            "function get_property() {",
+            '    grep "^$1:" "$2" | cut -d" " -f2',
+            "}",
+            "",
+            'ID=$(get_property id "$CURRENT")',
+            'HEALTH=$(($(get_property health "$CURRENT") + $(get_property health "$OTHER")))',
+            'ATTACK=$(($(get_property attack "$CURRENT") + $(get_property attack "$OTHER")))',
+            "",
+            'echo "id: $ID" > "$1"',
+            'echo "health: $HEALTH" >> "$1"',
+            'echo "attack: $ATTACK" >> "$1"',
+            "",
+            "exit 0",
+        ])
+        await backgroundTerminal.run("chmod +x /tmp/merge.sh")
+    }
 
     function decisionMade(event: CustomEvent) {
         if (adventure.state instanceof Decision) {
@@ -86,7 +135,11 @@
         <LanguageSwitcher />
         {#if adventure}
             {#if adventure.state instanceof Battle}
-                <BattleSvelte battle={adventure.state} {shell} />
+                <BattleSvelte
+                    battle={adventure.state}
+                    backgroundTerminal={shell.getTerminal(0)}
+                    foregroundTerminal={shell.getTerminal(1)}
+                />
             {:else if adventure.state instanceof Decision}
                 <DecisionSvelte
                     message={adventure.state.message}

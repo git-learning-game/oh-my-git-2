@@ -20,7 +20,8 @@
         "prettier-plugin-svelte": "^3.0.3",
         "svelte-i18n-lingui": "^0.1.7",
         "v86": "^0.4.0",
-        "yaml": "^2.3.3"
+        "yaml": "^2.3.3",
+        "linux-browser-shell": "../linux-browser-shell"
     },
     "devDependencies": {
         "@lingui/cli": "^4.5.0",

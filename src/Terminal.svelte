@@ -1,16 +1,16 @@
 <script lang="ts">
-    import WebShell from "./web-shell.ts"
+    import {Terminal} from "linux-browser-shell"
     let terminalDiv: HTMLDivElement
 
-    export let shell: WebShell
+    export let terminal: Terminal
 
     export function type(text: string) {
-        shell.type(text)
+        terminal.send(text)
     }
 
-    $: if (shell && terminalDiv) {
-        shell.setKeyboardActive(false)
-        shell.setScreen(terminalDiv)
+    $: if (terminal && terminalDiv) {
+        //terminal.setKeyboardActive(false)
+        terminal.attach(terminalDiv)
         let width = Math.min(Math.floor(terminalDiv.clientWidth / 27.2), 25)
         let height =
             Math.floor(
@@ -23,16 +23,18 @@
         width = 21
         height = 50
         console.warn("Resizing terminal")
-        shell.type(`stty rows 20 cols 20\nstty rows ${width} cols ${height}\n`)
+        terminal.send(
+            `stty rows 20 cols 20\nstty rows ${width} cols ${height}\n`,
+        )
     }
 
     function enable() {
-        shell.setKeyboardActive(true)
+        //terminal.setKeyboardActive(true)
         ;(document.activeElement as HTMLElement).blur()
     }
 
     function disable() {
-        shell.setKeyboardActive(false)
+        //terminal.setKeyboardActive(false)
     }
 </script>
 

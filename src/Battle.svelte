@@ -2,14 +2,14 @@
     import {onMount} from "svelte"
     import {t} from "svelte-i18n-lingui"
 
-    import Terminal from "./Terminal.svelte"
+    import TerminalSvelte from "./Terminal.svelte"
     import Graph from "./Graph.svelte"
     import Cards from "./Cards.svelte"
     import Hand from "./Hand.svelte"
     import StateIndicator from "./StateIndicator.svelte"
     import Achievements from "./Achievements.svelte"
 
-    import {GitShell} from "./gitshell.ts"
+    import {Terminal} from "linux-browser-shell"
     import {Repository, GitBlob} from "./repository.ts"
     import {
         AchievementTracker,
@@ -32,11 +32,12 @@
     } from "./cards.ts"
 
     export let battle: Battle
-    export let shell: GitShell
+
+    export let backgroundTerminal: Terminal
+    export let foregroundTerminal: Terminal
 
     let repo: Repository
     let graph: Graph
-    let terminal: Terminal
 
     let index: TextFile[] = []
     let workingDirectory: TextFile[] = []
@@ -79,45 +80,21 @@
 
     let indexSlots: (CreatureCard | null)[]
 
-    function keydown(e: KeyboardEvent) {
-        if (shell.getKeyboardActive()) {
-            if (e.key == "Enter") {
-                updateACoupleOfTimes()
-            }
-        } else {
-            if (e.key == "Enter") {
-                if (battle.state instanceof PlayerTurnState) {
-                    endTurn()
-                }
-            }
-            if (e.key == "Escape") {
-                battle.cancelAction()
-                battle = battle
-            }
-            // if any number, play from hand, or resolve slot, depending on mode
-            if (e.key.match(/^[1-9]$/)) {
-                if (battle.state instanceof PlayerTurnState) {
-                    battle.playCardFromHand(parseInt(e.key) - 1)
-                    battle = battle
-                } else if (battle.state instanceof RequirePlaceholderState) {
-                    if (
-                        battle.state.currentPlaceholder() instanceof
-                        FilePlaceholder
-                    ) {
-                        if (parseInt(e.key) > 3) {
-                            return
-                        }
-                        battle.state.resolveNext(e.key)
-                        battle = battle
-                    }
-                }
-            }
-        }
-    }
-
     onMount(async () => {
-        await shell.enterNewGitRepo()
-        repo = new Repository("/root/repo", shell)
+        await backgroundTerminal.script([
+            "rm -rf /root/repo",
+            "mkdir /root/repo",
+            "cd /root/repo",
+            "git init",
+        ])
+        //await this.putFile("/root/repo/.gitattributes", ["* merge=cardgame"])
+        //await this.putFile("/root/.gitignore", [".gitattributes"])
+        foregroundTerminal.send("cd /root/repo\nclear\n")
+        foregroundTerminal.onUserCommand(() => {
+            updateACoupleOfTimes()
+        })
+
+        repo = new Repository("/root/repo", backgroundTerminal)
         await update()
         battle.onSideEffect(realizeEffect)
 
@@ -252,7 +229,7 @@
 
     async function realizeEffect(effect: SideEffect) {
         if (effect instanceof CommandSideEffect) {
-            shell.type(effect.command + "\n")
+            backgroundTerminal.send(effect.command + "\n")
             updateACoupleOfTimes()
         } else if (effect instanceof SyncGameToDiskSideEffect) {
             await syncGameToDisk()
@@ -268,7 +245,7 @@
         command: string,
     ): Promise<{output: string; exit_code: number}> {
         console.log(`Running command: ${command}`)
-        terminal.type(command + "\n")
+        foregroundTerminal.send(command + "\n")
         //let result = await shell.run_with_exit_code(command)
         //console.log(`Command output: ${result.output}`)
         updateACoupleOfTimes()
@@ -278,9 +255,11 @@
     async function syncGameToDisk() {
         for (let [index, card] of battle.slots.entries()) {
             if (card) {
-                await shell.putFile((index + 1).toString(), [card.stringify()])
+                await backgroundTerminal.putFile((index + 1).toString(), [
+                    card.stringify(),
+                ])
             } else {
-                await shell.run(`rm -f ${index + 1}`)
+                await backgroundTerminal.run(`rm -f ${index + 1}`)
             }
         }
         updateACoupleOfTimes()
@@ -373,8 +352,6 @@
     <StateIndicator {battle} on:textEntered={textEntered} />
 </div>
 
-<svelte:window on:keydown={keydown} />
-
 <div id="grid">
     <div id="graph">
         <Graph
@@ -397,7 +374,7 @@
         <Achievements tracker={achievementTracker} />
     </div>
     <div id="screen">
-        <Terminal {shell} bind:this={terminal} />
+        <TerminalSvelte terminal={foregroundTerminal} />
     </div>
     <div id="hand">
         <Hand on:endTurn={endTurn} {battle} {points} on:playCard={playCard} />

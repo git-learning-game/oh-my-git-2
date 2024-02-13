@@ -1,4 +1,4 @@
-import WebShell from "./web-shell.ts"
+import {Terminal} from "linux-browser-shell"
 import {cloneDeep} from "lodash"
 
 export type ObjectID = string
@@ -139,7 +139,7 @@ export class WorkingDirectory extends GitNode {
 
 export class Repository {
     path: string //absolute path
-    shell: WebShell
+    terminal: Terminal
     objects: {[key: ObjectID]: GitObject} = {}
     refs: {[key: string]: GitRef} = {}
     index: GitIndex = new GitIndex()
@@ -149,9 +149,9 @@ export class Repository {
     private allNodes: string[] = []
     private timings: {[key: string]: number} = {}
 
-    constructor(path: string, shell: WebShell) {
+    constructor(path: string, terminal: Terminal) {
         this.path = path
-        this.shell = shell
+        this.terminal = terminal
 
         this.index.label = "Index"
 
@@ -159,7 +159,7 @@ export class Repository {
     }
 
     clone(): Repository {
-        let repo = new Repository(this.path, this.shell)
+        let repo = new Repository(this.path, this.terminal)
         repo.objects = cloneDeep(this.objects)
         repo.refs = cloneDeep(this.refs)
         repo.index = cloneDeep(this.index)
@@ -186,10 +186,10 @@ export class Repository {
 
     async refTarget(ref: string): Promise<string> {
         // Test whether this is a symbolic ref.
-        let ret = await this.shell.run(`git symbolic-ref -q ${ref} || true`)
+        let ret = await this.terminal.run(`git symbolic-ref -q ${ref} || true`)
         if (ret == "") {
             // If it's not, it's probably a regular ref.
-            ret = await this.shell.run(`git rev-parse ${ref}`)
+            ret = await this.terminal.run(`git rev-parse ${ref}`)
         }
         return ret
     }
@@ -197,10 +197,10 @@ export class Repository {
     // The difference to the previous version is that this might return undefined,
     // if the ref doesn't exist.
     async maybeRefTarget(ref: string): Promise<string | undefined> {
-        let ret = await this.shell.run(`git symbolic-ref -q ${ref} || true`)
+        let ret = await this.terminal.run(`git symbolic-ref -q ${ref} || true`)
         if (ret == "") {
             try {
-                ret = await this.shell.run(`git rev-parse ${ref}`)
+                ret = await this.terminal.run(`git rev-parse ${ref}`)
             } catch (e) {
                 return undefined
             }
@@ -251,12 +251,12 @@ export class Repository {
     }
 
     async getFileList(): Promise<string[]> {
-        let output = await this.shell.run("ls -1 --color=none")
+        let output = await this.terminal.run("ls -1 --color=none")
         return output.split("\n")
     }
 
     async updateRefs(): Promise<void> {
-        let output = await this.shell.git("show-ref || true")
+        let output = await this.terminal.run("git show-ref || true")
         let lines = output.split("\n")
         for (let line of lines) {
             let [_, name] = line.split(" ")
@@ -299,7 +299,7 @@ export class Repository {
     }
 
     async updateIndex(): Promise<void> {
-        let output = await this.shell.git("ls-files -s")
+        let output = await this.terminal.run("git ls-files -s")
         let lines = output.split("\n")
         this.index.entries = []
         for (let line of lines) {
@@ -316,7 +316,7 @@ export class Repository {
     }
 
     async updateWorkingDirectory(): Promise<void> {
-        var output = await this.shell.run(
+        var output = await this.terminal.run(
             "find . -type f -not -path '*/\\.git/*'",
         )
         let lines = output.split("\n")
@@ -326,7 +326,7 @@ export class Repository {
             let name = line.substr(2)
             if (name !== "") {
                 // Check if this file has already been hashed.
-                let oid = await this.shell.run(`git hash-object "${name}"`)
+                let oid = await this.terminal.run(`git hash-object "${name}"`)
                 if (this.resolve(oid) !== undefined) {
                     // Yup!
                     this.workingDirectory.entries.push({name, oid})
@@ -341,7 +341,7 @@ export class Repository {
     }
 
     async buildUnAddedFile(name: string): Promise<UnAddedFile> {
-        let content = await this.shell.run(`cat "${name}"`)
+        let content = await this.terminal.run(`cat "${name}"`)
         let file = new UnAddedFile(name, content)
         file.label = name
         file.tooltip = content
@@ -390,8 +390,8 @@ export class Repository {
     }
 
     async updateGitObjects(): Promise<void> {
-        let output = await this.shell.git(
-            "cat-file --batch-check='%(objectname) %(objecttype)' --batch-all-objects",
+        let output = await this.terminal.run(
+            "git cat-file --batch-check='%(objectname) %(objecttype)' --batch-all-objects",
         )
         let lines = output.split("\n")
         for (let line of lines) {
@@ -426,7 +426,7 @@ export class Repository {
     }
 
     async getGitObjectContent(oid: string): Promise<string> {
-        let output = await this.shell.git(`cat-file -p ${oid}`)
+        let output = await this.terminal.run(`git cat-file -p ${oid}`)
         return output
     }
 }
