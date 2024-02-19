@@ -165,8 +165,8 @@
         background: black;
     }
     #container {
-        width: 1920px;
-        height: 1080px;
+        width: 100vw;
+        height: 100vh;
     }
     #progress {
         width: 100%;

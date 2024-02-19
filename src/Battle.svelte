@@ -87,6 +87,11 @@
             "cd /root/repo",
             "git init",
         ])
+        await backgroundTerminal.script([
+            "echo hi > fu",
+            "git add .",
+            "git commit -m 'Initial commit'",
+        ])
         //await this.putFile("/root/repo/.gitattributes", ["* merge=cardgame"])
         //await this.putFile("/root/.gitignore", [".gitattributes"])
         foregroundTerminal.send("cd /root/repo\nclear\n")
@@ -101,6 +106,8 @@
         // TODO: Not actually hidden anymore.
         battle.onHiddenCommand(runCommand)
 
+        graph.setRepo(repo)
+
         //await battle.devSetup()
     })
 
@@ -112,6 +119,8 @@
 
         let beforeRepo = repo.clone()
         await repo.update()
+        graph.update()
+
         console.log("repo update done, updating achievments")
         updateAchievements(beforeRepo)
 
