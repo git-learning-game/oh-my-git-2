@@ -137,6 +137,25 @@ export class WorkingDirectory extends GitNode {
     }
 }
 
+type ReflogEntry = {
+    newOid: ObjectID
+    oldOid: ObjectID
+    comment: string
+}
+
+export class Reflog extends GitNode {
+    constructor(
+        public name: string,
+        public entries: ReflogEntry[],
+    ) {
+        super()
+    }
+
+    id(): string {
+        return this.name
+    }
+}
+
 export class Repository {
     path: string //absolute path
     terminal: Terminal
@@ -145,6 +164,7 @@ export class Repository {
     index: GitIndex = new GitIndex()
     files: {[key: string]: UnAddedFile} = {}
     workingDirectory: WorkingDirectory = new WorkingDirectory()
+    reflogs: {[key: string]: Reflog} = {}
 
     private allNodes: string[] = []
     private timings: {[key: string]: number} = {}
@@ -229,6 +249,7 @@ export class Repository {
         )
         await this.time("index", async () => await this.updateIndex())
         await this.time("wd", async () => await this.updateWorkingDirectory())
+        //await this.time("reflog", async () => await this.updateReflogs())
 
         for (let t in this.timings) {
             //console.warn(`${t}: ${this.timings[t]}ms`)
@@ -338,6 +359,10 @@ export class Repository {
                 }
             }
         }
+    }
+
+    async updateReflogs(): Promise<void> {
+        throw new Error("Not implemented")
     }
 
     async buildUnAddedFile(name: string): Promise<UnAddedFile> {
