@@ -23,9 +23,6 @@
 <style>
     #lang-switch {
         font-size: 150%;
-        position: absolute;
-        top: 10px;
-        left: 10px;
         z-index: 10;
     }
     select {

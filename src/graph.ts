@@ -204,6 +204,8 @@ export class Graph {
             nodes.push(this.repo.workingDirectory)
         }
 
+        console.log("nodes", nodes)
+
         this.simulation.nodes(nodes).alphaTarget(0.3)
 
         let links: {source: GitNode; target: GitNode; label?: string}[] = []

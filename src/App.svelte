@@ -132,7 +132,7 @@
     {#if loadingProgress < 100}
         <div id="progress"><span>{Math.round(loadingProgress)}%</span></div>
     {:else}
-        <LanguageSwitcher />
+        <div id="menu"><LanguageSwitcher /></div>
         {#if adventure}
             {#if adventure.state instanceof Battle}
                 <BattleSvelte
@@ -167,6 +167,8 @@
     #container {
         width: 100vw;
         height: 100vh;
+        display: flex;
+        flex-direction: column;
     }
     #progress {
         width: 100%;
@@ -176,5 +178,12 @@
         align-items: center;
         font-size: 500%;
         color: white;
+    }
+    #menu {
+        background: grey;
+        display: flex;
+        align-items: center;
+        height: 3.5em;
+        gap: 1em;
     }
 </style>

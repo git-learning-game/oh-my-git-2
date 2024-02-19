@@ -3,11 +3,10 @@
     import {t} from "svelte-i18n-lingui"
 
     import TerminalSvelte from "./Terminal.svelte"
-    import Graph from "./Graph.svelte"
-    import Cards from "./Cards.svelte"
     import Hand from "./Hand.svelte"
     import StateIndicator from "./StateIndicator.svelte"
     import Achievements from "./Achievements.svelte"
+    import RepositorySvelte from "./Repository.svelte"
 
     import {Terminal} from "linux-browser-shell"
     import {Repository, GitBlob} from "./repository.ts"
@@ -18,7 +17,6 @@
         getCardCatalogs,
     } from "./achievements.ts"
     import {CardID, Card, CommandCard, buildCard} from "./cards.ts"
-    import {TextFile} from "./files.ts"
 
     import {
         Battle,
@@ -36,11 +34,7 @@
     export let backgroundTerminal: Terminal
     export let foregroundTerminal: Terminal
 
-    let repo: Repository
-    let graph: Graph
-
-    let index: TextFile[] = []
-    let workingDirectory: TextFile[] = []
+    let repos: Repository[] = []
 
     let achievementTracker = new AchievementTracker(achievementCompleted)
     for (let achievement of Object.values(getAchievements())) {
@@ -81,98 +75,54 @@
     let indexSlots: (CreatureCard | null)[]
 
     onMount(async () => {
+        const repoPath = "/tmp/default"
+        const remoteRepoPath = "/tmp/remote"
+
+        repos = []
+        await createRepo(repoPath)
+        await createRepo(remoteRepoPath)
+
         await backgroundTerminal.script([
-            "rm -rf /root/repo",
-            "mkdir /root/repo",
-            "cd /root/repo",
-            "git init",
-        ])
-        await backgroundTerminal.script([
+            `cd ${repoPath}`,
             "echo hi > fu",
             "git add .",
             "git commit -m 'Initial commit'",
         ])
+
+        repos = repos
+
         //await this.putFile("/root/repo/.gitattributes", ["* merge=cardgame"])
         //await this.putFile("/root/.gitignore", [".gitattributes"])
-        foregroundTerminal.send("cd /root/repo\nclear\n")
+        foregroundTerminal.send(`cd ${repoPath}\nclear\n`)
         foregroundTerminal.onUserCommand(() => {
             updateACoupleOfTimes()
         })
 
-        repo = new Repository("/root/repo", backgroundTerminal)
         await update()
         battle.onSideEffect(realizeEffect)
 
         // TODO: Not actually hidden anymore.
         battle.onHiddenCommand(runCommand)
 
-        //graph.setRepo(repo)
-
         //await battle.devSetup()
     })
 
     async function update() {
-        console.log("update begin")
-        if (graph) {
-            graph.setRefreshing(true)
+        let beforeRepo = repos[0].clone()
+
+        // call r.update asynchronously for each repo, and wait for all to finish, one after the other
+        for (let repo of repos) {
+            await repo.update()
         }
 
-        let beforeRepo = repo.clone()
-        await repo.update()
-        graph.update()
-
-        console.log("repo update done, updating achievments")
+        console.log("updating done")
+        repos = repos
         updateAchievements(beforeRepo)
-
-        syncDiskToGame()
-        repo = repo
-
-        updateFiles()
-
-        //graph.update()
-        if (graph) {
-            graph.setRefreshing(false)
-        }
-    }
-
-    function updateFiles() {
-        console.log(repo)
-        workingDirectory = []
-        for (let entry of repo.workingDirectory.entries) {
-            let content = ""
-            console.log(entry)
-            if (entry.oid) {
-                let blob = repo.objects[entry.oid]
-                if (blob instanceof GitBlob) {
-                    content = blob.content
-                } else {
-                    throw new Error("Requested OID is not a blob")
-                }
-            } else {
-                content = repo.files[entry.name].content
-            }
-            console.log("content", content)
-            workingDirectory.push(new TextFile(entry.name, content))
-        }
-        workingDirectory.sort((a, b) => a.name.localeCompare(b.name))
-
-        index = []
-        for (let entry of repo.index.entries) {
-            let blob = repo.objects[entry.oid]
-            let content = ""
-            if (blob instanceof GitBlob) {
-                content = blob.content
-            } else {
-                throw new Error("Requested OID is not a blob")
-            }
-            index.push(new TextFile(entry.name, content))
-        }
-        index.sort((a, b) => a.name.localeCompare(b.name))
     }
 
     function updateAchievements(beforeRepo: Repository) {
         let pointsBefore = achievementTracker.getPoints()
-        achievementTracker.update(beforeRepo, repo)
+        achievementTracker.update(beforeRepo, repos[0])
         achievementTracker = achievementTracker
         points = achievementTracker.getPoints()
 
@@ -200,7 +150,6 @@
                     availableCardIDs = availableCardIDs.concat(catalog.cards)
                 }
             }
-            console.log("available cards", availableCardIDs)
             for (let card of progress.achievement.requiredCards) {
                 if (!availableCardIDs.includes(card as CardID)) {
                     possible = false
@@ -274,45 +223,6 @@
         updateACoupleOfTimes()
     }
 
-    function syncDiskToGame() {
-        battle.slots = [null, null, null]
-        for (let entry of repo.workingDirectory.entries) {
-            let content = ""
-            if (entry.oid) {
-                let blob = repo.objects[entry.oid]
-                if (blob instanceof GitBlob) {
-                    content = blob.content
-                } else {
-                    throw new Error("Requested OID is not a blob")
-                }
-            } else {
-                content = repo.files[entry.name].content
-            }
-
-            if (["1", "2", "3"].includes(entry.name)) {
-                battle.slots[parseInt(entry.name) - 1] =
-                    CreatureCard.parse(content)
-            }
-        }
-
-        indexSlots = [null, null, null]
-        for (let entry of repo.index.entries) {
-            let blob = repo.objects[entry.oid]
-            let content = ""
-            if (blob instanceof GitBlob) {
-                content = blob.content
-            } else {
-                throw new Error("Requested OID is not a blob")
-            }
-            if (["1", "2", "3"].includes(entry.name)) {
-                indexSlots[parseInt(entry.name) - 1] =
-                    CreatureCard.parse(content)
-            }
-        }
-
-        battle = battle
-    }
-
     async function playCard(e: CustomEvent) {
         let card: CommandCard = e.detail
         battle.playCard(card)
@@ -355,6 +265,18 @@
             battle = battle
         }
     }
+
+    async function createRepo(path: string) {
+        console.log(`creating repo at ${path}`)
+        await backgroundTerminal.script([
+            `rm -rf ${path}`,
+            `mkdir -p ${path}`,
+            `cd ${path}`,
+            "git init",
+        ])
+        repos.push(new Repository(path, backgroundTerminal))
+        repos = repos
+    }
 </script>
 
 <div id="state">
@@ -362,22 +284,10 @@
 </div>
 
 <div id="grid">
-    <div id="graph">
-        <Graph
-            {repo}
-            bind:this={graph}
-            on:clickNode={clickNode}
-            on:dragToNode={dragToNode}
-        />
-    </div>
-    <div id="cards">
-        <Cards
-            on:clickFile={clickFile}
-            on:drag={cardDrag}
-            on:endTurn={endTurn}
-            {index}
-            {workingDirectory}
-        />
+    <div id="repos">
+        {#each repos as repo}
+            <RepositorySvelte {repo} />
+        {/each}
     </div>
     <div id="log">
         <Achievements tracker={achievementTracker} />
@@ -401,7 +311,7 @@
         grid-template-columns: 2fr 1fr 1fr;
         grid-template-rows: 2fr 1fr;
         grid-template-areas:
-            "graph cards log"
+            "repos repos log"
             "hand hand screen";
         height: 100%;
         background: lightgreen;
@@ -415,28 +325,16 @@
         z-index: 999;
     }
 
-    #graph {
-        grid-area: graph;
-        flex: 1;
-        overflow: auto;
-    }
-
-    #cards {
-        grid-area: cards;
-        overflow: auto;
-    }
-
     #screen {
         grid-area: screen;
         font-family: Iosevka;
     }
 
-    #log {
-        grid-area: log;
-    }
-
-    #hand {
-        grid-area: hand;
+    #repos {
+        grid-area: repos;
+        display: flex;
+        flex-direction: column;
+        background: #ffe6c4;
     }
 
     #log,

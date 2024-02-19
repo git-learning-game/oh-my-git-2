@@ -241,6 +241,9 @@ export class Repository {
 
         this.timings = {}
 
+        console.log(`cd ${this.path}`)
+        await this.terminal.run(`cd ${this.path}`)
+
         await this.time("refs", async () => await this.updateRefs())
         await this.time("objects", async () => await this.updateGitObjects())
         await this.time(

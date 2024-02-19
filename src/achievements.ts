@@ -219,14 +219,11 @@ export function getAchievements() {
                         .map((r) => r.target),
                 )
 
-                console.log(bTags)
-
                 let aTags = uniq(
                     Object.values(a.refs)
                         .filter((r) => r.name.startsWith("refs/tags/"))
                         .map((r) => r.target),
                 )
-                console.log(aTags)
 
                 // Find all tags that are in a but not in b.
                 let newTags = aTags.filter((t) => !bTags.includes(t))
