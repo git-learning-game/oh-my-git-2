@@ -69,7 +69,7 @@ export class Graph {
             .force(
                 "center",
                 d3.forceCenter(width / 2, height / 2).strength(0.2),
-            )
+            ) /*
             .force(
                 "x",
                 d3
@@ -99,7 +99,7 @@ export class Graph {
                             return 0
                         }
                     }),
-            )
+            )*/
             .force("cx", d3.forceX(width / 2).strength(0.01))
             .force("cy", d3.forceY(height / 2).strength(0.01))
             /*.force(
@@ -182,14 +182,16 @@ export class Graph {
 
     update(): void {
         //const old = new Map(this.nodeGroup.data().map((d) => [d.id(), d]))
-        let nodes: GitNode[] = Object.values(this.repo.objects)
+        let nodes: GitNode[] = Object.values(this.repo.objects).filter(
+            (o: GitNode) => o instanceof GitCommit || o instanceof GitRef,
+        )
         /*this.nodes = this.nodes.map((d) =>
             Object.assign(old.get(d.id()) || {}, d),
         )*/
         nodes = nodes.concat(Object.values(this.repo.refs))
-        nodes = nodes.concat(Object.values(this.repo.files))
-        nodes.push(this.repo.index)
-        nodes.push(this.repo.workingDirectory)
+        //nodes = nodes.concat(Object.values(this.repo.files))
+        //nodes.push(this.repo.index)
+        //nodes.push(this.repo.workingDirectory)
 
         this.simulation.nodes(nodes).alphaTarget(0.3)
 
@@ -220,12 +222,12 @@ export class Graph {
                 for (let parent of (node as GitCommit).parents) {
                     tryAddLink(node.id(), parent)
                 }
-                tryAddLink(node.id(), (node as GitCommit).tree)
-            } else if (node instanceof GitTree) {
+                //tryAddLink(node.id(), (node as GitCommit).tree)
+            } /* else if (node instanceof GitTree) {
                 for (let entry of (node as GitTree).entries) {
                     tryAddLink(node.id(), entry.oid, entry.name)
                 }
-            } else if (node instanceof GitRef) {
+            }*/ else if (node instanceof GitRef) {
                 let target = this.repo.resolve((node as GitRef).target)
                 if (target !== undefined) {
                     tryAddLink(node.id(), (node as GitRef).target)
@@ -233,7 +235,7 @@ export class Graph {
             }
         }
 
-        for (let entry of this.repo.index.entries) {
+        /*for (let entry of this.repo.index.entries) {
             tryAddLink(
                 this.repo.index.id(),
                 entry.oid,
@@ -247,7 +249,7 @@ export class Graph {
                 entry.oid || entry.name,
                 entry.name,
             )
-        }
+        }*/
 
         //links = links.map((d) => Object.assign({}, d))
 
