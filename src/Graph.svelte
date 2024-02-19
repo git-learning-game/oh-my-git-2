@@ -1,12 +1,28 @@
 <script lang="ts">
+    import {onMount} from "svelte"
+
     import {Repository} from "./repository.ts"
     import {Graph} from "./graph.ts"
 
-    let repo: Repository
+    export let repo: Repository = null
 
     let graphDiv: HTMLDivElement
 
     let graph: Graph
+
+    function createGraphIfPossible() {
+        console.log("create graph if possible")
+        console.log({repo, graph})
+        if (!graph && repo) {
+            console.log("create graph")
+            graph = new Graph(repo, graphDiv)
+            graph.update()
+        }
+    }
+
+    $: if (repo && graphDiv) {
+        createGraphIfPossible()
+    }
 
     export const setRepo = (newRepo: Repository) => {
         console.log("set repo")
@@ -22,10 +38,15 @@
         }
     }
 
-    export let refreshing = true
+    export let refreshing = false
     export const setRefreshing = (newRefreshing: boolean) => {
         refreshing = newRefreshing
     }
+
+    onMount(() => {
+        console.log("on mount")
+        createGraphIfPossible()
+    })
 </script>
 
 <div id="graph" bind:this={graphDiv}>

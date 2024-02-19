@@ -44,14 +44,14 @@
 
     let achievementTracker = new AchievementTracker(achievementCompleted)
     for (let achievement of Object.values(getAchievements())) {
-        achievementTracker.add(achievement, 3)
+        achievementTracker.add(achievement, 1)
     }
 
     let points = 0
 
     function achievementCompleted(achievement: Achievement) {
         updateAchievementVisibility()
-        popup(`🏆 You completed an achievement: ${achievement.description}`)
+        //popup(`🏆 You completed an achievement: ${achievement.description}`)
     }
 
     function hasActiveAchievement(): boolean {
@@ -106,7 +106,7 @@
         // TODO: Not actually hidden anymore.
         battle.onHiddenCommand(runCommand)
 
-        graph.setRepo(repo)
+        //graph.setRepo(repo)
 
         //await battle.devSetup()
     })
