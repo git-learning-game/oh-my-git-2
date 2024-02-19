@@ -317,11 +317,7 @@ export class Graph {
                         .attr("height", 1000)
                         .append("xhtml:p")
                         .text((d) => {
-                            if (d instanceof GitCommit) {
-                                return this.buildCommitTooltip(d)
-                            } else {
-                                return d.tooltip
-                            }
+                            return d.tooltip
                         })
                         .style("color", "black")
                         .style("white-space", "pre")
@@ -389,25 +385,5 @@ export class Graph {
         )
 
         this.simulation.alpha(0.3).restart()
-    }
-
-    buildCommitTooltip(commit: GitCommit): string {
-        let lines = []
-        // 1. find tree object
-        let tree = this.repo.resolve(commit.tree)
-        if (tree !== undefined) {
-            // 2. iterate through entries
-            for (let entry of (tree as GitTree).entries) {
-                let blob = this.repo.resolve(entry.oid)
-                if (blob !== undefined) {
-                    let content = (blob as GitBlob).content
-                    let yaml = YAML.parse(content)
-                    lines.push(
-                        `${entry.name}: ${yaml.name} (${yaml.attack}/${yaml.health})`,
-                    )
-                }
-            }
-        }
-        return lines.join("\n")
     }
 }
