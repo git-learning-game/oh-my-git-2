@@ -10,6 +10,9 @@
 
     let graph: Graph
 
+    let showTreesAndBlobs = false
+    let showIndexAndWD = false
+
     function createGraphIfPossible() {
         console.log("create graph if possible")
         console.log({repo, graph})
@@ -22,6 +25,16 @@
 
     $: if (repo && graphDiv) {
         createGraphIfPossible()
+    }
+
+    $: if (graph) {
+        if (showIndexAndWD) {
+            showTreesAndBlobs = true
+        }
+
+        graph.options.showTreesAndBlobs = showTreesAndBlobs
+        graph.options.showIndexAndWD = showIndexAndWD
+        update()
     }
 
     export const setRepo = (newRepo: Repository) => {
@@ -53,6 +66,16 @@
     {#if refreshing}
         <div id="refreshing">Refreshing...</div>
     {/if}
+    <div id="options">
+        <label>
+            <input type="checkbox" bind:checked={showTreesAndBlobs} />
+            Trees & blobs
+        </label>
+        <label>
+            <input type="checkbox" bind:checked={showIndexAndWD} />
+            Index & working directory
+        </label>
+    </div>
 </div>
 
 <style>
@@ -72,5 +95,17 @@
         border-radius: 1em;
         background-color: rgba(0, 0, 0, 0.5);
         color: white;
+    }
+    #options {
+        position: absolute;
+        right: 1em;
+        top: 1em;
+        padding: 1em;
+        border-radius: 1em;
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+    }
+    #options label {
+        display: block;
     }
 </style>

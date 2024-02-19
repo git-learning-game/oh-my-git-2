@@ -11,11 +11,15 @@ import {
 } from "./repository"
 
 import * as d3 from "d3"
-import * as YAML from "yaml"
 
 export class Graph {
     repo: Repository
     div: HTMLDivElement
+
+    public options = {
+        showTreesAndBlobs: false,
+        showIndexAndWD: false,
+    }
 
     simulation: d3.Simulation<
         d3.SimulationNodeDatum,
@@ -100,8 +104,8 @@ export class Graph {
                         }
                     }),
             )*/
-            .force("cx", d3.forceX(width / 2).strength(0.01))
-            .force("cy", d3.forceY(height / 2).strength(0.01))
+            //.force("cx", d3.forceX(width / 2).strength(0.01))
+            //.force("cy", d3.forceY(height / 2).strength(0.01))
             /*.force(
                 "commit-y",
                 d3.forceY(height / 2).strength((d) => {
@@ -182,16 +186,23 @@ export class Graph {
 
     update(): void {
         //const old = new Map(this.nodeGroup.data().map((d) => [d.id(), d]))
-        let nodes: GitNode[] = Object.values(this.repo.objects).filter(
-            (o: GitNode) => o instanceof GitCommit || o instanceof GitRef,
-        )
+        let nodes: GitNode[] = Object.values(this.repo.objects)
+
+        if (!this.options.showTreesAndBlobs) {
+            nodes = nodes.filter(
+                (o: GitNode) => o instanceof GitCommit || o instanceof GitRef,
+            )
+        }
+
         /*this.nodes = this.nodes.map((d) =>
             Object.assign(old.get(d.id()) || {}, d),
         )*/
         nodes = nodes.concat(Object.values(this.repo.refs))
-        //nodes = nodes.concat(Object.values(this.repo.files))
-        //nodes.push(this.repo.index)
-        //nodes.push(this.repo.workingDirectory)
+        if (this.options.showIndexAndWD) {
+            nodes = nodes.concat(Object.values(this.repo.files))
+            nodes.push(this.repo.index)
+            nodes.push(this.repo.workingDirectory)
+        }
 
         this.simulation.nodes(nodes).alphaTarget(0.3)
 
@@ -222,34 +233,41 @@ export class Graph {
                 for (let parent of (node as GitCommit).parents) {
                     tryAddLink(node.id(), parent)
                 }
-                //tryAddLink(node.id(), (node as GitCommit).tree)
-            } /* else if (node instanceof GitTree) {
-                for (let entry of (node as GitTree).entries) {
-                    tryAddLink(node.id(), entry.oid, entry.name)
+                if (this.options.showTreesAndBlobs) {
+                    tryAddLink(node.id(), (node as GitCommit).tree)
                 }
-            }*/ else if (node instanceof GitRef) {
+            } else if (node instanceof GitRef) {
                 let target = this.repo.resolve((node as GitRef).target)
                 if (target !== undefined) {
                     tryAddLink(node.id(), (node as GitRef).target)
                 }
             }
+            if (this.options.showTreesAndBlobs) {
+                if (node instanceof GitTree) {
+                    for (let entry of (node as GitTree).entries) {
+                        tryAddLink(node.id(), entry.oid, entry.name)
+                    }
+                }
+            }
         }
 
-        /*for (let entry of this.repo.index.entries) {
-            tryAddLink(
-                this.repo.index.id(),
-                entry.oid,
-                entry.name + (entry.stage > 0 ? ` (${entry.stage})` : ""),
-            )
-        }
+        if (this.options.showIndexAndWD) {
+            for (let entry of this.repo.index.entries) {
+                tryAddLink(
+                    this.repo.index.id(),
+                    entry.oid,
+                    entry.name + (entry.stage > 0 ? ` (${entry.stage})` : ""),
+                )
+            }
 
-        for (let entry of this.repo.workingDirectory.entries) {
-            tryAddLink(
-                this.repo.workingDirectory.id(),
-                entry.oid || entry.name,
-                entry.name,
-            )
-        }*/
+            for (let entry of this.repo.workingDirectory.entries) {
+                tryAddLink(
+                    this.repo.workingDirectory.id(),
+                    entry.oid || entry.name,
+                    entry.name,
+                )
+            }
+        }
 
         //links = links.map((d) => Object.assign({}, d))
 
