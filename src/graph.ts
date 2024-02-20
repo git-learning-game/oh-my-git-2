@@ -223,9 +223,8 @@ export class Graph {
             }
             let target = this.repo.resolve(targetID)
             if (target === undefined) {
-                throw new Error(
-                    `Link target with id ${targetID} not found in repo`,
-                )
+                //throw new Error(`Link target with id ${targetID} not found in repo`)
+                return
             }
             links.push({source, target, label})
         }

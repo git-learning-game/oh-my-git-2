@@ -72,10 +72,14 @@
         for (let entry of repo.index.entries) {
             let blob = repo.objects[entry.oid]
             let content = ""
+            console.log("blob is", blob)
             if (blob instanceof GitBlob) {
                 content = blob.content
             } else {
-                throw new Error("Requested OID is not a blob")
+                content = `(object ${entry.oid.substr(
+                    0,
+                    4,
+                )} not found in current repo)`
             }
             index.push(new TextFile(entry.name, content))
         }
