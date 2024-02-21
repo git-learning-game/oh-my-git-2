@@ -87,6 +87,15 @@
             "echo hi > fu",
             "git add .",
             "git commit -m 'Initial commit'",
+            //"git config --global protocol.file.allow always",
+            //`cd ${remoteRepoPath}`,
+            //"echo hehe > bar",
+            //"git add .",
+            //"git commit -m 'Initial commit in submodule'",
+            //`cd ${repoPath}`,
+            //`git submodule add ${remoteRepoPath}`,
+            //"git add .",
+            //"git commit -m 'Add submodule'",
         ])
 
         repos = repos

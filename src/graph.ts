@@ -6,6 +6,7 @@ import {
     GitBlob,
     GitRef,
     GitIndex,
+    GitObject,
     WorkingDirectory,
     UnAddedFile,
 } from "./repository"
@@ -15,6 +16,7 @@ import * as d3 from "d3"
 export class Graph {
     repo: Repository
     div: HTMLDivElement
+    ufos: {[oid: string]: GitObject} = {}
 
     public options = {
         showTreesAndBlobs: false,
@@ -206,8 +208,6 @@ export class Graph {
 
         console.log("nodes", nodes)
 
-        this.simulation.nodes(nodes).alphaTarget(0.3)
-
         let links: {source: GitNode; target: GitNode; label?: string}[] = []
 
         let tryAddLink = (
@@ -224,9 +224,15 @@ export class Graph {
             let target = this.repo.resolve(targetID)
             if (target === undefined) {
                 //throw new Error(`Link target with id ${targetID} not found in repo`)
-                return
+                let ufo = this.getOrCreateUFO(targetID)
+                //let ufo = this.repo.resolve("HEAD")
+                if (ufo !== undefined) {
+                    nodes.push(ufo)
+                    links.push({source, target: ufo, label})
+                }
+            } else {
+                links.push({source, target, label})
             }
-            links.push({source, target, label})
         }
 
         for (let node of nodes) {
@@ -269,6 +275,8 @@ export class Graph {
                 )
             }
         }
+
+        this.simulation.nodes(nodes).alphaTarget(0.3)
 
         //links = links.map((d) => Object.assign({}, d))
 
@@ -406,5 +414,15 @@ export class Graph {
         )
 
         this.simulation.alpha(0.3).restart()
+    }
+
+    getOrCreateUFO(oid: string): GitObject {
+        let ufo = this.ufos[oid]
+        if (ufo === undefined) {
+            ufo = new GitObject(oid)
+            ufo.label = oid.substring(0, 4)
+            this.ufos[oid] = ufo
+        }
+        return ufo
     }
 }
