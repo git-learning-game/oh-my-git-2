@@ -29,12 +29,11 @@
     }
 
     function enable() {
-        //terminal.setKeyboardActive(true)
-        ;(document.activeElement as HTMLElement).blur()
+        terminal.focus(true)
     }
 
     function disable() {
-        //terminal.setKeyboardActive(false)
+        terminal.focus(false)
     }
 </script>
 
