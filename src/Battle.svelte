@@ -7,6 +7,7 @@
     import StateIndicator from "./StateIndicator.svelte"
     import Achievements from "./Achievements.svelte"
     import RepositorySvelte from "./Repository.svelte"
+    import RepoAdder from "./RepoAdder.svelte"
 
     import {Terminal} from "linux-browser-shell"
     import {Repository, GitBlob} from "./repository.ts"
@@ -80,13 +81,15 @@
 
         repos = []
         await createRepo(repoPath)
-        await createRepo(remoteRepoPath)
+        await createRepo(remoteRepoPath, true)
 
         await backgroundTerminal.script([
             `cd ${repoPath}`,
             "echo hi > fu",
             "git add .",
             "git commit -m 'Initial commit'",
+            `git remote add origin ${remoteRepoPath}`,
+            "git push -u origin main",
             //"git config --global protocol.file.allow always",
             //`cd ${remoteRepoPath}`,
             //"echo hehe > bar",
@@ -275,15 +278,32 @@
         }
     }
 
-    async function createRepo(path: string) {
+    async function createRepo(path: string, bare = false) {
         console.log(`creating repo at ${path}`)
         await backgroundTerminal.script([
             `rm -rf ${path}`,
             `mkdir -p ${path}`,
             `cd ${path}`,
-            "git init",
         ])
-        repos.push(new Repository(path, backgroundTerminal))
+
+        if (bare) {
+            await backgroundTerminal.run("git init --bare")
+        } else {
+            await backgroundTerminal.run("git init")
+        }
+
+        repos.push(new Repository(path, backgroundTerminal, bare))
+        repos = repos
+    }
+
+    function addRepo(e: CustomEvent) {
+        let path = e.detail.path
+        let bare = e.detail.bare
+        createRepo(path, bare)
+    }
+
+    function deleteRepo(e: CustomEvent) {
+        repos = repos.filter((r) => r !== e.detail)
         repos = repos
     }
 </script>
@@ -295,8 +315,9 @@
 <div id="grid">
     <div id="repos">
         {#each repos as repo}
-            <RepositorySvelte {repo} />
+            <RepositorySvelte {repo} on:deleteRepo={deleteRepo} />
         {/each}
+        <RepoAdder on:addRepo={addRepo} />
     </div>
     <div id="log">
         <Achievements tracker={achievementTracker} />

@@ -169,7 +169,11 @@ export class Repository {
     private allNodes: string[] = []
     private timings: {[key: string]: number} = {}
 
-    constructor(path: string, terminal: Terminal) {
+    constructor(
+        path: string,
+        terminal: Terminal,
+        public bare = false,
+    ) {
         this.path = path
         this.terminal = terminal
 
@@ -250,8 +254,14 @@ export class Repository {
             "specialrefs",
             async () => await this.updateSpecialRefs(),
         )
-        await this.time("index", async () => await this.updateIndex())
-        await this.time("wd", async () => await this.updateWorkingDirectory())
+
+        if (!this.bare) {
+            await this.time("index", async () => await this.updateIndex())
+            await this.time(
+                "wd",
+                async () => await this.updateWorkingDirectory(),
+            )
+        }
         //await this.time("reflog", async () => await this.updateReflogs())
 
         for (let t in this.timings) {

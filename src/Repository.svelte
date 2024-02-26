@@ -1,5 +1,7 @@
 <script lang="ts">
     import {onMount} from "svelte"
+    import {createEventDispatcher} from "svelte"
+    const dispatch = createEventDispatcher()
 
     import Graph from "./Graph.svelte"
     import Cards from "./Cards.svelte"
@@ -94,6 +96,9 @@
     </div>
     <div id="cards">
         <Cards {index} {workingDirectory} />
+    </div>
+    <div id="delete">
+        <button on:click={() => dispatch("deleteRepo", repo)}>❌</button>
     </div>
 </div>
 
