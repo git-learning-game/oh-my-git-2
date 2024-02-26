@@ -71,10 +71,12 @@
             <input type="checkbox" bind:checked={showTreesAndBlobs} />
             Trees & blobs
         </label>
-        <label>
-            <input type="checkbox" bind:checked={showIndexAndWD} />
-            Index & working directory
-        </label>
+        {#if !repo.bare}
+            <label>
+                <input type="checkbox" bind:checked={showIndexAndWD} />
+                Index & working directory
+            </label>
+        {/if}
     </div>
 </div>
 

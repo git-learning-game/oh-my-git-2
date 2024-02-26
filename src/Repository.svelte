@@ -90,7 +90,10 @@
 </script>
 
 <div id="wrapper">
-    <div id="name">{repo.path}</div>
+    <div id="name">
+        {repo.path}
+        {#if repo.bare}(bare){/if}
+    </div>
     <div id="graph">
         <Graph {repo} bind:this={graph} />
     </div>
