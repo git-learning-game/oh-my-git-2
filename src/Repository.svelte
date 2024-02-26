@@ -97,9 +97,11 @@
     <div id="graph">
         <Graph {repo} bind:this={graph} />
     </div>
-    <div id="cards">
-        <Cards {index} {workingDirectory} />
-    </div>
+    {#if !repo.bare}
+        <div id="cards">
+            <Cards {index} {workingDirectory} />
+        </div>
+    {/if}
     <div id="delete">
         <button on:click={() => dispatch("deleteRepo", repo)}>❌</button>
     </div>
@@ -107,13 +109,22 @@
 
 <style>
     #wrapper {
+        flex: 1;
         display: flex;
         position: relative;
+        min-width: 0;
+        overflow: hidden;
+        background: #ffe6c4;
     }
     #graph {
         flex: 1;
+        overflow: hidden;
+        display: flex;
     }
-
+    :global(#graph svg) {
+        height: 100%;
+        width: 100%;
+    }
     #cards {
         flex: 0.5;
     }
@@ -121,5 +132,10 @@
         position: absolute;
         top: 5px;
         left: 5px;
+    }
+    #delete {
+        position: absolute;
+        top: 5px;
+        right: 5px;
     }
 </style>

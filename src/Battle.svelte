@@ -325,9 +325,9 @@
     <div id="screen">
         <TerminalSvelte terminal={foregroundTerminal} />
     </div>
-    <div id="hand">
+    <!--<div id="hand">
         <Hand on:endTurn={endTurn} {battle} {points} on:playCard={playCard} />
-    </div>
+    </div>-->
 </div>
 
 <style>
@@ -337,14 +337,15 @@
     }
 
     #grid {
+        flex: 1;
         display: grid;
         grid-template-columns: 2fr 1fr 1fr;
         grid-template-rows: 2fr 1fr;
         grid-template-areas:
             "repos repos log"
-            "hand hand screen";
-        height: 100%;
+            "repos repos screen";
         background: lightgreen;
+        overflow: hidden;
     }
 
     #state {
@@ -363,8 +364,10 @@
     #repos {
         grid-area: repos;
         display: flex;
+        gap: 2px;
         flex-direction: column;
-        background: #ffe6c4;
+        overflow: hidden;
+        background: black;
     }
 
     #log,

@@ -7,7 +7,12 @@
     let bare = false
 
     function add() {
-        dispatch("addRepo", {path: `/tmp/${path}`, bare})
+        let goodPath = path.trim()
+        if (goodPath === "") {
+            // random string, 4 symbols
+            goodPath = Math.random().toString(36).substring(2, 6)
+        }
+        dispatch("addRepo", {path: `/tmp/${goodPath}`, bare})
         path = ""
     }
 
@@ -22,7 +27,7 @@
     /tmp/<input
         type="text"
         bind:value={path}
-        placeholder="Path"
+        placeholder="name (optional)"
         on:keydown={keydown}
     />
     <input type="checkbox" bind:checked={bare} />bare?
@@ -33,5 +38,6 @@
     #wrapper {
         display: flex;
         gap: 0.5em;
+        background: #ffe6c4;
     }
 </style>
