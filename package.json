@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "type": "module",
     "scripts": {
-        "dev": "lingui compile --typescript; vite",
+        "dev": "lingui compile --typescript; vite --force",
         "build": "vite build",
         "serve": "vite preview",
         "test": "vitest --browser='chrome'",

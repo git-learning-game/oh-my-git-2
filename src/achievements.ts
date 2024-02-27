@@ -42,7 +42,7 @@ export function getAchievements() {
             },
             [CardID.Remove],
         ),
-        COPY_FILE: new Achievement(
+        /*COPY_FILE: new Achievement(
             "Make copies of files",
             (b: Repository, a: Repository) => {
                 // Strategy: count how many files have identical copies in the working directory. In the after state, there must be more copies of identical content than before.
@@ -283,6 +283,7 @@ export function getAchievements() {
             },
             [CardID.Joker],
         ),
+        */
     }
 }
 
@@ -373,6 +374,15 @@ export class AchievementTracker {
             _,
         ) => {},
     ) {}
+
+    isComplete(): boolean {
+        for (let achievement of this.achievementProgresses) {
+            if (achievement.progress < achievement.target) {
+                return false
+            }
+        }
+        return true
+    }
 
     add(achievement: Achievement, target: number) {
         if (achievement === undefined) {
