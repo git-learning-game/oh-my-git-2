@@ -60,14 +60,22 @@
         padding: 1em;
         display: flex;
         flex-direction: row-reverse;
-        align-items: center;
-        justify-content: center;
         gap: 1em;
+        overflow: scroll;
+        flex: 1;
+        border: 2px solid yellow;
+    }
+    .group {
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
     }
     .cards {
+        flex: 1;
         display: flex;
         flex-direction: column;
         gap: 1em;
+        overflow-y: auto;
     }
     .column-title {
         font-weight: bold;

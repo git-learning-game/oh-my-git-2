@@ -1,10 +1,17 @@
 <script lang="ts">
     export let name: string
     export let content: string
+
+    let fontSize = 150
+    if (content.length > 30) {
+        fontSize = 80
+    } else if (content.length > 20) {
+        fontSize = 100
+    }
 </script>
 
 <div id="wrapper" on:click>
-    <div id="content">{content}</div>
+    <div id="content" style="--font-size: {fontSize}%">{content}</div>
     <div id="name">{name}</div>
 </div>
 
@@ -27,7 +34,7 @@
         background-color: #f0f0f0;
         flex: 1;
         display: flex;
-        font-size: 1.5em;
+        font-size: var(--font-size);
         font-family: var(--code-font);
         white-space: pre-wrap;
         color: black;

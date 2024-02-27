@@ -118,7 +118,8 @@
         width: 100%;
     }
     #cards {
-        flex: 0.5;
+        border: 2px solid red;
+        display: flex;
     }
     #name {
         position: absolute;
