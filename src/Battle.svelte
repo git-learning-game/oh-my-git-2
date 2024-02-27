@@ -349,6 +349,12 @@
                 {repo}
                 on:deleteRepo={deleteRepo}
                 on:edited={(e) => edited(e, repo)}
+                on:swapDir={(e) => {
+                    foregroundTerminal.send(`cd ${e.detail}\n`)
+                }}
+                on:clickNode={(e) => {
+                    foregroundTerminal.send(e.detail)
+                }}
             />
         {/each}
         <RepoAdder on:addRepo={addRepoEvent} />

@@ -3,6 +3,8 @@
 
     import {Repository} from "./repository.ts"
     import {Graph} from "./graph.ts"
+    import {createEventDispatcher} from "svelte"
+    const dispatch = createEventDispatcher()
 
     export let repo: Repository = null
 
@@ -17,6 +19,9 @@
         if (!graph && repo) {
             graph = new Graph(repo, graphDiv)
             graph.update()
+            graph.onClickNode = function (id) {
+                dispatch("clickNode", id)
+            }
         }
     }
 

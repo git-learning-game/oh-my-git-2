@@ -82,12 +82,17 @@
 </script>
 
 <div id="wrapper">
-    <div id="name">
+    <div
+        id="name"
+        on:click={() => {
+            dispatch("swapDir", repo.path)
+        }}
+    >
         {repo.path}
         {#if repo.bare}(bare){/if}
     </div>
     <div id="graph">
-        <Graph {repo} bind:this={graph} />
+        <Graph {repo} bind:this={graph} on:clickNode />
     </div>
     {#if !repo.bare}
         <div id="cards">
@@ -124,6 +129,8 @@
         position: absolute;
         top: 5px;
         left: 5px;
+        z-index: 10;
+        cursor: pointer;
     }
     #delete {
         position: absolute;
