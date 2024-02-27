@@ -80,26 +80,35 @@
         const remoteRepoPath = "/tmp/remote"
 
         repos = []
-        await createRepo(repoPath)
-        await createRepo(remoteRepoPath, true)
+        await addRepo(repoPath)
+        //await createRepo(remoteRepoPath, true)
+        await addRepo(remoteRepoPath)
+        //await createRepo(remoteRepoPath)
+        //await createRepo(remoteRepoPath)
 
         await backgroundTerminal.script([
             `cd ${repoPath}`,
+            "git init",
             "echo hi > fu",
             "git add .",
             "git commit -m 'Initial commit'",
-            `git remote add origin ${remoteRepoPath}`,
-            "git push -u origin main",
-            //"git config --global protocol.file.allow always",
-            //`cd ${remoteRepoPath}`,
-            //"echo hehe > bar",
-            //"git add .",
-            //"git commit -m 'Initial commit in submodule'",
-            //`cd ${repoPath}`,
-            //`git submodule add ${remoteRepoPath}`,
-            //"git add .",
-            //"git commit -m 'Add submodule'",
+
+            //`git remote add origin ${remoteRepoPath}`,
+            //"git push -u origin main",
+
+            "git config --global protocol.file.allow always",
+            `cd ${remoteRepoPath}`,
+            "git init",
+            "echo hehe > bar",
+            "git add .",
+            "git commit -m 'Initial commit in submodule'",
+            `cd ${repoPath}`,
+            `git submodule add ${remoteRepoPath}`,
+            "git add .",
+            "git commit -m 'Add submodule'",
         ])
+
+        await addRepo(remoteRepoPath + "/.git/modules/remote", true)
 
         repos = repos
 
@@ -278,28 +287,31 @@
         }
     }
 
-    async function createRepo(path: string, bare = false) {
+    async function addRepo(path: string, bare = false, init = true) {
         console.log(`creating repo at ${path}`)
         await backgroundTerminal.script([
-            `rm -rf ${path}`,
+            //`rm -rf ${path}`,
             `mkdir -p ${path}`,
-            `cd ${path}`,
         ])
 
-        if (bare) {
-            await backgroundTerminal.run("git init --bare")
-        } else {
-            await backgroundTerminal.run("git init")
+        if (init) {
+            await backgroundTerminal.run(`cd ${path}`)
+            if (bare) {
+                await backgroundTerminal.run("git init --bare")
+            } else {
+                await backgroundTerminal.run("git init")
+            }
         }
 
         repos.push(new Repository(path, backgroundTerminal, bare))
         repos = repos
     }
 
-    function addRepo(e: CustomEvent) {
+    function addRepoEvent(e: CustomEvent) {
         let path = e.detail.path
         let bare = e.detail.bare
-        createRepo(path, bare)
+        let init = e.detail.init
+        addRepo(path, bare, init)
     }
 
     function deleteRepo(e: CustomEvent) {
@@ -317,7 +329,7 @@
         {#each repos as repo}
             <RepositorySvelte {repo} on:deleteRepo={deleteRepo} />
         {/each}
-        <RepoAdder on:addRepo={addRepo} />
+        <RepoAdder on:addRepo={addRepoEvent} />
     </div>
     <div id="log">
         <Achievements tracker={achievementTracker} />
@@ -339,7 +351,7 @@
     #grid {
         flex: 1;
         display: grid;
-        grid-template-columns: 2fr 1fr 1fr;
+        grid-template-columns: 2fr 1fr 30em;
         grid-template-rows: 2fr 1fr;
         grid-template-areas:
             "repos repos log"

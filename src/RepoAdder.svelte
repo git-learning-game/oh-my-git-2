@@ -5,6 +5,7 @@
 
     let path = ""
     let bare = false
+    let init = true
 
     function add() {
         let goodPath = path.trim()
@@ -12,7 +13,7 @@
             // random string, 4 symbols
             goodPath = Math.random().toString(36).substring(2, 6)
         }
-        dispatch("addRepo", {path: `/tmp/${goodPath}`, bare})
+        dispatch("addRepo", {path: `/tmp/${goodPath}`, bare, init})
         path = ""
     }
 
@@ -31,6 +32,7 @@
         on:keydown={keydown}
     />
     <input type="checkbox" bind:checked={bare} />bare?
+    <input type="checkbox" bind:checked={init} />initialize?
     <button on:click={add}>Add</button>
 </div>
 

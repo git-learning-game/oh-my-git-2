@@ -206,8 +206,6 @@ export class Graph {
             nodes.push(this.repo.workingDirectory)
         }
 
-        console.log("nodes", nodes)
-
         let links: {source: GitNode; target: GitNode; label?: string}[] = []
 
         let tryAddLink = (
@@ -326,7 +324,6 @@ export class Graph {
                     })
 
                     g.on("click", (_, d) => {
-                        console.log("ref click")
                         this.onClickNode(d.id())
                     })
 

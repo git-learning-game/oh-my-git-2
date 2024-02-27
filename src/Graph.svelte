@@ -14,10 +14,7 @@
     let showIndexAndWD = false
 
     function createGraphIfPossible() {
-        console.log("create graph if possible")
-        console.log({repo, graph})
         if (!graph && repo) {
-            console.log("create graph")
             graph = new Graph(repo, graphDiv)
             graph.update()
         }
@@ -38,7 +35,6 @@
     }
 
     export const setRepo = (newRepo: Repository) => {
-        console.log("set repo")
         repo = newRepo
         graph = new Graph(repo, graphDiv)
         update()
@@ -46,7 +42,6 @@
 
     export const update = () => {
         if (graph) {
-            console.log("update")
             graph.update()
         }
     }
@@ -57,7 +52,6 @@
     }
 
     onMount(() => {
-        console.log("on mount")
         createGraphIfPossible()
     })
 </script>

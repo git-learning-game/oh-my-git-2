@@ -24,21 +24,17 @@
     }
 
     async function update() {
-        console.log("updating")
         graph.update()
         updateFiles()
     }
 
     /*async function update() {
-        console.log("update begin")
         if (graph) {
             graph.setRefreshing(true)
         }
 
         await repo.update()
         graph.update()
-
-        console.log("repo update done, updating achievments")
 
         updateFiles()
 
@@ -50,11 +46,9 @@
     }*/
 
     function updateFiles() {
-        console.log(repo)
         workingDirectory = []
         for (let entry of repo.workingDirectory.entries) {
             let content = ""
-            console.log(entry)
             if (entry.oid) {
                 let blob = repo.objects[entry.oid]
                 if (blob instanceof GitBlob) {
@@ -65,7 +59,6 @@
             } else {
                 content = repo.files[entry.name].content
             }
-            console.log("content", content)
             workingDirectory.push(new TextFile(entry.name, content))
         }
         workingDirectory.sort((a, b) => a.name.localeCompare(b.name))
@@ -74,7 +67,6 @@
         for (let entry of repo.index.entries) {
             let blob = repo.objects[entry.oid]
             let content = ""
-            console.log("blob is", blob)
             if (blob instanceof GitBlob) {
                 content = blob.content
             } else {

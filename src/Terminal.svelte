@@ -10,6 +10,7 @@
 
     $: if (terminal && terminalDiv) {
         //terminal.setKeyboardActive(false)
+        console.log("Attaching terminal")
         terminal.attach(terminalDiv)
         let width = Math.min(Math.floor(terminalDiv.clientWidth / 27.2), 25)
         let height =

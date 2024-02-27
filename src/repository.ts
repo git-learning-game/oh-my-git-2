@@ -248,6 +248,10 @@ export class Repository {
         console.log(`cd ${this.path}`)
         await this.terminal.run(`cd ${this.path}`)
 
+        //if (!(await this.isAGitRepo())) {
+        //    return
+        //}
+
         await this.time("refs", async () => await this.updateRefs())
         await this.time("objects", async () => await this.updateGitObjects())
         await this.time(
@@ -269,7 +273,11 @@ export class Repository {
         }
 
         this.removeDeletedNodes()
+
+        console.log("just updated", this)
     }
+
+    //async isAGitRepo(): Promise<boolean> {}
 
     removeDeletedNodes(): void {
         for (let o in this.objects) {
@@ -435,6 +443,12 @@ export class Repository {
         for (let line of lines) {
             let [oid, type] = line.split(" ")
             if (oid && type) {
+                if (oid === "warning:") {
+                    // Special case: When we're in a submodule like my-repo/.git/modules/foo,
+                    // Git will say "warning: core.bare and core.worktree do not make sense"
+                    // That's okay. It *does* make sense, and we can ignore this warning.
+                    continue
+                }
                 this.allNodes.push(oid)
                 if (!this.objects[oid]) {
                     let content = await this.getGitObjectContent(oid)
