@@ -320,6 +320,14 @@
         repos = repos.filter((r) => r !== e.detail)
         repos = repos
     }
+
+    async function edited(e: CustomEvent, repo: Repository) {
+        console.log({e, repo})
+        let fileName = repo.path + "/" + e.detail.name
+        let content = e.detail.content
+        await backgroundTerminal.putFile(fileName, content.split("\n"))
+        updateACoupleOfTimes()
+    }
 </script>
 
 <div id="state">
@@ -337,7 +345,11 @@
 <div id="grid">
     <div id="repos">
         {#each repos as repo}
-            <RepositorySvelte {repo} on:deleteRepo={deleteRepo} />
+            <RepositorySvelte
+                {repo}
+                on:deleteRepo={deleteRepo}
+                on:edited={(e) => edited(e, repo)}
+            />
         {/each}
         <RepoAdder on:addRepo={addRepoEvent} />
     </div>

@@ -91,7 +91,7 @@
     </div>
     {#if !repo.bare}
         <div id="cards">
-            <Cards {index} {workingDirectory} />
+            <Cards {index} {workingDirectory} on:edited />
         </div>
     {/if}
     <div id="delete">
@@ -118,7 +118,6 @@
         width: 100%;
     }
     #cards {
-        border: 2px solid red;
         display: flex;
     }
     #name {

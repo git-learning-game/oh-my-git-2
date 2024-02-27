@@ -31,9 +31,11 @@
                 <FileSvelte
                     name={file.name}
                     content={file.content}
+                    editable={true}
                     on:dragover={(e) => e.preventDefault()}
                     on:drop={(e) => drop(e, file)}
                     on:click={(e) => clickFile(e, file)}
+                    on:edited
                 />
             {/each}
         </div>
@@ -63,7 +65,6 @@
         gap: 1em;
         overflow: scroll;
         flex: 1;
-        border: 2px solid yellow;
     }
     .group {
         overflow: hidden;
