@@ -8,6 +8,7 @@
     import Achievements from "./Achievements.svelte"
     import RepositorySvelte from "./Repository.svelte"
     import RepoAdder from "./RepoAdder.svelte"
+    import Win from "./Win.svelte"
 
     import {Terminal} from "linux-browser-shell"
     import {Repository, GitBlob} from "./repository.ts"
@@ -36,6 +37,7 @@
     export let foregroundTerminal: Terminal
 
     let repos: Repository[] = []
+    let showDiploma = false
 
     let achievementTracker = new AchievementTracker(achievementCompleted)
     for (let achievement of Object.values(getAchievements())) {
@@ -324,6 +326,14 @@
     <StateIndicator {battle} on:textEntered={textEntered} />
 </div>
 
+{#if showDiploma}
+    <Win
+        on:closeDiploma={() => {
+            showDiploma = false
+        }}
+    />
+{/if}
+
 <div id="grid">
     <div id="repos">
         {#each repos as repo}
@@ -332,7 +342,12 @@
         <RepoAdder on:addRepo={addRepoEvent} />
     </div>
     <div id="log">
-        <Achievements tracker={achievementTracker} />
+        <Achievements
+            tracker={achievementTracker}
+            on:showDiploma={() => {
+                showDiploma = true
+            }}
+        />
     </div>
     <div id="screen">
         <TerminalSvelte terminal={foregroundTerminal} />
@@ -386,5 +401,15 @@
     #screen {
         flex: 1;
         overflow: auto;
+    }
+
+    #modal {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: blue;
+        z-index: 10;
     }
 </style>

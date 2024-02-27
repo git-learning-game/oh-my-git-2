@@ -1,6 +1,8 @@
 <script lang="ts">
     import {t} from "svelte-i18n-lingui"
     import {AchievementTracker} from "./achievements.ts"
+    import {createEventDispatcher} from "svelte"
+    const dispatch = createEventDispatcher()
 
     export let tracker: AchievementTracker
 
@@ -19,6 +21,13 @@
         {/each}
     </ul>
     <b><br />Total points: {points}</b>
+    {#if tracker.isComplete()}
+        <button
+            on:click={() => {
+                dispatch("showDiploma")
+            }}>Show Diploma</button
+        >
+    {/if}
 </div>
 
 <style>

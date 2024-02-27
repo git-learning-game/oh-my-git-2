@@ -1,8 +1,7 @@
 <script lang="ts">
     import {t} from "svelte-i18n-lingui"
-    import {Adventure} from "./cards.ts"
-    import Card from "./Card.svelte"
-    export let adventure: Adventure
+    import {createEventDispatcher} from "svelte"
+    const dispatch = createEventDispatcher()
 
     let date = new Date().toISOString().split("T")[0]
 
@@ -31,14 +30,6 @@
                 <li>🎩 {$t`Advanced Git magic`}</li>
             </ul>
             <br />
-            <p>
-                {$t`Game was finished with ${adventure.deck.length} cards in the deck:`}
-            </p>
-            <div id="cards">
-                {#each adventure.deck as card}
-                    <Card {card} />
-                {/each}
-            </div>
         </div>
         <div id="footer">
             <p>
@@ -46,8 +37,14 @@
                 {$t`Date: ${date}`}
             </p>
         </div>
+        <button id="print" on:click={print}>🖨️ {$t`Print`}</button>
+        <button
+            id="close"
+            on:click={() => {
+                dispatch("closeDiploma")
+            }}>X</button
+        >
     </div>
-    <button id="print" on:click={print}>🖨️ {$t`Print`}</button>
 </div>
 
 <style>
@@ -73,6 +70,7 @@
         box-shadow: 0 5px 5px rgba(0, 0, 0, 0.5);
         padding: 2em;
         background: white;
+        position: relative;
     }
 
     #header {
@@ -110,10 +108,22 @@
         width: 100%;
     }
     #print {
-        font-size: 200%;
+        font-size: 140%;
         position: absolute;
-        right: 1em;
-        top: 2em;
+        right: 0;
+        bottom: 0;
+        background-color: #900c3f;
+        margin-bottom: 0.5em;
+        color: white;
+    }
+    #close {
+        font-size: 140%;
+        position: absolute;
+        right: 0;
+        top: 0;
+        background-color: #900c3f;
+        margin-top: 0.5em;
+        color: white;
     }
     @media print {
         @page {
@@ -121,6 +131,12 @@
         }
         #print,
         :global(#lang-switch) {
+            display: none;
+        }
+        #diploma {
+            box-shadow: none;
+        }
+        #close {
             display: none;
         }
     }
