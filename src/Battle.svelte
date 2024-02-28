@@ -78,45 +78,41 @@
     let indexSlots: (CreatureCard | null)[]
 
     onMount(async () => {
-        const repoPath = "/tmp/default"
-        const remoteRepoPath = "/tmp/remote"
-
         repos = []
+
+        const repoPath = "/tmp/default"
         await addRepo(repoPath)
-        //await createRepo(remoteRepoPath, true)
-        await addRepo(remoteRepoPath)
-        //await createRepo(remoteRepoPath)
-        //await createRepo(remoteRepoPath)
+
+        //const remoteRepoPath = "/tmp/remote"
+        //await addRepo(remoteRepoPath)
 
         await backgroundTerminal.script([
             `cd ${repoPath}`,
             "git init",
-            "echo hi > fu",
-            "git add .",
-            "git commit -m 'Initial commit'",
+            //"echo hi > fu",
+            //"git add .",
+            //"git commit -m 'Initial commit'",
 
             //`git remote add origin ${remoteRepoPath}`,
             //"git push -u origin main",
 
-            "git config --global protocol.file.allow always",
-            `cd ${remoteRepoPath}`,
-            "git init",
-            "echo hehe > bar",
-            "git add .",
-            "git commit -m 'Initial commit in submodule'",
-            `cd ${repoPath}`,
-            `git submodule add ${remoteRepoPath}`,
-            "git add .",
-            "git commit -m 'Add submodule'",
+            //"git config --global protocol.file.allow always",
+            //`cd ${remoteRepoPath}`,
+            //"git init",
+            //"echo hehe > bar",
+            //"git add .",
+            //"git commit -m 'Initial commit in submodule'",
+            //`cd ${repoPath}`,
+            //`git submodule add ${remoteRepoPath}`,
+            //"git add .",
+            //"git commit -m 'Add submodule'",
         ])
 
-        await addRepo(remoteRepoPath + "/.git/modules/remote", true)
+        //await addRepo(remoteRepoPath + "/.git/modules/remote", true)
 
         repos = repos
 
-        //await this.putFile("/root/repo/.gitattributes", ["* merge=cardgame"])
-        //await this.putFile("/root/.gitignore", [".gitattributes"])
-        foregroundTerminal.send(`cd ${repoPath}\nclear\n`)
+        foregroundTerminal.send(`cd ${repoPath}\n`)
         foregroundTerminal.onUserCommand(() => {
             updateACoupleOfTimes()
         })
@@ -307,6 +303,7 @@
 
         repos.push(new Repository(path, backgroundTerminal, bare))
         repos = repos
+        updateACoupleOfTimes()
     }
 
     function addRepoEvent(e: CustomEvent) {

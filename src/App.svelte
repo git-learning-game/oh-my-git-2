@@ -48,42 +48,16 @@
     async function runGitConfigureCommands() {
         let backgroundTerminal = shell.getTerminal(0)
         await backgroundTerminal.putFile("~/.gitconfig", [
-            "[core]",
-            "    excludesfile = /root/.gitignore",
             "[init]",
             "    defaultBranch = main",
+            "[push]",
+            "    autoSetupRemote = true",
             "[user]",
             "    name = You",
             "    email = mail@example.com",
-            "[alias]",
-            "    graph = log --graph --pretty=oneline --abbrev-commit --all --decorate",
-            "    st = status",
-            "    take = checkout -b",
             "[color]",
-            "    ui = never",
-            '[merge "cardgame"]',
-            "    name = cardgame merge driver",
-            "    driver = /tmp/merge.sh %A %B",
+            "    ui = always",
         ])
-        await backgroundTerminal.putFile("/tmp/merge.sh", [
-            'CURRENT="$1"',
-            'OTHER="$2"',
-            "",
-            "function get_property() {",
-            '    grep "^$1:" "$2" | cut -d" " -f2',
-            "}",
-            "",
-            'ID=$(get_property id "$CURRENT")',
-            'HEALTH=$(($(get_property health "$CURRENT") + $(get_property health "$OTHER")))',
-            'ATTACK=$(($(get_property attack "$CURRENT") + $(get_property attack "$OTHER")))',
-            "",
-            'echo "id: $ID" > "$1"',
-            'echo "health: $HEALTH" >> "$1"',
-            'echo "attack: $ATTACK" >> "$1"',
-            "",
-            "exit 0",
-        ])
-        await backgroundTerminal.run("chmod +x /tmp/merge.sh")
     }
 
     function decisionMade(event: CustomEvent) {
