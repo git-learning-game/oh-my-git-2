@@ -8,7 +8,6 @@
     async function setLocale(lang: string) {
         const {messages} = await import(`./locales/${lang}.ts`)
         locale.set(lang, messages)
-        console.log("Language is being set to " + lang)
     }
 </script>
 
@@ -22,11 +21,13 @@
 
 <style>
     #lang-switch {
-        font-size: 150%;
+        font-size: 100%;
         z-index: 10;
+        margin: 0.5rem;
     }
     select {
         padding: 0.2em;
-        border-radius: 0.7em;
+        border-radius: 0.4em;
+        border-width: 0;
     }
 </style>

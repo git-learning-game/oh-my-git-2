@@ -1,6 +1,6 @@
 <script lang="ts">
     import {onMount} from "svelte"
-    import LanguageSwitcher from "./LanguageSwitcher.svelte"
+    import Menu from "./Menu.svelte"
     import DecisionSvelte from "./Decision.svelte"
     import BattleSvelte from "./Battle.svelte"
     import Path from "./Path.svelte"
@@ -106,7 +106,7 @@
     {#if loadingProgress < 100}
         <div id="progress"><span>{Math.round(loadingProgress)}%</span></div>
     {:else}
-        <div id="menu"><LanguageSwitcher /></div>
+        <Menu />
         {#if adventure}
             {#if adventure.state instanceof Battle}
                 <BattleSvelte
@@ -153,12 +153,5 @@
         align-items: center;
         font-size: 500%;
         color: white;
-    }
-    #menu {
-        background: grey;
-        display: flex;
-        align-items: center;
-        height: 3.5em;
-        gap: 1em;
     }
 </style>
