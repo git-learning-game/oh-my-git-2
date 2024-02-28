@@ -85,18 +85,19 @@
         const repoPath = "/tmp/default"
         await addRepo(repoPath)
 
-        //const remoteRepoPath = "/tmp/remote"
-        //await addRepo(remoteRepoPath)
+        const remoteRepoPath = "/tmp/hub"
+        await addRepo(remoteRepoPath, true)
 
         await backgroundTerminal.script([
             `cd ${repoPath}`,
             "git init",
-            //"echo hi > fu",
-            //"git add .",
-            //"git commit -m 'Initial commit'",
 
-            //`git remote add origin ${remoteRepoPath}`,
-            //"git push -u origin main",
+            "echo hi > fu",
+            "git add .",
+            "git commit -m 'Initial commit'",
+
+            `git remote add origin ${remoteRepoPath}`,
+            "git push -u origin main",
 
             //"git config --global protocol.file.allow always",
             //`cd ${remoteRepoPath}`,

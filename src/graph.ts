@@ -59,6 +59,120 @@ export class Graph {
             })
         }
 
+        enum Direction {
+            LEFT,
+            RIGHT,
+            UP,
+            DOWN,
+        }
+
+        let links: {source: GitNode; target: GitNode; label?: string}[] = []
+        let layoutLinkForce: any = function () {
+            for (let link of links) {
+                let f = 0.1
+                let wantsToPoint: Direction | undefined
+                if (link.source instanceof GitRef) {
+                    wantsToPoint = Direction.DOWN
+                }
+                if (link.source instanceof GitCommit) {
+                    if (link.target instanceof GitCommit) {
+                        wantsToPoint = Direction.LEFT
+                        f = 0.2
+                    } else if (link.target instanceof GitTree) {
+                        wantsToPoint = Direction.DOWN
+                    }
+                }
+                if (
+                    link.source instanceof WorkingDirectory ||
+                    link.source instanceof GitIndex
+                ) {
+                    wantsToPoint = Direction.UP
+                }
+                if (link.source instanceof GitTree) {
+                    wantsToPoint = Direction.DOWN
+                }
+
+                if (wantsToPoint === Direction.DOWN) {
+                    let dy = link.target.y! - link.source.y!
+                    if (dy < 50) {
+                        let strength = -(dy - 50) * f
+                        //link.source.y! -= strength
+                        link.target.y! += strength
+                    }
+                    let dx = link.target.x! - link.source.x!
+                    link.target.x! -= dx * f
+                    //link.source.x! += dx * f
+                }
+                if (wantsToPoint === Direction.UP) {
+                    let dy = link.target.y! - link.source.y!
+                    if (dy > -50) {
+                        let strength = (dy + 50) * f
+                        //link.source.y! += strength
+                        link.target.y! -= strength
+                    }
+                    let dx = link.target.x! - link.source.x!
+                    link.target.x! -= dx * f
+                    //link.source.x! += dx * f
+                }
+                if (wantsToPoint === Direction.RIGHT) {
+                    let dx = link.target.x! - link.source.x!
+                    if (dx < 50) {
+                        let strength = -(dx - 50) * f
+                        //link.source.x! -= strength
+                        link.target.x! += strength
+                    }
+                    let dy = link.target.y! - link.source.y!
+                    link.target.y! -= dy * f
+                    //link.source.y! += dy * f
+                }
+                if (wantsToPoint === Direction.LEFT) {
+                    let dx = link.target.x! - link.source.x!
+                    if (dx > -50) {
+                        let strength = (dx + 50) * f
+                        //link.source.x! += strength
+                        link.target.x! -= strength
+                    }
+                    let dy = link.target.y! - link.source.y!
+                    link.target.y! -= dy * f
+                    //link.source.y! += dy * f
+                }
+            }
+        }
+        layoutLinkForce.initialize = function (
+            newLinks: {source: GitNode; target: GitNode; label?: string}[],
+        ) {
+            links = newLinks
+        }
+
+        let nodes: GitNode[] = []
+        let layoutForce: any = function () {
+            /*let bandWidth = 100
+            let strength = 0.1
+            for (let node of nodes) {
+                let target_y = undefined
+                let dx = 0
+                if (node instanceof GitCommit) {
+                    target_y = 0
+                    for (let parent in (node as GitCommit).parents) {
+                        let current_dx = parent.x! - node.x!
+                        if (current_dx > 0) {
+                            dx += current_dx
+                        }
+                    }
+                } else if (node instanceof GitRef && node.id() == "HEAD") {
+                    target_y = -2 * bandWidth
+                } else if (node instanceof GitRef) {
+                    target_y = -bandWidth
+                }
+                if (target_y !== undefined) {
+                    node.y! += (target_y - node.y!) * strength
+                }
+            }*/
+        }
+        layoutForce.initialize = function (newNodes: GitNode[]) {
+            nodes = newNodes
+        }
+
         this.simulation = d3
             .forceSimulation()
             .force(
@@ -71,12 +185,14 @@ export class Graph {
                     }
                 }),
             )
-            .force("charge", d3.forceManyBody().strength(-100))
+            .force("charge", d3.forceManyBody().strength(-200))
+            .force("layoutForce", layoutForce)
+            .force("layoutLinkForce", layoutLinkForce)
             .force(
                 "center",
                 d3.forceCenter(width / 2, height / 2).strength(0.2),
-            ) /*
-            .force(
+            )
+            /*.force(
                 "x",
                 d3
                     .forceX(function (d) {
@@ -106,8 +222,8 @@ export class Graph {
                         }
                     }),
             )*/
-            //.force("cx", d3.forceX(width / 2).strength(0.01))
-            //.force("cy", d3.forceY(height / 2).strength(0.01))
+            .force("cx", d3.forceX(width / 2).strength(0.01))
+            .force("cy", d3.forceY(height / 2).strength(0.01))
             /*.force(
                 "commit-y",
                 d3.forceY(height / 2).strength((d) => {
@@ -280,6 +396,12 @@ export class Graph {
 
         let linkForce: any = this.simulation.force("link")
         linkForce.links(links)
+
+        let layoutForce: any = this.simulation.force("layoutForce")
+        layoutForce.initialize(nodes)
+
+        let layoutLinkForce: any = this.simulation.force("layoutLinkForce")
+        layoutLinkForce.initialize(links)
 
         this.nodeGroup = this.nodeGroup
             .data(nodes, (d) => d.id())
