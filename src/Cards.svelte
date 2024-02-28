@@ -24,37 +24,41 @@
 </script>
 
 <div id="wrapper">
-    <div class="group">
-        <div class="column-title">{$t`Working directory`}</div>
-        <div class="cards">
-            {#each workingDirectory as file}
-                <FileSvelte
-                    name={file.name}
-                    content={file.content}
-                    editable={true}
-                    on:dragover={(e) => e.preventDefault()}
-                    on:drop={(e) => drop(e, file)}
-                    on:click={(e) => clickFile(e, file)}
-                    on:edited
-                />
-            {/each}
+    {#if workingDirectory.length > 0}
+        <div class="group">
+            <div class="column-title">{$t`Working directory`}</div>
+            <div class="cards">
+                {#each workingDirectory as file}
+                    <FileSvelte
+                        name={file.name}
+                        content={file.content}
+                        editable={true}
+                        on:dragover={(e) => e.preventDefault()}
+                        on:drop={(e) => drop(e, file)}
+                        on:click={(e) => clickFile(e, file)}
+                        on:edited
+                    />
+                {/each}
+            </div>
         </div>
-    </div>
+    {/if}
 
-    <div class="group index">
-        <div class="column-title">{$t`Index`}</div>
-        <div class="cards">
-            {#each index as file}
-                <FileSvelte
-                    name={file.name}
-                    content={file.content}
-                    on:dragover={(e) => e.preventDefault()}
-                    on:drop={(e) => drop(e, file)}
-                    on:click={(e) => clickFile(e, file)}
-                />
-            {/each}
+    {#if index.length > 0}
+        <div class="group index">
+            <div class="column-title">{$t`Index`}</div>
+            <div class="cards">
+                {#each index as file}
+                    <FileSvelte
+                        name={file.name}
+                        content={file.content}
+                        on:dragover={(e) => e.preventDefault()}
+                        on:drop={(e) => drop(e, file)}
+                        on:click={(e) => clickFile(e, file)}
+                    />
+                {/each}
+            </div>
         </div>
-    </div>
+    {/if}
 </div>
 
 <style>

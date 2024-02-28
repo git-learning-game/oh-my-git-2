@@ -159,6 +159,9 @@ export class Reflog extends GitNode {
 export class Repository {
     path: string //absolute path
     terminal: Terminal
+
+    empty: boolean = true
+
     objects: {[key: ObjectID]: GitObject} = {}
     refs: {[key: string]: GitRef} = {}
     index: GitIndex = new GitIndex()
@@ -248,25 +251,31 @@ export class Repository {
         console.log(`cd ${this.path}`)
         await this.terminal.run(`cd ${this.path}`)
 
-        //if (!(await this.isAGitRepo())) {
-        //    return
-        //}
-
-        await this.time("refs", async () => await this.updateRefs())
-        await this.time("objects", async () => await this.updateGitObjects())
-        await this.time(
-            "specialrefs",
-            async () => await this.updateSpecialRefs(),
-        )
+        this.empty = !(await this.isAGitRepo())
 
         if (!this.bare) {
-            await this.time("index", async () => await this.updateIndex())
             await this.time(
                 "wd",
                 async () => await this.updateWorkingDirectory(),
             )
         }
-        //await this.time("reflog", async () => await this.updateReflogs())
+
+        if (!this.empty) {
+            await this.time("refs", async () => await this.updateRefs())
+            await this.time(
+                "objects",
+                async () => await this.updateGitObjects(),
+            )
+            await this.time(
+                "specialrefs",
+                async () => await this.updateSpecialRefs(),
+            )
+
+            if (!this.bare) {
+                await this.time("index", async () => await this.updateIndex())
+            }
+            //await this.time("reflog", async () => await this.updateReflogs())
+        }
 
         for (let t in this.timings) {
             //console.warn(`${t}: ${this.timings[t]}ms`)
@@ -277,7 +286,21 @@ export class Repository {
         console.log("just updated", this)
     }
 
-    //async isAGitRepo(): Promise<boolean> {}
+    async isAGitRepo(): Promise<boolean> {
+        if (this.bare) {
+            return (
+                (await this.terminal.run(
+                    "git rev-parse --is-bare-repository || true",
+                )) == "true"
+            )
+        } else {
+            return (
+                (await this.terminal.run(
+                    "git rev-parse --is-inside-work-tree || true",
+                )) == "true"
+            )
+        }
+    }
 
     removeDeletedNodes(): void {
         for (let o in this.objects) {
@@ -367,9 +390,10 @@ export class Repository {
         for (let line of lines) {
             let name = line.substr(2)
             if (name !== "") {
+                console.log("checking", name)
                 // Check if this file has already been hashed.
                 let oid = await this.terminal.run(`git hash-object "${name}"`)
-                if (this.resolve(oid) !== undefined) {
+                if (!this.empty && this.resolve(oid) !== undefined) {
                     // Yup!
                     this.workingDirectory.entries.push({name, oid})
                 } else {

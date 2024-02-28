@@ -19,31 +19,16 @@
         update()
     })
 
-    $: if (repo && graph) {
+    $: if (repo) {
         update()
     }
 
     async function update() {
-        graph.update()
+        if (graph) {
+            graph.update()
+        }
         updateFiles()
     }
-
-    /*async function update() {
-        if (graph) {
-            graph.setRefreshing(true)
-        }
-
-        await repo.update()
-        graph.update()
-
-        updateFiles()
-
-        repo = repo
-
-        if (graph) {
-            graph.setRefreshing(false)
-        }
-    }*/
 
     function updateFiles() {
         workingDirectory = []
@@ -91,14 +76,16 @@
         {repo.path}
         {#if repo.bare}(bare){/if}
     </div>
-    <div id="graph">
-        <Graph {repo} bind:this={graph} on:clickNode />
-    </div>
-    {#if !repo.bare}
-        <div id="cards">
-            <Cards {index} {workingDirectory} on:edited />
+    {#if repo.empty}
+        <div id="message">(not initialized)</div>
+    {:else}
+        <div id="graph">
+            <Graph {repo} bind:this={graph} on:clickNode />
         </div>
     {/if}
+    <div id="cards">
+        <Cards {index} {workingDirectory} on:edited />
+    </div>
     <div id="delete">
         <button on:click={() => dispatch("deleteRepo", repo)}>❌</button>
     </div>
@@ -121,6 +108,13 @@
     :global(#graph svg) {
         height: 100%;
         width: 100%;
+    }
+    #message {
+        flex: 1;
+        justify-self: center;
+        align-self: center;
+        text-align: center;
+        font-style: italic;
     }
     #cards {
         display: flex;
