@@ -1,4 +1,5 @@
 <script lang="ts">
+    import {onDestroy} from "svelte"
     import {Terminal} from "linux-browser-shell"
     let terminalDiv: HTMLDivElement
 
@@ -9,10 +10,8 @@
     }
 
     $: if (terminal && terminalDiv) {
-        //terminal.setKeyboardActive(false)
-        console.log("Attaching terminal")
         terminal.attach(terminalDiv)
-        let width = Math.min(Math.floor(terminalDiv.clientWidth / 27.2), 25)
+        let width = Math.floor(terminalDiv.clientWidth / 20)
         let height =
             Math.floor(
                 Math.max(
@@ -20,14 +19,17 @@
                     10,
                 ) / 2,
             ) * 2
-        // TODO meh hack
+        // TODO: hack...
         width = 21
         height = 50
-        console.warn("Resizing terminal")
         terminal.send(
-            `stty rows 20 cols 20\nstty rows ${width} cols ${height}\n`,
+            `stty rows 20 cols 20\nstty rows ${width} cols ${height}\n`,
         )
     }
+
+    onDestroy(() => {
+        terminal.dispose()
+    })
 
     function enable() {
         terminal.focus(true)
@@ -47,6 +49,10 @@
         width: 100%;
         height: 100%;
         background: black;
-        overflow: auto;
+        overflow: hidden;
+        display: flex;
+    }
+    #terminal {
+        flex: 1;
     }
 </style>
