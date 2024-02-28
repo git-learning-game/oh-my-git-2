@@ -44,6 +44,8 @@
         achievementTracker.add(achievement, 1)
     }
 
+    let refreshing = false
+
     let points = 0
 
     function achievementCompleted(achievement: Achievement) {
@@ -129,14 +131,13 @@
     async function update() {
         let beforeRepo = repos[0].clone()
 
-        // call r.update asynchronously for each repo, and wait for all to finish, one after the other
         for (let repo of repos) {
             await repo.update()
         }
 
-        console.log("updating done")
         repos = repos
         updateAchievements(beforeRepo)
+        refreshing = false
     }
 
     function updateAchievements(beforeRepo: Repository) {
@@ -181,6 +182,7 @@
     }
 
     function updateACoupleOfTimes() {
+        refreshing = true
         setTimeout(async () => {
             await update()
         }, 500)
@@ -355,6 +357,9 @@
             />
         {/each}
         <RepoAdder on:addRepo={addRepoEvent} />
+        {#if refreshing}
+            <div id="refreshing">Refreshing...</div>
+        {/if}
     </div>
     <div id="log">
         <Achievements
@@ -426,5 +431,14 @@
         left: 0;
         background-color: blue;
         z-index: 10;
+    }
+    #refreshing {
+        position: absolute;
+        left: 1em;
+        bottom: 1em;
+        padding: 1em;
+        border-radius: 1em;
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
     }
 </style>

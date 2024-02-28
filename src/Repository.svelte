@@ -24,9 +24,7 @@
     }
 
     async function update() {
-        if (graph) {
-            graph.update()
-        }
+        graph?.update()
         updateFiles()
     }
 

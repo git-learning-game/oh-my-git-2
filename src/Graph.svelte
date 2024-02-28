@@ -51,20 +51,12 @@
         }
     }
 
-    export let refreshing = false
-    export const setRefreshing = (newRefreshing: boolean) => {
-        refreshing = newRefreshing
-    }
-
     onMount(() => {
         createGraphIfPossible()
     })
 </script>
 
 <div id="graph" bind:this={graphDiv}>
-    {#if refreshing}
-        <div id="refreshing">Refreshing...</div>
-    {/if}
     <div id="options">
         <label>
             <input type="checkbox" bind:checked={showTreesAndBlobs} />
@@ -91,15 +83,6 @@
         height: 100%;
         width: 100%;
         font-family: Iosevka;
-    }
-    #refreshing {
-        position: absolute;
-        left: 1em;
-        bottom: 1em;
-        padding: 1em;
-        border-radius: 1em;
-        background-color: rgba(0, 0, 0, 0.5);
-        color: white;
     }
     #options {
         position: absolute;
