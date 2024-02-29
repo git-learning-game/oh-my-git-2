@@ -16,17 +16,18 @@
                 class:fullfilled={progress.progress >= progress.target}
                 class:peak={!progress.visible}
             >
-                {progress.achievement.description}: {progress.progress}/{progress.target}
+                {progress.achievement.description}
             </li>
         {/each}
     </ul>
-    <b><br />Total points: {points}</b>
     {#if tracker.isComplete()}
         <button
             on:click={() => {
                 dispatch("showDiploma")
             }}>Show Diploma</button
         >
+    {:else}
+        <br /><b>Complete all achievements to get your Git diploma!</b>
     {/if}
 </div>
 

@@ -49,7 +49,7 @@
     let points = 0
 
     function achievementCompleted(achievement: Achievement) {
-        updateAchievementVisibility()
+        //updateAchievementVisibility()
         //popup(`🏆 You completed an achievement: ${achievement.description}`)
     }
 
@@ -85,19 +85,19 @@
         const repoPath = "/tmp/default"
         await addRepo(repoPath)
 
-        const remoteRepoPath = "/tmp/hub"
-        await addRepo(remoteRepoPath, true)
+        //const remoteRepoPath = "/tmp/hub"
+        //await addRepo(remoteRepoPath, true)
 
         await backgroundTerminal.script([
             `cd ${repoPath}`,
             "git init",
 
-            "echo hi > fu",
-            "git add .",
-            "git commit -m 'Initial commit'",
+            //"echo hi > fu",
+            //"git add .",
+            //"git commit -m 'Initial commit'",
 
-            `git remote add origin ${remoteRepoPath}`,
-            "git push -u origin main",
+            //`git remote add origin ${remoteRepoPath}`,
+            //"git push -u origin main",
 
             //"git config --global protocol.file.allow always",
             //`cd ${remoteRepoPath}`,
@@ -157,7 +157,7 @@
     function alertNewAchievements(pointsAdded: number) {
         for (let catalog of getCardCatalogs()) {
             if (points >= catalog.cost && points - pointsAdded < catalog.cost) {
-                popup(`📔 You unlocked a new catalog: ${catalog.name}`)
+                //popup(`📔 You unlocked a new catalog: ${catalog.name}`)
             }
         }
     }

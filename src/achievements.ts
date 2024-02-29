@@ -42,7 +42,7 @@ export function getAchievements() {
             },
             [CardID.Remove],
         ),
-        /*COPY_FILE: new Achievement(
+        COPY_FILE: new Achievement(
             "Make copies of files",
             (b: Repository, a: Repository) => {
                 // Strategy: count how many files have identical copies in the working directory. In the after state, there must be more copies of identical content than before.
@@ -283,7 +283,6 @@ export function getAchievements() {
             },
             [CardID.Joker],
         ),
-        */
     }
 }
 
@@ -362,7 +361,7 @@ class AchievementProgress {
         public achievement: Achievement,
         public target: number,
         public progress: number,
-        public visible: boolean = false,
+        public visible: boolean = true,
     ) {}
 }
 

@@ -10,7 +10,7 @@
     </h2>
     <span class="filler"></span>
     <a href="https://github.com/git-learning-game/oh-my-git-2" _target="blank"
-        >Source</a
+        >GitHub</a
     >
     <LanguageSwitcher />
 </div>
